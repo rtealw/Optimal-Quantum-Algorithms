@@ -1,14 +1,18 @@
 \documentclass[review]{acmart}
+%acmtog if we're feeling a little funky ;)
 
-\usepackage{booktabs} % For formal tables
+\usepackage{booktabs, braket} % For formal tables
+\usepackage{cleveref}
 
 \settopmatter{printacmref=false} % Removes citation info after abstract
-\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference informat\textbf{}ion in first column
 \usepackage{fancyhdr}
+
+\DeclareMathOperator{\X}{\mathbb{X}}		     % expected value
  
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{Caplan \& Wazowski, Fall 2019}
+\lhead{Czekanski \& Witter, Fall 2019}
 \rfoot{\thepage}
 
 %\pagestyle{plain} % removes running headers
@@ -23,9 +27,11 @@
 
 \begin{document}
 
+
 % Title. 
 % If your title is long, consider \title[short title]{full title} - "short title" will be used for running heads.
-\title{Semi-definite Programs for Optimal Quantum Algorithms}
+\title{Implementation of a Semi-definite Program for Finding
+Optimal Quantum Query Complexity}
 
 % please leave the subtitle!
 \subtitle{CSCI 701 Final Project, Middlebury College, Fall 2019}
@@ -44,12 +50,14 @@
 % a couple of paragraphs describing your project
 \section*{Abstract}
 
-In this paper we aim to find optimal bounds for the run time of quantum algorithms. Using existing research to frame this problem as a semi-definite programming (SDP) problem.
+In this paper, we aim to find optimal bounds for the run time of
+quantum algorithms. We build on existing research to frame this 
+problem as a semi-definite programming (SDP) problem.
+We implement the SDP problem and test it on various Boolean functions.
 
 % the other sections
 \input{sec/1_introduction.tex}
-\input{sec/2_exposition.tex}
-\input{sec/2a_participants.tex}
+\input{sec/2_methodology.tex}
 \input{sec/3_results.tex}
 \input{sec/4_conclusions.tex}
 

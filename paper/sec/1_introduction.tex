@@ -1,6 +1,42 @@
 \section{Introduction}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce auctor accumsan nulla, vitae pharetra ipsum sagittis sit amet. \cite{Park:2006:DSI, notes2002} Donec ac metus consectetur, venenatis magna sit amet, viverra sapien. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus eleifend sem sit amet arcu congue tempus. Proin at iaculis orci. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. \cite{Pellacini:2005:LAH} Etiam feugiat dui sit amet ante pellentesque, sed malesuada libero ornare. Curabitur tempor ligula leo, in feugiat urna ornare luctus. Fusce quis metus sit amet neque sagittis elementum. Quisque facilisis quam quis tortor volutpat, et sodales urna efficitur.
 
-\input{fig/teapots.tex}
+We consider Boolean functions whose inputs
+are a binary string and whose outputs are a single bit.
+For example, let $f$ be the "or" function.
+Then $f$ takes as input $x \in \{0,1\}^n$ and outputs
+0 if $x$ contains no 1's and 0 otherwise.
+The semi-definite program we plan to implement
+takes a Boolean function--all $2^n$ inputs and outputs--
+and returns the least number of queries a quantum
+algorithm would need to solve the function.
+An algorithm performs a query every time it checks the value
+of an input.
+For example, a classical algorithm would need to check every
+bit in $x$ before concluding that no 1's are present.
+However, a quantum algorithm may use Grover's search
+to find a 1 in $\sqrt{n}$ queries.
 
-Duis sagittis massa odio, consequat ornare mauris imperdiet blandit. \cite{levoy:2000:TDM} Donec vel pulvinar nisl. Nam pretium vitae risus a consectetur. \cite{sako:2001:SSB, fedkiw:2001:VSO, Jobs95} Vestibulum efficitur auctor mauris. Vestibulum nec orci suscipit, faucibus mauris vel, elementum dolor. Phasellus ornare est id commodo cursus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec iaculis enim urna, vitae tincidunt est dictum id. Suspendisse lobortis justo id enim ornare euismod. Fusce quis turpis rhoncus, laoreet lorem eu, porttitor enim. \cite{kartch:2000:ERA, yee:2000:SSA, parke:1996:CFA} Etiam eget tempus velit. Duis iaculis id eros et mollis. Pellentesque non magna a massa rhoncus gravida id eget ex. Donec magna risus, posuere eu velit sit amet, tincidunt cursus leo. Curabitur non ultricies turpis, at sodales sapien.
+We store our coding implementation and work at
+\url{https://github.com/rtealw/Optimal-Quantum-Algorithms}.
+
+\cite{beigi2018span} provide an excellent introduction to SDPs
+and explain the relationship between SDPs and quantum query complexity.
+\cite{reichardt2009span} gives an alternate formulation of the SDP
+we will be working with.
+\cite{boyd2004convex} is the authoritative text on convex optimization
+and semi-definite programming.
+The first steps of our work include reformulating the SDP in terms
+of more standard convex optimization algorithms and then implementing
+our algorithm.
+Given the exponential nature of the storage and computation of the
+SDP, we hope to exploit some structure in the problem.
+
+It has been shown that obtaining optimal bounds of
+quantum query complexity can be reformulated as a
+semidefinite programming problem. However, it seems that
+the literature is still lacking and implementation of an
+SDP solver that leverages the unique structure found in
+these problems. We hope to improve on existing approaches
+to solving these convex optimization problems while
+creating a more thorough understanding of these
+algorithms.
