@@ -9,30 +9,50 @@ $f_{\text{bound}}$ represents the optimal bound for the function
 $f$ with the input size $n$.
 Let $F$ be the set of $(y,z)$ such that $f(y) \neq f(z)$.
 We then define this optimization problem as:
-\begin{align}
+\begin{align} \label{Eq:reichardtObj}
     M(\X) = \max_{y \in D} \sum_{j \in [n]}
-    \bra{y,j}\X\ket{y,j} \nonumber
+    \bra{y,j}\X\ket{y,j} 
 \end{align}
 subject to
 \begin{align}\label{Eq:semi1}
-    \X \succcurlyeq 0
+    \X \succcurlyeq 0 
 \end{align}
 and
 \begin{align}\label{Eq:off-diag}
     \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
-    \bra{y,j} \X \ket{z, j} = 1. 
+    \bra{y,j} \X \ket{z, j} = 1.  
 \end{align}
 
-where we aim to minimize the value of $M$ by finding the optimal value
-of $\X$. To make use of Boyd's classic book on convex 
-optimization \cite{boyd2004convex} we can then reform this 
-problem into classic semi-definite programming form:
+where we aim to minimize the value of $M$ by finding the optimal value of $\X$.
+
+To be clear, we illustrate the operations used in these definitions. Consider equation \cref{Eq:reichardtObj}, observing that $\mathbb{X}$ is a $n2^n$ x $n2^n$ matrix because there are $2^n$ possible inputs, each of length $n$. Now represent $\mathbb{X}$ as containing chunks of size $n$ x $n$, where each chunk corresponds to an element of $D$ x $D$. Below we again consider the OR function with one bit inputs.
+
 \begin{align}
-    M(\X) = tr(C\X) \nonumber
+   X = \left[ \begin{matrix}
+   \left[ \begin{matrix} (0,0)\end{matrix} \right] & \left[
+   \begin{matrix} (0,1)\end{matrix} \right] \\ \\
+   \left[ \begin{matrix} (1,0)\end{matrix} \right] & \left[
+   \begin{matrix} (1,1)\end{matrix} \right] \\
+    \end{matrix} \right]
+\end{align}
+
+Our objective function (eq. \cref{Eq:reichardtObj}) is
+the maximum trace of the diagonal sub-matrices. The
+first constraint is that $\mathcal{X}$ is positive
+semi-definite. The final constraint states that the
+trace of each sub-matrix, for sub-matrices that
+correspond to two inputs with different outputs (e.g.,
+(0,1) and (1,0)), must sum to one, only considering
+elements along the diagonal that correspond to bits in
+the two input strings that differ. 
+
+Given this non-traditional formation of the semi-definite programming problem, we must first convert the problem into an equivalent problem in standard form as defined by Boyd \cite{boyd2004convex}:
+\begin{align}
+    M(\X) = tr(C\X) 
 \end{align}
 subject to
 \begin{align}\label{Eq:semi2}
-    \X \succcurlyeq 0  
+    \X \succcurlyeq 0   
 \end{align}
 and for $i \in \{1,...,|F|\}$
 \begin{align}\label{Eq:trace}
@@ -41,9 +61,11 @@ and for $i \in \{1,...,|F|\}$
 
 
 To make these two problems equivalent we first note that
-conditions \cref{Eq:semi1} and \cref{Eq:semi2} are equivalent.
+conditions \cref{Eq:semi1} and \cref{Eq:semi2} are
+equivalent.
 To equate conditions \cref{Eq:off-diag}
-and \cref{Eq:trace}, we must define the set of matrices $A_i$ and
+and \cref{Eq:trace}, we must define the set of matrices
+$A_i$ and
 scalars $b_i$. Naturally, the value of $b_i$ shall be $1$
 from \cref{Eq:off-diag}.
 Observe that the sum in condition \cref{Eq:off-diag}
@@ -55,11 +77,13 @@ to sum onto the diagonal.
 Therefore the trace of this new matrix $A_i \X$ 
 will be equal to the sum in \cref{Eq:off-diag}.
 
-We will then take our original $\X$ and define a new $\mathcal{X}$:
+We will then take our original $\X$ and define a new
+$\mathcal{X}$:
 \begin{equation}
     \mathcal{X} = \left[\begin{matrix}\X \cdots 0 \\
                                 \vdots \ddots \vdots \\
-                                0 \cdots z  \end{matrix} \right]  \nonumber
+                                0 \cdots z  \end{matrix}
+                                \right]  
 \end{equation}
 
 \qquad Once given a function $f$ and all possible inputs to the
