@@ -1,14 +1,15 @@
 \section{Introduction}
 
-We consider Boolean functions whose inputs
+We consider Boolean functions where inputs
 are a binary string and whose outputs are a single bit.
 For example, let $f$ be the "or" function.
 Then $f$ takes as input $x \in \{0,1\}^n$ and outputs
 0 if $x$ contains no 1's and 0 otherwise.
 The semi-definite program we plan to implement
-takes a Boolean function--all $2^n$ inputs and outputs--
-and returns the least number of queries a quantum
-algorithm would need to solve the function.
+takes a Boolean function and a number $n$, which is the
+length of the input bit strings, and returns the most
+number of queries the optimal quantum
+algorithm would need to evaluate the function.
 An algorithm performs a query every time it checks the value
 of an input.
 For example, a classical algorithm would need to check every
@@ -16,25 +17,21 @@ bit in $x$ before concluding that no 1's are present.
 However, a quantum algorithm may use Grover's search
 to find a 1 in $\sqrt{n}$ queries.
 
-We store our coding implementation and work at
-\url{https://github.com/rtealw/Optimal-Quantum-Algorithms}.
-
-\cite{beigi2018span} provide an excellent introduction to SDPs
-and explain the relationship between SDPs and quantum query complexity.
-\cite{reichardt2009span} gives an alternate formulation of the SDP
-we will be working with.
-\cite{boyd2004convex} is the authoritative text on convex optimization
-and semi-definite programming.
-The first steps of our work include reformulating the SDP in terms
-of more standard convex optimization algorithms and then implementing
-our algorithm.
-Given the exponential nature of the storage and computation of the
+There currently exists a robust literature regarding the
+optimal adversary bound of quantum query complexity as
+the solution to a semi-definite programming problem
+\cite{beigi2018span}. This formulation is available in
+prior research and we consider this axiomatically,
+leaving this proof to the reader. The form we assume for
+this problem is provided by Reichardt
+\cite{reichardt2009span}. We then reformulate the problem
+to conform to the standard semi-definite programming form
+as defined by Boyd \cite{boyd2004convex}. Given the
+exponential nature of the storage and computation of the
 SDP, we hope to exploit some structure in the problem.
 
-It has been shown that obtaining optimal bounds of
-quantum query complexity can be reformulated as a
-semidefinite programming problem. However, it seems that
-the literature is still lacking and implementation of an
+It seems that the literature is still lacking and
+implementation of an
 SDP solver that leverages the unique structure found in
 these problems. We hope to improve on existing approaches
 to solving these convex optimization problems while
