@@ -1,6 +1,7 @@
 import numpy as np
 #from cvxopt import matrix
 #from ubsdp import ubsdp
+from adm import solveSDP
 
 D = ['00','01','10'] # inputs to Boolean function f
 E = ['0', '1', '1']  # corresponding outputs to f
@@ -64,6 +65,8 @@ bs = np.concatenate((b_1s, b_0s), axis=0)
 
 C = np.zeros((dimension, dimension))
 C[dimension - 1, dimension - 1] = 1
+
+solveSDP(As, bs, C)
 
 #bs = matrix(bs)
 #As = matrix(As)

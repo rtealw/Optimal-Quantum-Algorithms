@@ -13,43 +13,36 @@
 #           = C - A_curly_star(y(k+1)) - mu X
 
 import numpy as np
-#import np.linalg.inv as inverse
+import numpy.linalg as LA
 
-As = [[],[]]
-As[0] = np.matrix([[1,2],[3,4]])
-As[1] = np.matrix([[5,6],[7,8]])
+#As = [[],[]]
+#As[0] = np.matrix([[1,2],[3,4]])
+#As[1] = np.matrix([[5,6],[7,8]])
 
 def vec(X):
-    return X.ravel().T
+    return np.matrix(X.ravel()).T
 
 def mat(x):
     dimension = int(np.sqrt(len(x)))
     return x.reshape((dimension, dimension))
 
-# test mat
-X = As[0]
-
 def plainA(As):
     A = vec(As[0])
     for i in range(1,len(As)):
-        A = np.vstack((A, vec(As[i])))
+        A = np.hstack((A, vec(As[i])))
     return A.T
-
-# test plainA
-A = plainA(As)
 
 def scriptA(As, X):
     result = []
     for matA in As:
         product = np.matmul(matA, X)
         result.append(np.trace(product))
-    return np.array(result)
-
-# test scriptA
-X = np.eye(2)
-scriptA(As, X)
+#    print(np.array(result))
+    return np.matrix(result).T
 
 def scriptAStar(A, y):
+#    print(A.shape)
+#    print(y.shape)
     return mat(np.matmul(A.T, y))
 
 # test scriptAStar
@@ -61,11 +54,8 @@ def scriptAStar(A, y):
 def nextY(S, X, As, C, b, mu):
     A = plainA(As)
     matrixPart = -1 * np.linalg.pinv(np.matmul(A, A.T))
-    vectorPart = mu * (scriptA(As, X) - b) + scriptA(As, S - C)
+    vectorPart = mu * (scriptA(As, X) + -1 * b) + scriptA(As, S - C)
     return np.matmul(matrixPart, vectorPart)
-
-S = np.eye(np.shape(As[0])[0])
-X = np.eye(np.shape(As[0])[0])
 
 def decomposeV(V):
     eigVals, Q = np.linalg.eig(V)  #
@@ -94,7 +84,8 @@ def decomposeV(V):
     
     return((sigmaPlus, sigmaMinus), (Qplus, Qminus))
 
-def nextV(C, A, mu, X, y):
+def nextV(C, As, mu, X, y):
+    A = plainA(As)
     return C - scriptAStar(A, y) - mu * X
 
 # spectral decomposition
@@ -112,8 +103,11 @@ def nextX(mu, S, V):
     return 1/mu *(S - V)
 
 #run this script, then run setup and proceed to the code below.
-mu = 1
-X = np.eye(np.shape(As[0])[0])
-S = np.eye(np.shape(As[0])[0])
-for i in range(100):
-    y = nextY(S, X, As, C, bs, mu)
+def solveSDP(As, b, C):
+    mu = 1
+    S = np.eye(np.shape(As[0])[0])
+    X = np.eye(np.shape(As[0])[0])
+    for i in range(1):
+        y = nextY(S, X, As, C, b, mu)
+        print(y)
+#        V = nextV(C, As, mu, X, y)
