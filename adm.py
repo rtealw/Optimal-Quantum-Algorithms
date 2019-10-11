@@ -12,11 +12,6 @@
 # = V(S, X) = C - A_curly_star(y(S,X)) - mu X
 #           = C - A_curly_star(y(k+1)) - mu X
 
-# S(k+1)
-# = V_dag(k+1) = Q_dag sum Q_dag tranpose
-# where Q sum Q tranpose
-# (Q_dag Q_double_dag)((sum_plus, 0), (0, sum_minus)) (Q_dag tranpose, Q_double_dag tranpose)
-
 import numpy as np
 import np.linalg.inv as inverse
 
@@ -71,4 +66,19 @@ def nextY(S, X, As, C, b, mu):
 
 S = np.eye(np.shape(As[0]))
 X = np.eye(np.shape(As[0]))
+
+def nextV(C, A, mu, X, y):
+    return C - scriptAStar(A, y) - mu * X
+
+# spectral decomposition
+# S(k+1)
+# = V_dag(k+1) = Q_dag sum Q_dag tranpose
+# where Q sum Q tranpose
+# (Q_dag Q_double_dag)((sum_plus, 0), (0, sum_minus)) (Q_dag tranpose, Q_double_dag tranpose)
+def nextS():
+    return
+
+
+def nextX(mu, S, V):
+    return 1/mu *(S - V)
 
