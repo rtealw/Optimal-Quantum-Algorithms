@@ -1,6 +1,6 @@
 import numpy as np
-from cvxopt import matrix
-from ubsdp import ubsdp
+#from cvxopt import matrix
+#from ubsdp import ubsdp
 
 D = ['00','01','10'] # inputs to Boolean function f
 E = ['0', '1', '1']  # corresponding outputs to f
@@ -32,10 +32,10 @@ for (y,z) in F:
         xcoord += 1
         ycoord += 1
     A_1s.append(A_1)
-    if not is_set:
-        As = A_1
-        is_set = True
-    As = np.concatenate((As, A_1), axis=0)
+    #if not is_set:
+    #    As = A_1
+    #    is_set = True
+    #As = np.concatenate((As, A_1), axis=0)
 #    print(A_1)
 
 b_0s = np.zeros((len(D), 1)) # vector of 0s
@@ -53,9 +53,11 @@ for i in range(len(D)):
     A_0[dimension-1, dimension-1] = -1
     A_0s.append(A_0)
     slack_starter += 1
-    As = np.concatenate((As, A_0), axis=0)
+    #As = np.concatenate((As, A_0), axis=0)
 #    print(A_0)
 
+A_0s.extend(A_1s)
+As = A_0s
 bs = np.concatenate((b_1s, b_0s), axis=0)
 #print(bs)
 #print(As)
@@ -63,9 +65,9 @@ bs = np.concatenate((b_1s, b_0s), axis=0)
 C = np.zeros((dimension, dimension))
 C[dimension - 1, dimension - 1] = 1
 
-bs = matrix(bs)
-As = matrix(As)
-C = matrix(C)
-print(As.size)
-print(As)
-X = ubsdp(bs, As, C)
+#bs = matrix(bs)
+#As = matrix(As)
+#C = matrix(C)
+#print(As.size)
+#print(As)
+#X = ubsdp(bs, As, C)

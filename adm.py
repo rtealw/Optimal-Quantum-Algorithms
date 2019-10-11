@@ -13,7 +13,7 @@
 #           = C - A_curly_star(y(k+1)) - mu X
 
 import numpy as np
-import np.linalg.inv as inverse
+#import np.linalg.inv as inverse
 
 As = [[],[]]
 As[0] = np.matrix([[1,2],[3,4]])
@@ -32,7 +32,7 @@ X = As[0]
 def plainA(As):
     A = vec(As[0])
     for i in range(1,len(As)):
-        A = np.hstack((A, vec(As[i])))
+        A = np.vstack((A, vec(As[i])))
     return A.T
 
 # test plainA
@@ -60,12 +60,39 @@ def scriptAStar(A, y):
 
 def nextY(S, X, As, C, b, mu):
     A = plainA(As)
-    matrixPart = -1 * inverse(np.matmul(A, A.T))
+    matrixPart = -1 * np.linalg.pinv(np.matmul(A, A.T))
     vectorPart = mu * (scriptA(As, X) - b) + scriptA(As, S - C)
     return np.matmul(matrixPart, vectorPart)
 
-S = np.eye(np.shape(As[0]))
-X = np.eye(np.shape(As[0]))
+S = np.eye(np.shape(As[0])[0])
+X = np.eye(np.shape(As[0])[0])
+
+def decomposeV(V):
+    eigVals, Q = np.linalg.eig(V)  #
+    ordering = (-eigVals).argsort() # puts indices in the descending order
+    
+    
+    #sigma = np.diag(eigVals) #creates a big matrix sigma
+ 
+    # to make sure our notation is correct 
+    # we need to ensure that we have sigma+, sigma-
+    sigma = np.diag(eigVals[ordering])
+    Q = Q[:, ordering] 
+    
+    # assert that the decomposition worked and we can reproduce V
+    assert (Q.dot(sigma).dot(Q.T) == V).all() 
+    
+    nNonNeg = sum(eigVals >= 0) #number of non-negative eigenvalues
+    
+    sigmaPlus = sigma[:nNonNeg, :nNonNeg]
+    sigmaMinus = sigma[nNonNeg+1:, nNonNeg+1:]
+    
+    #Q dagger
+    Qplus = Q[:, :nNonNeg] #get columns corresponding to positive eigenvalues
+    #Q double dagger    
+    Qminus = Q[:, nNonNeg+1:] #get columns corresponding to positive eigenvalues
+    
+    return((sigmaPlus, sigmaMinus), (Qplus, Qminus))
 
 def nextV(C, A, mu, X, y):
     return C - scriptAStar(A, y) - mu * X
@@ -75,10 +102,18 @@ def nextV(C, A, mu, X, y):
 # = V_dag(k+1) = Q_dag sum Q_dag tranpose
 # where Q sum Q tranpose
 # (Q_dag Q_double_dag)((sum_plus, 0), (0, sum_minus)) (Q_dag tranpose, Q_double_dag tranpose)
-def nextS():
-    return
+def nextS(V):
+    sigmas, Qs = decomposeV(V)
+    stepOne = np.matmul(Qs[0], sigmas[0])
+    return np.matmul(stepOne, Qs[0].T)
 
 
 def nextX(mu, S, V):
     return 1/mu *(S - V)
 
+#run this script, then run setup and proceed to the code below.
+mu = 1
+X = np.eye(np.shape(As[0])[0])
+S = np.eye(np.shape(As[0])[0])
+for i in range(100):
+    y = nextY(S, X, As, C, bs, mu)
