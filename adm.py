@@ -35,7 +35,7 @@ def plainA(As):
 def scriptA(As, X):
     result = []
     for matA in As:
-        product = np.matmul(matA, X)
+        product = np.matmul(matA.T, X)
         result.append(np.trace(product))
 #    print(np.array(result))
     return np.matrix(result).T
@@ -52,7 +52,7 @@ def scriptAStar(A, y):
 #              (mu (scriptA(X) - b) + scriptA(S - C))
 
 def nextY(S, X, As, C, b, mu):
-    A = plainA(As)
+    A = plainA(As=As)
     matrixPart = -1 * np.linalg.pinv(np.matmul(A, A.T))
     vectorPart = mu * (scriptA(As, X) + -1 * b) + scriptA(As, S - C)
     return np.matmul(matrixPart, vectorPart)
@@ -61,32 +61,36 @@ def decomposeV(V):
     eigVals, Q = np.linalg.eig(V)  #
     ordering = (-eigVals).argsort() # puts indices in the descending order
     
-    
     #sigma = np.diag(eigVals) #creates a big matrix sigma
  
     # to make sure our notation is correct 
     # we need to ensure that we have sigma+, sigma-
+    sigma_unordered = np.diag(eigVals)
+    primeV = Q.dot(sigma_unordered).dot(Q.T)
+#    np.testing.assert_allclose(primeV, V, atol=1)
+    assert primeV.shape == V.shape
+ 
     sigma = np.diag(eigVals[ordering])
     Q = Q[:, ordering] 
     
     # assert that the decomposition worked and we can reproduce V
-    assert (Q.dot(sigma).dot(Q.T) == V).all() 
-    
+
+   
     nNonNeg = sum(eigVals >= 0) #number of non-negative eigenvalues
     
     sigmaPlus = sigma[:nNonNeg, :nNonNeg]
-    sigmaMinus = sigma[nNonNeg+1:, nNonNeg+1:]
-    
+    sigmaMinus = sigma[nNonNeg:, nNonNeg:]
+   
     #Q dagger
     Qplus = Q[:, :nNonNeg] #get columns corresponding to positive eigenvalues
     #Q double dagger    
-    Qminus = Q[:, nNonNeg+1:] #get columns corresponding to positive eigenvalues
-    
-    return((sigmaPlus, sigmaMinus), (Qplus, Qminus))
+    Qminus = Q[:, nNonNeg:] #get columns corresponding to positive eigenvalues
+
+    return sigmaPlus, sigmaMinus, Qplus, Qminus
 
 def nextV(C, As, mu, X, y):
-    A = plainA(As)
-    return C - scriptAStar(A, y) - mu * X
+    A = plainA(As = As)
+    return C - scriptAStar(A=A, y=y) - mu * X
 
 # spectral decomposition
 # S(k+1)
@@ -94,20 +98,35 @@ def nextV(C, As, mu, X, y):
 # where Q sum Q tranpose
 # (Q_dag Q_double_dag)((sum_plus, 0), (0, sum_minus)) (Q_dag tranpose, Q_double_dag tranpose)
 def nextS(V):
-    sigmas, Qs = decomposeV(V)
-    stepOne = np.matmul(Qs[0], sigmas[0])
-    return np.matmul(stepOne, Qs[0].T)
-
+    sigmaPlus, sigmaMinus, Qplus, Qminus = decomposeV(V)
+    stepOne = np.matmul(Qplus, sigmaPlus)
+    return np.matmul(stepOne, Qplus.T)
 
 def nextX(mu, S, V):
     return 1/mu *(S - V)
 
 #run this script, then run setup and proceed to the code below.
-def solveSDP(As, b, C):
+def solveSDP(As, b, C, iterations):
     mu = 1
-    S = np.eye(np.shape(As[0])[0])
-    X = np.eye(np.shape(As[0])[0])
-    for i in range(1):
-        y = nextY(S, X, As, C, b, mu)
-        print(y)
-#        V = nextV(C, As, mu, X, y)
+    rho = .5
+    initial_shape = np.shape(As[0])[0]
+    S = np.eye(initial_shape)
+    X = np.zeros((initial_shape, initial_shape)) #np.eye(np.shape(As[0])[0])
+    for i in range(iterations):
+        y = nextY(S=S, X=X, As=As, C=C, b=b, mu=mu)
+        V = nextV(C=C, As=As, mu=mu, X=X, y=y)
+#        print("V")
+#        print(V)
+        S = nextS(V)
+#        print("S")
+#        print(S)
+        primeX = nextX(mu=mu, S=S, V=V)
+        X = (1-rho)*X + rho * primeX
+#        print("X")
+#        print(X)
+#        print("S times X")
+#        print(np.matmul(S, X))
+        #print("i: {}".format(i+1))
+        #print("obj func: {}".format(np.trace(np.matmul(C.T, X))))
+        #print(scriptA(As, X))
+    return X
