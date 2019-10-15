@@ -2,51 +2,59 @@
 
 Consider the function $f: D \rightarrow E$ where $D
 \subseteq {\{0,1\}}^n$ and $E \subset {0,1}$. We aim to find an
-optimal bound on quantum query complexity using semi-definite
-programming. Using existing research
-\cite{reichardt2009span} we can formulate the problem as below, where
+optimal bound on quantum query complexity using semidefinite
+programming. From previous work,
+we can formulate the problem as in \cref{eq:reichardtObj} where
 $f_{\text{bound}}$ represents the optimal bound for the function
-$f$ with the input size $n$.
+$f$ with the input size $n$ \cite{reichardt2009span}.
 Let $F$ be the set of $(y,z)$ such that $f(y) \neq f(z)$.
-We then define this optimization problem as:
-\begin{align} \label{Eq:reichardtObj}
-    M(\X) = \max_{y \in D} \sum_{j \in [n]}
+Then the objective function of the SDP is
+\begin{align} \label{eq:reichardtObj}
+    f_{\text{bound}} = M(\X) = \max_{y \in D} \sum_{j \in [n]}
     \bra{y,j}\X\ket{y,j} 
 \end{align}
-subject to
+subject to constraints
 \begin{align}\label{Eq:semi1}
     \X \succcurlyeq 0 
 \end{align}
 and
 \begin{align}\label{Eq:off-diag}
     \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
-    \bra{y,j} \X \ket{z, j} = 1.  
+    \bra{y,j} \X \ket{z, j} = 1.
 \end{align}
+Our goal is to minimize $M$ by finding the optimal value of $\X$.
 
-where we aim to minimize the value of $M$ by finding the optimal value of $\X$.
-
-To be clear, we illustrate the operations used in these definitions. Consider equation \cref{Eq:reichardtObj}, observing that $\mathbb{X}$ is a $n2^n$ x $n2^n$ matrix because there are $2^n$ possible inputs, each of length $n$. Now represent $\mathbb{X}$ as containing chunks of size $n$ x $n$, where each chunk corresponds to an element of $D$ x $D$. Below we again consider the OR function with one bit inputs.
-
+We illustrate the matrices in the SDP definition.
+Observe that $\X$ is a $n2^n \times n2^n$ matrix 
+because there are $2^n$ possible inputs each of length $n$. 
+Think of $\X$ as containing chunks of size 
+$n \times n$ where each chunk corresponds to an element of $D$. % x $D$.
+Below we consider $\X$ of the OR function with one bit inputs,
 \begin{align}
-   X = \left[ \begin{matrix}
-   \left[ \begin{matrix} (0,0)\end{matrix} \right] & \left[
-   \begin{matrix} (0,1)\end{matrix} \right] \\ \\
-   \left[ \begin{matrix} (1,0)\end{matrix} \right] & \left[
-   \begin{matrix} (1,1)\end{matrix} \right] \\
-    \end{matrix} \right]
+    \X = \left[
+    \begin{matrix}
+        1 & 1 \\
+        1 & 1
+    \end{matrix}
+    \right]
 \end{align}
+%\begin{align}
+%   X = \left[ \begin{matrix}
+%   \left[ \begin{matrix} (0,0)\end{matrix} \right] & \left[
+%   \begin{matrix} (0,1)\end{matrix} \right] \\ \\
+%   \left[ \begin{matrix} (1,0)\end{matrix} \right] & \left[
+%   \begin{matrix} (1,1)\end{matrix} \right] \\
+%    \end{matrix} \right]
+%\end{align}
 
-Our objective function (eq. \cref{Eq:reichardtObj}) is
+Our objective function \cref{eq:reichardtObj} is
 the maximum trace of the diagonal sub-matrices. The
-first constraint is that $\mathcal{X}$ is positive
-semi-definite. The final constraint states that the
-trace of each sub-matrix, for sub-matrices that
-correspond to two inputs with different outputs (e.g.,
-(0,1) and (1,0)), must sum to one, only considering
-elements along the diagonal that correspond to bits in
-the two input strings that differ. 
+first constraint \cref{semi1} is that $\X$ is positive
+semidefinite. The final constraint \cref{semi2} states that
+diagonal entries where the input bits differ
+of each sub-matrix where the Boolean outputs are not equal must sum to one.
 
-Given this non-traditional formation of the semi-definite programming problem, we must first convert the problem into an equivalent problem in standard form as defined by Boyd \cite{boyd2004convex}:
+Given this non-traditional formation of the semidefinite programming problem, we first convert the problem into an equivalent problem in standard form as defined by Boyd \cite{boyd2004convex}:
 \begin{align}
     M(\X) = tr(C\X) 
 \end{align}
@@ -56,37 +64,98 @@ subject to
 \end{align}
 and for $i \in \{1,...,|F|\}$
 \begin{align}\label{Eq:trace}
-    tr(A_i \X) = b_i. 
+    \tr(A_i \X) = b_i. 
 \end{align}
 
 
 To make these two problems equivalent we first note that
 conditions \cref{Eq:semi1} and \cref{Eq:semi2} are
-equivalent.
+the same.
 To equate conditions \cref{Eq:off-diag}
-and \cref{Eq:trace}, we must define the set of matrices
+and \cref{Eq:trace}, we define the set of matrices
 $A_i$ and
-scalars $b_i$. Naturally, the value of $b_i$ shall be $1$
+scalars $b_i$.
+Naturally, the value of $b_i$ shall be $1$
 from \cref{Eq:off-diag}.
 Observe that the sum in condition \cref{Eq:off-diag}
 iterates through a portion of the matrix $\X$ diagonally.
 Thus we can define a set of matrices where the matrix 
-$A_i$ contains only ones and zeros
+$A_i$ contains only 1s and 0s 
 such that $A_i \X$ puts the off-diagonal values we want
 to sum onto the diagonal.
 Therefore the trace of this new matrix $A_i \X$ 
 will be equal to the sum in \cref{Eq:off-diag}.
 
-We will then take our original $\X$ and define a new
+For example, consider a matrix $X$ where
+\begin{align}
+    X = \left[ \begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix} \right] \nonumber
+\end{align}
+and suppose we want to put the top right value $2$ on the diagonal.
+We could define $A$ as below:
+
+\begin{align}
+    A = \left[ \begin{matrix} 0 & 0 \\ 1 & 0 \end{matrix} \right] \nonumber
+\end{align}
+
+Therefore,
+\begin{align}
+    A \cdot X = \left[ \begin{matrix} 2 & 0 \\ 4 & 0 \end{matrix} \right] \nonumber
+\end{align}
+and subsequently,
+\begin{align}
+    \tr(A \cdot X) = 2. \nonumber
+\end{align}
+
+Through a similar construction we can build a set of matrices 
+$A_i$ for each element of $F$ such that setting $b_i = 1$ 
+creates an equivalent constraint to \cref{Eq:off-diag}.
+Having now created $A_i$ and $b_i$ for $i = 1,2,...,
+|F|$, we have defined constraints equivalent to eq.
+\ref{Eq:semi1} and eq. \ref{Eq:off-diag} thus creating
+a SDP constraints in Boyd's form that are equivalent to
+Reichardt's form.
+We now turn our attention to the objective function.
+
+We take our original $\X$ and define a new
 $\mathcal{X}$:
 \begin{equation}
-    \mathcal{X} = \left[\begin{matrix}\X \cdots 0 \\
+    \mathcal{X} = \left[\begin{matrix} \X \cdots \cdots 0 \\
                                 \vdots \ddots \vdots \\
-                                0 \cdots z  \end{matrix}
+                                0 \cdots \cdots z  \end{matrix}
                                 \right]  
 \end{equation}
 
-\qquad Once given a function $f$ and all possible inputs to the
+It is important to note that in this construction of $\mathcal{X}$,
+\begin{equation}
+    z = \max_{y \in D} \sum_{j \in [n]}
+    \bra{y,j}\X\ket{y,j} 
+\end{equation}
+
+This result is guaranteed by generating another set of matrices 
+$A_j$ and scalars $b_j$ and making use of the new entries 
+$s_1, s_2,..., s_{|D|}$. 
+Consider the first element of $D$, in the case of one bit OR, 
+this is the input $0$. First define a constant 
+$c_1$ corresponding to the sum of
+\begin{align}
+    c_1 = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
+\end{align} 
+for this $y \in D$, we have introduced a slack variable $s_1$ above. 
+We define a new set of matrices $A_j$ for $j > |F|$. 
+With entries of $1$ corresponding to the elements summed over to obtain 
+$c_1$ as well as $s_1$. We then include a $-1$ in the position
+corresponding to the position of $z$ in $\mathcal{X}$. 
+An example is shown below:
+\begin{align}
+\left[\begin{matrix} c_1 & 0 & 0 \\
+                    0 & s_1 & 0 \\
+                    0 & 0 & -1 \end{matrix} \right]
+\left[\begin{matrix} 1 & 0 & 0 \\
+                    0 & 1 & 0 \\
+                    0 & 0 & -1 \end{matrix} \right].
+\end{align}
+
+Once given a function $f$ and all possible inputs to the
 function of length $n$ ($D$), we can then define matrices $C$ and
 $A_i$, as well as scalars $b_i$ such that the solution of this problem
 produces the solution of the original problem which produces the
