@@ -1,10 +1,6 @@
 import numpy as np
-#from cvxopt import matrix
-#from ubsdp import ubsdp
 from adm import solveSDP
-
-D = ['00','01','10', '11'] # inputs to Boolean function f
-E = ['0', '1', '1', '1']  # corresponding outputs to f
+import time
 
 def getA1s(F, dimension, D, n):
     A1s = []
@@ -36,7 +32,7 @@ def getA0s(D, n, dimension):
             A_0[count, count] = 1
             count+=1
         A_0[slack_starter, slack_starter] = 1
-        A_0[dimension-1, dimension-1] = -1
+        A_0[-1, -1] = -1
         A_0s.append(A_0.T) # transposing because of scriptA
         slack_starter += 1
     return A_0s
@@ -54,30 +50,68 @@ def getConstraints(D, E):
     
     A_1s = getA1s(F=F, dimension=dimension, D=D, n=n)
 
-    b_1s = np.ones((len(F), 1)) # vector of 1s
+
     b_0s = np.zeros((len(D), 1)) # vector of 0s
+    b_1s = np.ones((len(F), 1)) # vector of 1s
 
     A_0s = getA0s(D=D, n=n, dimension=dimension)
     A_0s.extend(A_1s)
     As = A_0s
-    bs = np.concatenate((b_1s, b_0s), axis=0)
+    bs = np.concatenate((b_0s, b_1s), axis=0)
 
     C = np.zeros((dimension, dimension))
-    C[dimension - 1, dimension - 1] = 1
+    C[- 1, - 1] = 1
     return As, bs, C
 
-As, bs, C = getConstraints(D=D, E=E)
-X = solveSDP(As=As, b=bs, C=C, iterations=1000)
-print(X)
-for i in range(len(As)):
-    print(np.trace(np.matmul(As[i].T, X)))
-    print(bs[i])
+D = ['000','001', '110', '110', '111'] # inputs to Boolean function f
+E = ['0', '1', '1', '1', '1']  # corresponding outputs to f
+D = ['11', '10', '00', '01']
+E = ['1', '1', '0', '1']
 
+def getAllBitStrings(n):
+    return [np.binary_repr(i, width=n) for i in range(2**n)]
 
+def functionOr(bitstring):
+    if '1' in bitstring:
+        return '1'
+    return '0'
 
-#bs = matrix(bs)
-#As = matrix(As)
-#C = matrix(C)
-#print(As.size)
-#print(As)
-#X = ubsdp(bs, As, C)
+def getE(bitstrings, function):
+    return [function(bitstring) for bitstring in bitstrings]
+
+D = getAllBitStrings(5)
+E = getE(D, functionOr)
+
+D = ['0000', '0001', '0010', '0100', '1000']
+E = ['0', '1', '1', '1', '1']
+
+def getOrWorst(n):
+    D = ['0'*n]
+    E = ['0']
+    for i in range(n):
+        starting = '0' * (n-i-1) + '1' + '0' * i
+        D.append(starting)
+        E.append('1')
+    return D, E
+
+for i in range(1, 11):
+    D, E = getOrWorst(i)
+
+    print(D)
+    print(E)
+
+    starting_time = time.time()
+    As, bs, C = getConstraints(D=D, E=E)
+    X = solveSDP(As=As, b=bs, C=C, iterations=100)
+    print(X[-1, -1])
+    print(time.time() - starting_time)
+
+#print("X")
+#print(X)
+#for i in range(len(As)):    
+#    print("trace A X")
+#    print(np.trace(np.matmul(As[i].T, X)))
+#    print("A")
+#    print(As[i])
+#    print("b")
+#    print(bs[i])
