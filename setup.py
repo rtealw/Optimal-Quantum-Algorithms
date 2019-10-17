@@ -96,42 +96,50 @@ def getOrWorst(n):
         E.append('1')
     return D, E
 
-foundVals = []
-trueVals = []
-inputSize = []
-runTime = []
-for i in range(1, 21):
-    print("Input size: {}".format(i))
-    D, E = getOrWorst(i)
+def meetsConstraints(As, bs, X, tolerance):
+    for i in range(len(As)):
+        value = np.trace(np.matmul(As[i].T, X))
+        if value < bs[i] - tolerance or value > bs[i] + tolerance:
+            print(value)
+            print(bs[i])
+            return False
+    return True
 
-    print("D: {}".format(D))
-    print("E: {}".format(E))
-
-    starting_time = time.time()
+def wrapSDPSolver(D, E):
     As, bs, C = getConstraints(D=D, E=E)
     X = solveSDP(As=As, b=bs, C=C, iterations=100)
-    t = time.time() - starting_time
-    optVal = float(X[-1, -1])
-    print("Obj. Func. Value: {}".format(optVal))
-    print("Run Time: {}  \n".format(t))
-
-    foundVals.extend([optVal])
-    trueVals.extend([math.sqrt(i)])
-    inputSize.extend([i])
-    runTime.extend([t])
-
-resultsDF = pd.DataFrame(data = {'OptimalValue': foundVals, 'TrueValue': trueVals, 'n': inputSize, 'RunTime': runTime})
-
-#write ouput:
-resultsDF.to_csv(index=False, path_or_buf= "./graphs/ORWorstCaseOutput.csv")
+    if not meetsConstraints(As=As, bs=bs, X=X, tolerance=1):
+        raise "X does not meet constraints!"
+    return X[-1, -1]
 
 
-#print("X")
-#print(X)
-#for i in range(len(As)):    
-#    print("trace A X")
-#    print(np.trace(np.matmul(As[i].T, X)))
-#    print("A")
-#    print(As[i])
-#    print("b")
-#    print(bs[i])
+def worstCaseSimulations(iterations):
+    foundVals = []
+    trueVals = []
+    inputSize = []
+    runTime = []
+    for i in range(1, iterations+1):
+        print("Input size: {}".format(i))
+        D, E = getOrWorst(i)
+
+        print("D: {}".format(D))
+        print("E: {}".format(E))
+
+        starting_time = time.time()
+        optVal = wrapSDPSolver(D, E)
+        t = time.time() - starting_time
+
+        print("Obj. Func. Value: {}".format(optVal))
+        print("Run Time: {}  \n".format(t))
+
+        foundVals.extend([optVal])
+        trueVals.extend([math.sqrt(i)])
+        inputSize.extend([i])
+        runTime.extend([t])
+
+    resultsDF = pd.DataFrame(data = {'OptimalValue': foundVals, 'TrueValue': trueVals, 'n': inputSize, 'RunTime': runTime})
+
+    #write ouput:
+    resultsDF.to_csv(index=False, path_or_buf= "./graphs/ORWorstCaseOutput.csv")
+
+worstCaseSimulations(5)
