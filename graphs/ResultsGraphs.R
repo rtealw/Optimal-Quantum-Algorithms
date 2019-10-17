@@ -1,8 +1,8 @@
 library(data.table)
-library(ggplot2)
+library(tidyverse)
 library(ggthemes)
 
-results <- fread("ORWorstCaseOutput.csv") %>%
+results <- fread("./graphs/ORWorstCaseOutput.csv") %>%
   gather("Method", "Value", -RunTime, -n)
 
 objFunCompPlot <- results %>%
