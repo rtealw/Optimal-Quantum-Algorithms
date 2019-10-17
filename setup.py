@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 from adm import solveSDP
 import time
+import math
 
 def getA1s(F, dimension, D, n):
     A1s = []
@@ -94,17 +96,35 @@ def getOrWorst(n):
         E.append('1')
     return D, E
 
-for i in range(1, 11):
+foundVals = []
+trueVals = []
+inputSize = []
+runTime = []
+for i in range(1, 21):
+    print("Input size: {}".format(i))
     D, E = getOrWorst(i)
 
-    print(D)
-    print(E)
+    print("D: {}".format(D))
+    print("E: {}".format(E))
 
     starting_time = time.time()
     As, bs, C = getConstraints(D=D, E=E)
     X = solveSDP(As=As, b=bs, C=C, iterations=100)
-    print(X[-1, -1])
-    print(time.time() - starting_time)
+    t = time.time() - starting_time
+    optVal = float(X[-1, -1])
+    print("Obj. Func. Value: {}".format(optVal))
+    print("Run Time: {}  \n".format(t))
+
+    foundVals.extend([optVal])
+    trueVals.extend([math.sqrt(i)])
+    inputSize.extend([i])
+    runTime.extend([t])
+
+resultsDF = pd.DataFrame(data = {'OptimalValue': foundVals, 'TrueValue': trueVals, 'n': inputSize, 'RunTime': runTime})
+
+#write ouput:
+resultsDF.to_csv(index=False, path_or_buf= "./graphs/ORWorstCaseOutput.csv")
+
 
 #print("X")
 #print(X)
