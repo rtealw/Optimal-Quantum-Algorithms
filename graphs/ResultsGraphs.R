@@ -2,7 +2,7 @@ library(data.table)
 library(tidyverse)
 library(ggthemes)
 
-results <- fread("./graphs/ORWorstCaseOutput.csv") %>%
+results <- fread("./ORWorstCaseOutput.csv") %>%
   gather("Method", "Value", -RunTime, -n)
 
 objFunCompPlot <- results %>%
@@ -10,18 +10,18 @@ objFunCompPlot <- results %>%
   geom_line(aes(color = Method)) +
   scale_color_colorblind() +
   theme_bw() +
-  labs(title = "Comparison of Calculated Complexity vs. True Values",
-       x = "Input Size n",
-       y = "Optimal Quantum Query Complexity") +
+  labs(title = "Calculated Complexity vs. True Values",
+       x = "Input Size (n)",
+       y = "Optimal Quantum Query Complexity (queries)") +
   scale_x_continuous(breaks = 1:max(results$n))
 
 runTimePlot <- results %>%
   ggplot(aes(x = n, y = RunTime)) +
   geom_line() +
   theme_bw() +
-  labs(title = "Algorithm Runtime in seconds",
-       x = "Input Size n",
-       y = "Run Time (s)") +
+  labs(title = "Algorithm Runtime vs. Input Size",
+       x = "Input Size (n)",
+       y = "Run Time (seconds)") +
   scale_x_continuous(breaks = 1:max(results$n))
 
 ggsave("ObjFunCompToTrue_OR.eps", plot = objFunCompPlot)
