@@ -1,4 +1,4 @@
-\documentclass[review]{acmart}
+\documentclass[acmtog]{acmart}
 %acmtog if we're feeling a little funky ;)
 
 \usepackage{booktabs, braket} % For formal tables
@@ -9,13 +9,14 @@
 \usepackage{fancyhdr}
 
 \DeclareMathOperator{\X}{\mathbb{X}}		     % expected value
+\DeclareMathOperator{\tr}{\text{tr}}		     % expected value
  
 \pagestyle{fancy}
 \fancyhf{}
 \lhead{Czekanski \& Witter, Fall 2019}
 \rfoot{\thepage}
 
-%\pagestyle{plain} % removes running headers
+%\pagestyle{plain} % removes running heades
 
 % Use the "authoryear" citation style, and make sure citations are in [square brackets].
 \citestyle{acmauthoryear}
@@ -30,11 +31,12 @@
 
 % Title. 
 % If your title is long, consider \title[short title]{full title} - "short title" will be used for running heads.
-\title{Implementation of a Semi-definite Program for Finding
-Optimal Quantum Query Complexity}
+\title{Implementing a Semidefinite Program Solver to 
+Find the Optimal Quantum Query Complexity
+of Boolean Functions}
 
 % please leave the subtitle!
-\subtitle{CSCI 701 Final Project, Middlebury College, Fall 2019}
+\subtitle{Middlebury College, Fall 2019}
 
 % Authors.
 \author{Michael Czekanski}
