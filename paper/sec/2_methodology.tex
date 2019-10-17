@@ -1,4 +1,4 @@
-\section{Methodology}
+\section{Methodology}\label{sec:method}
 
 Consider the function $f: D \rightarrow E$ where $D
 \subseteq {\{0,1\}}^n$ and $E \subset {0,1}$. We aim to find an
@@ -24,7 +24,7 @@ and
 \end{align}
 Our goal is to minimize $M$ by finding the optimal value of $\X$.
 
-We illustrate the matrices in the SDP definition.
+We construct the matrices in the SDP definition.
 Observe that $\X$ is a $n2^n \times n2^n$ matrix 
 because there are $2^n$ possible inputs each of length $n$. 
 Think of $\X$ as containing chunks of size 
@@ -37,6 +37,7 @@ Below we consider $\X$ of the OR function with one bit inputs,
         1 & 1
     \end{matrix}
     \right]
+    \nonumber
 \end{align}
 %\begin{align}
 %   X = \left[ \begin{matrix}
@@ -55,11 +56,11 @@ diagonal entries where the input bits differ
 of each sub-matrix where the Boolean outputs are not equal must sum to one.
 
 Given this non-traditional formation of the semidefinite programming problem, we first convert the problem into an equivalent problem in standard form as defined by Boyd \cite{boyd2004convex}:
-\begin{align}
+\begin{align}\label{Eq:boyd_obj}
     M(\X) = tr(C\X) 
 \end{align}
 subject to
-\begin{align}\label{Eq:semi2}
+\begin{align}
     \X \succcurlyeq 0   
 \end{align}
 and for $i \in \{1,...,|F|\}$
@@ -69,14 +70,13 @@ and for $i \in \{1,...,|F|\}$
 
 
 To make these two problems equivalent we first note that
-conditions \cref{Eq:semi1} and \cref{Eq:semi2} are
+conditions \cref{Eq:semi1} and \cref{Eq:off-diag} are
 the same.
 To equate conditions \cref{Eq:off-diag}
 and \cref{Eq:trace}, we define the set of matrices
 $A_i$ and
-scalars $b_i$.
-Naturally, the value of $b_i$ shall be $1$
-from \cref{Eq:off-diag}.
+scalars $b_i$ where $i \in [|F|]$.
+We set $b_i$ equal to $1$ to satisfy \cref{Eq:off-diag}.
 Observe that the sum in condition \cref{Eq:off-diag}
 iterates through a portion of the matrix $\X$ diagonally.
 Thus we can define a set of matrices where the matrix 
@@ -114,50 +114,121 @@ Having now created $A_i$ and $b_i$ for $i = 1,2,...,
 \ref{Eq:semi1} and eq. \ref{Eq:off-diag} thus creating
 a SDP constraints in Boyd's form that are equivalent to
 Reichardt's form.
-We now turn our attention to the objective function.
 
-We take our original $\X$ and define a new
-$\mathcal{X}$:
-\begin{equation}
-    \mathcal{X} = \left[\begin{matrix} \X \cdots \cdots 0 \\
-                                \vdots \ddots \vdots \\
-                                0 \cdots \cdots z  \end{matrix}
-                                \right]  
-\end{equation}
-
-It is important to note that in this construction of $\mathcal{X}$,
-\begin{equation}
-    z = \max_{y \in D} \sum_{j \in [n]}
-    \bra{y,j}\X\ket{y,j} 
-\end{equation}
-
-This result is guaranteed by generating another set of matrices 
-$A_j$ and scalars $b_j$ and making use of the new entries 
-$s_1, s_2,..., s_{|D|}$. 
-Consider the first element of $D$, in the case of one bit OR, 
-this is the input $0$. First define a constant 
-$c_1$ corresponding to the sum of
+Our set of $A_i$ now satisfies \cref{Eq:off-diag}.
+The problem is that \cref{Eq:boyd_obj}
+does not have a maximum in the way \cref{eq:reichardtObj}
+requires.
+Our solution is to introduce slack variables
+that enforce that our objective function is the maximum.
+The big picture is that we construct a new
+from our original $\X$,
 \begin{align}
-    c_1 = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
+    \Xb =
+    \left[
+    \begin{matrix}
+    \X & 0 \\
+    0 & S
+    \end{matrix}
+    \right] \nonumber
+\end{align}
+%\begin{equation}
+%    \Xb = \left[\begin{matrix} \X \cdots \cdots 0 \\
+%                                \vdots \ddots \vdots \\
+%                                0 \cdots \cdots z  \end{matrix}
+%                                \right]  
+%\end{equation}
+where $S$ is a diagonal matrix
+with objective function $z$ on the bottom right
+and slack variables $s_i$ for $i \in [|D|]$
+along the rest of the diagonal.
+
+We guarantee that $z$ is the maximum
+diagonal chunk of $\X$
+by generating another set of matrices 
+$\Ap_i$ and scalars $b_i$ for $i \in [|D|]$
+where $b_i = 0$.
+For each element of $D$, define a $c_i$ such that
+\begin{align}
+    c_i = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
+    \nonumber
 \end{align} 
-for this $y \in D$, we have introduced a slack variable $s_1$ above. 
-We define a new set of matrices $A_j$ for $j > |F|$. 
-With entries of $1$ corresponding to the elements summed over to obtain 
-$c_1$ as well as $s_1$. We then include a $-1$ in the position
-corresponding to the position of $z$ in $\mathcal{X}$. 
-An example is shown below:
+where $y$ is the $i^{th}$ element of $D$.
+Our goal is to enforce that $z$ is the maximum $c_i$.
+By requiring that $s_i + c_i = z$ and using
+the fact that $s_i$ is positive
+($\Xb$ is semidefinite so $S$ is as well),
+we can keep $z$ larger than or equal to $c_i$.
+The semidefinite program minimizes $z$
+by our choice of $C$ so $z$ meets the maximum $c_i$.
+
+To enforce $s_i + c_i = z$, define $\Ap_i$ as a diagonal
+matrix  with 1s along the chunk
+corresponding to the $i^{th}$ input,
+1 in the entry corresponding to $s_i$,
+and -1 in the entry corresponding to $z$.
+In a slight abuse of notation, we show an example
+of $\Xb A_i$.
 \begin{align}
-\left[\begin{matrix} c_1 & 0 & 0 \\
-                    0 & s_1 & 0 \\
-                    0 & 0 & -1 \end{matrix} \right]
+\left[\begin{matrix} c_i & 0 & 0 \\
+                    0 & s_i & 0 \\
+                    0 & 0 & z \end{matrix} \right]
 \left[\begin{matrix} 1 & 0 & 0 \\
                     0 & 1 & 0 \\
-                    0 & 0 & -1 \end{matrix} \right].
+                    0 & 0 & -1 \end{matrix} \right]
+= \left[\begin{matrix} c_i & 0 & 0 \\
+                    0 & s_i & 0 \\
+                    0 & 0 & -z \end{matrix} \right]
+            \nonumber
 \end{align}
+Notice that the trace of $\Xb A_i$
+is $c_i + s_i - z$.
+By setting $b_i = 0$, we have that $z$ is
+greater than or equal to $c_i$.
+
+The final matrix we define is $C$.
+Our goal is to select out $z$ from $\Xb$
+so $C$ has a single non-zero value in the 
+entry corresponding to $z$.
+\begin{align}
+    C = \left[\begin{matrix} 0  \cdots 0 \\
+                                \vdots \ddots \vdots \\
+                                0 \cdots  1  \end{matrix}
+                                \right]  
+                                \nonumber
+\end{align}
+
+We will now prove that using our construction,
+$z = \max\{c_1, c_2, ... c_{|D|}\}$ in the optimal $\Xb$
+
+Notice that because our matrix $\Xb$ is semidefinite 
+and diagonal, all of its diagonal entries are non-negative. 
+Assume for contradiction that $z < c_i$
+for some $i \in \{1,2,..., |D|\}$.
+Therefore $z < c_i + s_i$ since $s_i \geq 0$.
+
+By our constraint, $z = c_i + s_i$, 
+meaning that $z < z$, a contradiction! 
+Therefore it must be the case that $z$ is an 
+upper bound of the traces of our sub-matrices $c_i$. 
+
+Now assume for contradiction that $z \ne  \max\{c_1, c_2, ...
+c_{|D|}\}$. We know that $z$ is an upper bound so we only need to
+show that there is no upper bound of this finite set that is less
+than $z$ to show it is the maximum. Our assumption is equivalent to
+the statement that there does not exist a constant $a$ such that $a
+> c_i \forall i$ and $a < z$. If $a$ did exist, then there would
+exist an $\Xb$ that also satisfies all of our constraints,
+but with $a$ in the bottom right most entry instead of $z$. This
+would mean that our objective function was improved over our
+initial matrix as $a < z$, meaning that the $\Xb$ we found
+is not optimal: a contradiction. We conclude that our constraints
+are equivalent to those outlined by Reichardt, while matching the
+form of Boyd.
 
 Once given a function $f$ and all possible inputs to the
 function of length $n$ ($D$), we can then define matrices $C$ and
-$A_i$, as well as scalars $b_i$ such that the solution of this problem
-produces the solution of the original problem which produces the
-optimal bound of quantum query complexity for the given quantum
-algorithm.
+$A_i$, as well as scalars $b_i$ such that the solution of this
+problem produces the solution of the original problem which
+produces the optimal bound of quantum query complexity for
+arbitrary Boolean functions.
