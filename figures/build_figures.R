@@ -13,7 +13,7 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
     theme_bw() +
     labs(title = paste(title_description, "Analytical and Empirical Query Complexity by Input Size"),
          x = "Input Size (n)",
-         y = "Optimal Quantum Query Complexity (queries)") +
+         y = "Queries") +
     scale_x_continuous(breaks = 1:max(results$n))
   
   runTimePlot <- results %>%
