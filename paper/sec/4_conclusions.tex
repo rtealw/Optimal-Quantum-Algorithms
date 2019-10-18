@@ -9,10 +9,9 @@ While we will always need to implement
 such a computationally expensive step,
 we may save space and time by optimizing other 
 components of our implementation.
-We could increase the efficiency that
-we store our matrices or otherwise 
-decrease the computational work done at each step.
-However, even in the best case where
+For example, we could increase the efficiency with
+which we store our matrices, taking advantage of
+their sparsity. However, even in the best case where
 we double or triple the speed of our implementation,
 we are hitting the exponential size of the SDP.
 A scalar improvement will not make a meaningful
