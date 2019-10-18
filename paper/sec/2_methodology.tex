@@ -146,8 +146,8 @@ along the rest of the diagonal.
 We guarantee that $z$ is the maximum
 diagonal chunk of $\X$
 by generating another set of matrices 
-$\Ap_i$ and scalars $b_i$ for $i \in [|D|]$
-where $b_i = 0$.
+$\Ap_i$ and scalars $\bp_i$ for $i \in [|D|]$
+where $\bp_i = 0$.
 For each element of $D$, define a $c_i$ such that
 \begin{align}
     c_i = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
@@ -183,7 +183,7 @@ of $\Xb A_i$.
 \end{align}
 Notice that the trace of $\Xb A_i$
 is $c_i + s_i - z$.
-By setting $b_i = 0$, we have that $z$ is
+By setting $\bp_i = 0$, we have that $z$ is
 greater than or equal to $c_i$.
 
 The final matrix we define is $C$.
@@ -227,8 +227,8 @@ are equivalent to those outlined by Reichardt, while matching the
 form of Boyd.
 
 Once given a function $f$ and all possible inputs to the
-function of length $n$ ($D$), we can then define matrices $C$ and
-$A_i$, as well as scalars $b_i$ such that the solution of this
-problem produces the solution of the original problem which
+function of length $n$ ($D$), we can then define matrices
+$C, A_i, \Ap_i$ and vectors $b_i, \bp_i$ such that the solution of Boyd's SDP
+produces the solution of the Reichardt's SDP which
 produces the optimal bound of quantum query complexity for
 arbitrary Boolean functions.
