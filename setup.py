@@ -73,7 +73,7 @@ E = ['1', '1', '0', '1']
 def getAllBitStrings(n):
     return [np.binary_repr(i, width=n) for i in range(2**n)]
 
-def functionOr(bitstring):
+def functionOR(bitstring):
     if '1' in bitstring:
         return '1'
     return '0'
@@ -81,13 +81,12 @@ def functionOr(bitstring):
 def getE(bitstrings, function):
     return [function(bitstring) for bitstring in bitstrings]
 
-D = getAllBitStrings(5)
-E = getE(D, functionOr)
+def getORAll(n):
+    D = getAllBitStrings(n)
+    E = getE(D, functionOR)
+    return D, E
 
-D = ['0000', '0001', '0010', '0100', '1000']
-E = ['0', '1', '1', '1', '1']
-
-def getOrWorst(n):
+def getORWorst(n):
     D = ['0'*n]
     E = ['0']
     for i in range(n):
@@ -112,15 +111,14 @@ def wrapSDPSolver(D, E):
         raise "X does not meet constraints!"
     return X[-1, -1]
 
-
-def worstCaseSimulations(iterations):
+def calculateSDPSolverComplexity(iterations, getDandE, filename):
     foundVals = []
     trueVals = []
     inputSize = []
     runTime = []
     for i in range(1, iterations+1):
         print("Input size: {}".format(i))
-        D, E = getOrWorst(i)
+        D, E = getDandE(i)
 
         print("D: {}".format(D))
         print("E: {}".format(E))
@@ -132,14 +130,15 @@ def worstCaseSimulations(iterations):
         print("Obj. Func. Value: {}".format(optVal))
         print("Run Time: {}  \n".format(t))
 
-        foundVals.extend([optVal])
+        foundVals.extend([optVal.real])
         trueVals.extend([math.sqrt(i)])
         inputSize.extend([i])
         runTime.extend([t])
 
-    resultsDF = pd.DataFrame(data = {'OptimalValue': foundVals, 'TrueValue': trueVals, 'n': inputSize, 'RunTime': runTime})
+    resultsDF = pd.DataFrame(data = {'Empirical': foundVals, 'Analytical': trueVals, 'n': inputSize, 'RunTime': runTime})
 
     #write ouput:
-    resultsDF.to_csv(index=False, path_or_buf= "./graphs/ORWorstCaseOutput.csv")
+    resultsDF.to_csv(index=False, path_or_buf= "./graphs/{}.csv".format(filename))
 
-worstCaseSimulations(5)
+#calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
+calculateSDPSolverComplexity(5, getORAll, "output_all_or")
