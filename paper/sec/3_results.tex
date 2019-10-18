@@ -4,17 +4,13 @@ Given sets $D$ and $E$ such that
 $f : D \rightarrow E$ for $f$ a Boolean function,
 we construct matrices corresponding to the constraints
 in \cref{Eq:boyd_obj}.
-Our implementation uses Python3 and the NumPy library:
+Our implementation uses Python3 and the NumPy library \cite{numpy}.
 We build $A_i$ for $i \in [|F|]$ to enforce the condition
 outlined in \cref{Eq:off-diag} and set $b_i=1$.
 We build $\Ap_i$ for $i \in [|D|]$ to enforce
 that $z$ is the maximum $c_i$ and set $\bp_i = 0$.
-Finally, we build $C$ to select $z$ from $\Xb$.
-
-To solve the SDP with our constraints,
+Finally, we build $C$ to select $z$ from $\Xb$. To solve the SDP with our constraints,
 we implemented Wen et al.'s ADM algorithm.
-We again use Python3 and the NumPy library
-in our implementation.
 
 \subsection{OR Function: All Boolean Inputs}
 
@@ -24,7 +20,7 @@ Recall that OR takes as input $n$ bit strings
 and returns 0 if there are no 1s in the input
 and 1 otherwise.
 We extend our analysis of OR by illustrating
-an application of our SDP solver.
+an application of our SDP solver. Figures are made using a variety of functions from both data.table and tidyverse R packages \cite{tidyverse, data.table}.
 
 \begin{figure}[ht]
 \centering
@@ -42,8 +38,33 @@ size of input bit string.}
 
 \subsection{OR Function: Worst-case Boolean Inputs}\label{sec:speed}
 
-Limit to worst-case inputs to Boolean function
+Our algorithm's performance is visualized above. We see that run time grows exponentially with respect to input size as expected, given the exponential increase in the cardinality of the set $D$ of all inputs of length $n$. We also see that our algorithm is accurately calculating the optimal quantum query complexity of the OR function. 
 
-Quantum algorithm is very smart ;)
+A simple approach to speeding up the runtime of our
+algorithm is to simply decrease the number of input
+strings considered for a given input size $n$. It's
+important that we still obtain a good approximation
+of the correct answer, so we need to ensure that the
+inputs we do analyze will lead to the correct result.
+Because the bounds of our algorithm are adversarial,
+meaning that they are worst-case bounds, we can opt
+to only use the worst-case inputs.
 
-It does searches for worst-case as in \cref{Eq:off-diag}
+Again returning to our OR example, the hardest inputs are either entirely zeros, or contain only a single 1. Using these inputs, we can then run our algorithm to compare both runtime and precision of results.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=.5]{figure_worst_or_complexity}
+\caption{The proven analytical optimal query complexity
+and calculated empirical optimal query complexity by 
+size of input bit string.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=.4]{figure_worst_or_time}
+\caption{Run time of SDP solver by size of input strings.}
+\end{figure}
+
+The run time is drastically improved over the all-case scenario. This result is not only show via the y-axis of the graphs, but also in the x-axis because the speed up was so significant that we were able to solve for many more input sizes than in the all-case scenario. 
+Looking at the optimal query complexities returned, we observe that we are still obtaining good approximations of the true value. We believe that more iterations could drastically improve the performance of the algorithm as well as improved stopping conditions. Instead of simply stopping after some number of iterations (in this case 100), we could look to see if the improvements to the objective function are negligible and conclude that the algorithm has converged.

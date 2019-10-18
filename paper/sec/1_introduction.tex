@@ -22,8 +22,8 @@ however, run time can asymptotically outpace query complexity.
 
 Consider the Boolean function OR.
 An algorithm for the OR function returns 0 if
-there are only 0s in the input string
-and 1 if there is a single 1 in the input string.
+there are only 0's in the input string
+and 1 if there are any 1's in the input string.
 Classically, an algorithm must check that
 every single bit of the input is a 0.
 Then if there are $n$ bits in the input string
@@ -59,14 +59,14 @@ However, neither libraries easily support the standard form
 of the SDP problem we are solving.
 We instead turn to an alternating direction method (ADM).
 Wen et al.'s algorithm efficiently exploits the 
-sparsity of our SDP \cite{wen2010alternating}.
+sparsity of our SDP \cite{adm}.
 
 Our goal is to create a tool that takes as input a 
 natural number $n$ and a Boolean function 
 $f: \{0,1\}^n \rightarrow \{0,1\}$. 
 By solving Reichardt's SDP problem with
 Wen et al.'s ADM algorithm,
-we return the optimal quantum query complexity of $f$.
-
-We hope that researchers can use our tool to 
-discover and verify optimal quantum algorithms.
+we return the optimal quantum query complexity of
+$f$. We hope that quantum algorithm researchers use
+our tool to discover and verify optimal quantum
+algorithms.
