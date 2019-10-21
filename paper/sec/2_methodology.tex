@@ -1,90 +1,86 @@
 \section{Methodology}\label{sec:method}
-
-Consider the function $f: D \rightarrow E$ where $D
-\subseteq {\{0,1\}}^n$ and $E \subset {0,1}$. We aim to find an
-optimal bound on quantum query complexity using semidefinite
-programming. From previous work,
-we can formulate the problem as in \cref{eq:reichardtObj} where
-$f_{\text{bound}}$ represents the optimal bound for the function
-$f$ with the input size $n$ \cite{reichardt2009span}.
-Let $F$ be the set of $(y,z)$ such that $f(y) \neq f(z)$.
-Then the objective function of the SDP is
-\begin{align} \label{eq:reichardtObj}
+To understand Reichardt's formulation and our conversion
+to Boyd's standard form, consider as inputs to our tool
+the general case with function $f: D \rightarrow E$ where
+$D \subseteq {\{0,1\}}^n$ and $E \subset {\{0,1\}}$. From
+previous work, we can formulate the problem as in
+\cref{eq:reichardtObj} where $f_{\text{bound}}$ represents
+the optimal bound for the function $f$ with the input size
+$n$ \cite{reichardt2009span}. Let $F$ be the set of $(y,z)$ such that $f(y) \neq f(z)$.
+Then the objective function of the SDP is:
+\begin{align} \label{eq:reichardtObj} 
     f_{\text{bound}} = M(\X) = \max_{y \in D} \sum_{j \in [n]}
     \bra{y,j}\X\ket{y,j} 
 \end{align}
 subject to constraints
-\begin{align}\label{Eq:semi1}
+\begin{align}\label{Eq:reichardtSemi}
     \X \succcurlyeq 0 
 \end{align}
 and
-\begin{align}\label{Eq:off-diag}
+\begin{align}\label{Eq:reichardtOffDiag}
     \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
     \bra{y,j} \X \ket{z, j} = 1.
 \end{align}
-Our goal is to minimize $M$ by finding the optimal value of $\X$.
+Our goal is to minimize $M$, and thus $f_{\text{bound}}$ by finding the optimal value of $\X$.
 
-We construct the matrices in the SDP definition.
-Observe that $\X$ is a $n2^n \times n2^n$ matrix 
-because there are $2^n$ possible inputs each of length $n$. 
-Think of $\X$ as containing chunks of size 
-$n \times n$ where each chunk corresponds to an element of $D$. % x $D$.
-Below we consider $\X$ of the OR function with one bit inputs,
-\begin{align}
-    \X = \left[
-    \begin{matrix}
-        1 & 1 \\
-        1 & 1
-    \end{matrix}
-    \right]
-    \nonumber
-\end{align}
-%\begin{align}
-%   X = \left[ \begin{matrix}
-%   \left[ \begin{matrix} (0,0)\end{matrix} \right] & \left[
-%   \begin{matrix} (0,1)\end{matrix} \right] \\ \\
-%   \left[ \begin{matrix} (1,0)\end{matrix} \right] & \left[
-%   \begin{matrix} (1,1)\end{matrix} \right] \\
-%    \end{matrix} \right]
-%\end{align}
-
-Our objective function \cref{eq:reichardtObj} is
-the maximum trace of the diagonal sub-matrices. The
-first constraint \cref{semi1} is that $\X$ is positive
-semidefinite. The final constraint \cref{semi2} states that
-diagonal entries where the input bits differ
-of each sub-matrix where the Boolean outputs are not equal must sum to one.
-
-Given this non-traditional formation of the semidefinite programming problem, we first convert the problem into an equivalent problem in standard form as defined by Boyd \cite{boyd2004convex}:
+To make use of this definition, it's helpful to convert
+the problem into a more canonical form to make use of
+ready-made solvers, and algorithms published on the
+topic of solving SDP's generally. We covert Reichardt's problem to Boyd's form as we believe it to be a generally recognized standard form. Boyd's definition is shown below \cite{boyd2004convex}:
 \begin{align}\label{Eq:boyd_obj}
-    M(\X) = tr(C\X) 
+    M(\X) = \tr(C\X) 
 \end{align}
 subject to
-\begin{align}
+\begin{align} \label{Eq:boydSemi}
     \X \succcurlyeq 0   
 \end{align}
-and for $i \in \{1,...,|F|\}$
-\begin{align}\label{Eq:trace}
+and for $i \in \{1,...,p\}$
+\begin{align} \label{Eq:boydTraceCon}
     \tr(A_i \X) = b_i. 
 \end{align}
+where $A_i$ and $C$ are matrices and $b_i$ is a scalar for each $i$.
 
+Once we are given and the function $f$ and input size
+$n$ of interest, we can then define our set of matrices
+and scalars $A_i$, $b_i$, and $C$ such that these two
+problems are equivalent. We can then use developed algorithms to solve the problem and obtain our optimal bound on quantum query complexity for the function $f$.
 
-To make these two problems equivalent we first note that
-conditions \cref{Eq:semi1} and \cref{Eq:off-diag} are
-the same.
-To equate conditions \cref{Eq:off-diag}
-and \cref{Eq:trace}, we define the set of matrices
-$A_i$ and
-scalars $b_i$ where $i \in [|F|]$.
-We set $b_i$ equal to $1$ to satisfy \cref{Eq:off-diag}.
-Observe that the sum in condition \cref{Eq:off-diag}
-iterates through a portion of the matrix $\X$ diagonally.
-Thus we can define a set of matrices where the matrix 
-$A_i$ contains only 1s and 0s 
-such that $A_i \X$ puts the off-diagonal values we want
-to sum onto the diagonal.
-Therefore the trace of this new matrix $A_i \X$ 
-will be equal to the sum in \cref{Eq:off-diag}.
+We can begin our conversion by examining the formulation of Reichardt's definition. $\X$ contains chunks of size 
+$n \times n$, each corresponding to an element of the Cartesian product $D \times D$. Each axis of the matrix is partitioned into $|D| = 2^n$ equal parts such that we have chunks on the interior of the matrix corresponding to ordered pairs of inputs. Each chunk is of size $n \times n$ as mentioned previously so $\X$ is an $n2^n \times n2^n$ matrix. Below we consider $\X$ of the OR function with one bit inputs:
+\begin{align}
+\X = \begin{blockarray}{ccc}
+\qquad & 0 & 1 \\
+\begin{block}{c[cc]}
+  0 & X_{(0,0)} & X_{(0,1)} \\
+  1 & X_{(1,0)} & X_{(1,1)} \\
+\end{block}
+\end{blockarray}
+\end{align}
+
+In this instance, each sub-matrix $X_{(i,j)}$ is a $ 1
+\times 1 $ matrix. This is the same construction used for
+each input size $n$ where there is a sub-matrix
+corresponding to every ordered pair of inputs in $D$.
+
+To mathematically convert Reichardt's form into an
+equivalent SDP in standard form, we first convert the
+constraints and then the objective function. It's clear
+that constraints in \cref{Eq:reichardtSemi} and 
+\cref{Eq:boydSemi} are equivalent, simply requiring that
+$\X$ is positive semidefinite.
+
+The second constraint in Reichardt's form requires that
+given a sub-matrix corresponding to a pair of inputs with
+different outputs, the elements on this sub-matrix's
+diagonal corresponding to bits that differ in the two
+input strings sum to $1$. For each element in $F$, we can
+define a matrix $A_i$ that moves the correct elements of
+the corresponding sub-matrix's diagonal to the diagonal
+of $A_i \X$ and sets other diagonal entries of $A_i \X$
+to zero. In this way the trace of $A_i \X$ is equal to
+the sum in \cref{Eq:reichardtOffDiag}. Therefore we set
+each $b_i$ to $1$ to make the constraints equivalent.
+
 
 For example, consider a matrix $X$ where
 \begin{align}
@@ -106,23 +102,15 @@ and subsequently,
     \tr(A \cdot X) = 2. \nonumber
 \end{align}
 
-Through a similar construction we can build a set of matrices 
-$A_i$ for each element of $F$ such that setting $b_i = 1$ 
-creates an equivalent constraint to \cref{Eq:off-diag}.
-Having now created $A_i$ and $b_i$ for $i = 1,2,...,
-|F|$, we have defined constraints equivalent to eq.
-\ref{Eq:semi1} and eq. \ref{Eq:off-diag} thus creating
-a SDP constraints in Boyd's form that are equivalent to
-Reichardt's form.
+Through a similar construction we can build our set of
+matrices $A_i$ for each element of $F$ where we set $b_i
+= 1$. Having now created $A_i$ and $b_i$ for $i = 1,2,..., |F|$, we have defined constraints equivalent to \cref{Eq:reichardtSemi} and eq. \ref{Eq:reichardtOffDiag} thus creating a SDP constraints in Boyd's form that are equivalent to Reichardt's form.
 
-Our set of $A_i$ now satisfies \cref{Eq:off-diag}.
-The problem is that \cref{Eq:boyd_obj}
+The problem is now that \cref{Eq:boyd_obj}
 does not have a maximum in the way \cref{eq:reichardtObj}
-requires.
-Our solution is to introduce slack variables
-that enforce that our objective function is the maximum.
-The big picture is that we construct a new
-from our original $\X$,
+requires. Our solution is to convert this maximum to a
+linear function by introducing slack variables. We 
+construct a new $\mathcal{X}$ from our original $\X$,
 \begin{align}
     \Xb =
     \left[
@@ -139,7 +127,7 @@ from our original $\X$,
 %                                \right]  
 %\end{equation}
 where $S$ is a diagonal matrix
-with objective function $z$ on the bottom right
+with objective function $z$ in the bottom right most entry
 and slack variables $s_i$ for $i \in [|D|]$
 along the rest of the diagonal.
 
@@ -153,7 +141,7 @@ For each element of $D$, define a $c_i$ such that
     c_i = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
     \nonumber
 \end{align} 
-where $y$ is the $i^{th}$ element of $D$.
+where $y$ is the $i^{th}$ element of $D$, making $c_i$ equivalent to the trace of the corresponding sub-matrix on the diagonal of $\X$.
 Our goal is to enforce that $z$ is the maximum $c_i$.
 By requiring that $s_i + c_i = z$ and using
 the fact that $s_i$ is positive

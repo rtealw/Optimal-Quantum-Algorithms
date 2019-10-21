@@ -1,72 +1,81 @@
 \section{Introduction}
 
-Quantum computers have the potential to 
-solve computationally difficult problems
-faster and more efficiently than classical computers.
-Since sufficiently large quantum computers do not yet exist,
-we cannot compare the time it takes a quantum computer
-to run an algorithm to the time it takes a classical computer
-to run an equivalent algorithm.
-Instead we rely on asymptotic run time that 
-characterizes the time an algorithm will take in relation
-to the size of the input.
-In the study of quantum algorithms, it is often easier
-and more elegant to describe an algorithm's query complexity.
-Imagine a model where an algorithm is given access
-to an input as a string of bits.
-The query complexity of an algorithm is then the number
-of bits the algorithm needs to reveal to determine a solution.
-Query complexity is a lower bound for run time
-(each query takes one time step);
-however, run time can asymptotically outpace query complexity.
+Given the vast potential of quantum computers to solve
+computationally difficult problems more efficiently
+than classical computers, it is of interest to
+determine for which functions this is the case. Although a
+simple solution would be to run equivalent functions using
+both quantum and classical computers and compare their
+performance, sufficiently large quantum computers don't
+currently exist.
 
-Consider the Boolean function OR.
-An algorithm for the OR function returns 0 if
-there are only 0's in the input string
-and 1 if there are any 1's in the input string.
+Therefore, we must rely on analytical, asymptotic methods
+to characterize the run time on quantum computers on
+complex functions. More specifically, we make use of the
+query complexity of a function on a quantum computer to
+place a lower bound on its run time. Simply put, the query
+complexity is the number of times we must examine the
+contents of the input string to determine the correct
+output of the function. This represents a lower bound of
+the asymptotic run time of the optimal algorithm because to
+evaluate a function, we must examine the input string the
+minimum number of times and additionally perform other
+computations to evaluate the function. These other
+computations could overtake the queries of the input string
+to alter the overall run time of the algorithm, meaning the
+run time is at least as large as the query complexity. In comparing quantum and classical algorithms for evaluating a function, we conclude that the algorithm with the lower query complexity is more efficient.
+
+To give a concrete example for query complexity, as well as
+for the remainder of the paper, we invite the reader to
+recall the canonical one bit OR function. This function
+returns a $1$ if at least one of the inputs is $1$ and
+otherwise results in a $0$. More generally, the $n$-bit OR
+function returns $0$ if there are only $0$'s in the input
+string and $1$ if there are any $1$'s in the input string.
 Classically, an algorithm must check that
-every single bit of the input is a 0.
-Then if there are $n$ bits in the input string
-the classical algorithm's query complexity is $n$.
-However, the quantum algorithm Grover's search
-can solve the function OR in $\sqrt{n}$ queries \cite{grover1996fast}.
+every single bit of the input is a $0$ to return $0$.
+Therefore the classical query complexity of the $n$-bit OR
+function is $n$. However, the quantum algorithm Grover's
+search can solve the function OR in $\sqrt{n}$ queries
+\cite{grover1996fast}. In this instance, we conclude that
+the quantum evaluation of the $n$-bit OR function is more
+efficient than the classical evaluation.
 
-In the study of quantum algorithms,
-we call the query complexity of the most efficient quantum
-algorithm optimal.
-Then when comparing quantum and classical algorithms,
-we can say that the quantum algorithm is more
-efficient than the classical algorithm in the sense
-that the optimal quantum query complexity
-is lower than the optimal classical query complexity.
+Given an arbitrary Boolean function, we can calculate its
+asymptotic quantum query complexity analytically for
+comparison with known classical query complexity. More
+specifically, we focus on optimal adversary bounds of
+quantum query complexity. This approach calculates an upper
+bound on quantum query complexity for a function over all
+inputs by finding the complexity of the worst-case input.
+Lee et al. show that this optimal upper bound of quantum
+query complexity corresponds to the solution of a
+semidefinite program (referred to as SDP)
+\cite{lee2011quantum}. Reichardt thenreformulated this SDP
+into a form we found more useful in our analysis
+\cite{reichardt2009span}. We convert Reichardt's
+form into the standard SDP definition as defined by Boyd
+\cite{boyd2004convex}. We then implement an SDP
+solver to find the quantum query complexity of arbitrary
+Boolean functions, noting that although this SDP
+formulation is valid for arbitrary functions, we limit the
+scope of our implementation to Boolean functions.
 
-Lee et al. show that optimal quantum query complexity
-corresponds to the solution of a semidefinite program (SDP)
-\cite{lee2011quantum}.
-Reichardt reformulates the SDP into a more simple description 
-\cite{reichardt2009span}.
-We take Reichardt's formulation and convert it
-to a standard definition found in Boyd \cite{boyd2004convex}.
-We then implement an SDP solver to find the
-quantum query complexity of arbitrary Boolean functions.
-(While the SDP can solve any function,
-we limit our scope to Boolean functions with
-binary inputs and outputs).
+There exist many implementations of SDP solvers in Python
+libraries for convex optimization, such as CVXOPT and SDPA
+\cite{cvxopt, SDPA}. However, neither of these libraries,
+or others we examined, easily support the standard form of
+the SDP problem we have formulated. We implement our own
+solver in Python to specifically target the solution of
+SDP's corresponding to these bounds on quantum query
+complexity. Our algorithm is an alternating
+direction method (ADM). We made this choice because Wen et
+al.'s algorithm purports to efficiently exploit the
+sparsity of SDP's --- a structure we frequently find in our
+formulation of these problems \cite{adm}.
 
-CVXOPT and SDPA are both popular, existing convex optimization
-libraries in Python \cite{cvxopt, SDPA}.
-However, neither libraries easily support the standard form
-of the SDP problem we are solving.
-We instead turn to an alternating direction method (ADM).
-Wen et al.'s algorithm efficiently exploits the 
-sparsity of our SDP \cite{adm}.
-
-Our goal is to create a tool that takes as input a 
-natural number $n$ and a Boolean function 
+Mathematically, our goal is to create a tool that takes as
+input a natural number $n$ and a Boolean function 
 $f: \{0,1\}^n \rightarrow \{0,1\}$. 
 By solving Reichardt's SDP problem with
-Wen et al.'s ADM algorithm,
-we return the optimal quantum query complexity of
-$f$. We hope that quantum algorithm researchers use
-our tool to discover and verify optimal quantum
-algorithms.
+Wen et al.'s ADM algorithm, we return the optimal adversary bound for the quantum query complexity of $f$. We hope that quantum algorithm researchers use our tool to discover and verify the optimality of quantum algorithms.
