@@ -8,22 +8,34 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
   
   objFunCompPlot <- results %>%
     ggplot(aes(x = n, y = Value, group = Method)) +
-    geom_line(aes(color = Method)) +
+    geom_line(aes(color = Method), size = 2)  +
     scale_color_colorblind() +
     theme_bw() +
-    labs(title = paste(title_description, "Analytical and Empirical Query Complexity by Input Size"),
+    labs(title = paste("Numerical Performance for", title_description),
          x = "Input Size (n)",
          y = "Queries") +
-    scale_x_continuous(breaks = 1:max(results$n))
+    scale_x_continuous(breaks = seq(from = 1, to = max(results$n), by = 1)) +
+    theme(axis.title.y = element_text(angle = 0, hjust = 1, size = 14),
+          axis.title.x = element_text(size = 14),
+          plot.title = element_text(hjust = 0.5, size = 16),
+          axis.text = element_text(size = 12),
+          legend.title = element_text(size = 14),
+          legend.text = element_text(size = 12))
   
   runTimePlot <- results %>%
     ggplot(aes(x = n, y = RunTime)) +
-    geom_line() +
+    geom_line(size = 2) +
     theme_bw() +
-    labs(title = paste(title_description, "Algorithm Run Time by Input Size"),
+    labs(title = paste("Run Time for", title_description),
          x = "Input Size (n)",
-         y = "Run Time (seconds)") +
-    scale_x_continuous(breaks = 1:max(results$n))
+         y = "Run Time (s)") +
+    scale_x_continuous(breaks = 1:max(results$n)) +
+    theme(axis.title.y = element_text(angle = 0, hjust = 1, size = 14),
+          axis.title.x = element_text(size = 14),
+          plot.title = element_text(hjust = 0.5, size = 16),
+          axis.text = element_text(size = 12),
+          legend.title = element_text(size = 14),
+          legend.text = element_text(size = 12))
   
   ggsave(output_complexity_name, plot = objFunCompPlot)
   ggsave(output_time_name, plot = runTimePlot)
