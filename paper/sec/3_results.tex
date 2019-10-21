@@ -12,7 +12,7 @@ that $z$ is the maximum $c_i$ and set $\bp_i = 0$.
 Finally, we build $C$ to select $z$ from $\Xb$. To solve the SDP with our constraints,
 we implemented Wen et al.'s ADM algorithm.
 
-\subsection{OR Function: All Boolean Inputs}
+
 
 So far we have illustrated the SDP and its solution
 through the example of the OR function.
@@ -39,6 +39,32 @@ size of input bit string.}
 \subsection{OR Function: Worst-case Boolean Inputs}\label{sec:speed}
 
 Our algorithm's performance is visualized above. We see that run time grows exponentially with respect to input size as expected, given the exponential increase in the cardinality of the set $D$ of all inputs of length $n$. We also see that our algorithm is accurately calculating the optimal quantum query complexity of the OR function. 
+
+Using the known results of the quantum query
+complexity of the OR function along with our
+algorithm's performance in regard to the known
+optimal values, we believe that our algorithm is
+correct. Proof's of the algorithm's mathematical
+correctness can be found in Wen et. al. Proof of the
+algorithm's is shown through these results as well as
+review of our code posted on GitHub. Knowing that our
+algorithm is correct, we can then proceed to improve
+it in several ways. 
+
+First, we can attempt to improve run time while
+maintaining the correctness of the algorithm. Later,
+we might be able to alter the algorithm
+mathematically to take advantage of the structure
+given in SDP's formed from quantum algorithms. 
+It has also been claimed that the dual of this semidefinite
+programming problem yields the quantum algorithm with minimal query complexity.
+However, this optimal solution to the dual may not be easily 
+interpreted as an algorithm as there could be many optimal, feasible solutions. 
+Semidefinite programming problems also don't guarantee the tightness of the dual,
+as is the case in linear programming. 
+These problems all pose potential areas of future expansion.
+
+\subsection{OR Function: All Boolean Inputs}
 
 A simple approach to speeding up the runtime of our
 algorithm is to simply decrease the number of input
