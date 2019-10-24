@@ -9,7 +9,7 @@ def getA1s(F, dimension, D, n):
     for (y,z) in F:
         # Construct A_1 that ensures entries corresponding
         # to bits where y and z strings different sum to 1
-        A_1 = np.zeros((dimension, dimension))
+        A_1 = np.zeros((dimension, dimension), dtype = np.float32)
         stringy = D[y]
         stringz = D[z]
         xcoord = n * y
@@ -29,7 +29,7 @@ def getA0s(D, n, dimension):
     for i in range(len(D)):
         # Construct A_0 that ensures input chunk
         # is less than or equal to z (using slack variables)
-        A_0 = np.zeros((dimension, dimension))
+        A_0 = np.zeros((dimension, dimension), dtype = np.float32)
         for j in range(n):
             A_0[count, count] = 1
             count+=1
@@ -53,8 +53,8 @@ def getConstraints(D, E):
     A_1s = getA1s(F=F, dimension=dimension, D=D, n=n)
 
 
-    b_0s = np.zeros((len(D), 1)) # vector of 0s
-    b_1s = np.ones((len(F), 1)) # vector of 1s
+    b_0s = np.zeros((len(D), 1), dtype = np.float32) # vector of 0s
+    b_1s = np.ones((len(F), 1), dtype = np.float32) # vector of 1s
 
     A_0s = getA0s(D=D, n=n, dimension=dimension)
     A_0s.extend(A_1s)
