@@ -14,7 +14,6 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
     labs(title = paste("Numerical Performance for", title_description),
          x = "Input Size (n)",
          y = "Queries") +
-    scale_x_continuous(breaks = seq(from = 1, to = max(results$n), by = 1)) +
     theme(axis.title.y = element_text(angle = 0, hjust = 1, size = 14),
           axis.title.x = element_text(size = 14),
           plot.title = element_text(hjust = 0.5, size = 16),
@@ -29,7 +28,6 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
     labs(title = paste("Run Time for", title_description),
          x = "Input Size (n)",
          y = "Run Time (s)") +
-    scale_x_continuous(breaks = 1:max(results$n)) +
     theme(axis.title.y = element_text(angle = 0, hjust = 1, size = 14),
           axis.title.x = element_text(size = 14),
           plot.title = element_text(hjust = 0.5, size = 16),

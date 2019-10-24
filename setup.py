@@ -138,7 +138,7 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename):
     resultsDF = pd.DataFrame(data = {'Empirical': foundVals, 'Analytical': trueVals, 'n': inputSize, 'RunTime': runTime})
 
     #write ouput:
-    resultsDF.to_csv(index=False, path_or_buf= "./graphs/{}.csv".format(filename))
+    resultsDF.to_csv(index=False, path_or_buf= "./figures/{}.csv".format(filename))
 
 #calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
-calculateSDPSolverComplexity(5, getORAll, "output_all_or")
+calculateSDPSolverComplexity(5, getORWorst, "michaelTest")
