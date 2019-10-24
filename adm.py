@@ -51,8 +51,7 @@ def scriptAStar(A, y):
 # = y(S, X) = -(scriptA scriptAStar) inverse
 #              (mu (scriptA(X) - b) + scriptA(S - C))
 
-def nextY(S, X, As, C, b, mu):
-    A = plainA(As=As)
+def nextY(S, X, As, A, C, b, mu):
     matrixPart = -1 * np.linalg.pinv(np.matmul(A, A.T))
     vectorPart = mu * (scriptA(As, X) + -1 * b) + scriptA(As, S - C)
     return np.matmul(matrixPart, vectorPart)
@@ -88,8 +87,7 @@ def decomposeV(V):
 
     return sigmaPlus, sigmaMinus, Qplus, Qminus
 
-def nextV(C, As, mu, X, y):
-    A = plainA(As = As)
+def nextV(C, A, mu, X, y):
     return C - scriptAStar(A=A, y=y) - mu * X
 
 # spectral decomposition
@@ -105,6 +103,15 @@ def nextS(V):
 def nextX(mu, S, V):
     return 1/mu *(S - V)
 
+def checkConstraints(As, bs, X, tolerance):
+    result = []
+    for i in range(len(As)):
+        value = np.trace(np.matmul(As[i].T, X))
+        is_satisfied = value > bs[i] - tolerance and value < bs[i] + tolerance
+        difference = round(float(np.absolute(value - bs[i])), 2)
+        result.extend([difference])
+    #print(result)
+
 #run this script, then run setup and proceed to the code below.
 def solveSDP(As, b, C, iterations):
     mu = 1
@@ -112,9 +119,10 @@ def solveSDP(As, b, C, iterations):
     initial_shape = np.shape(As[0])[0]
     S = np.eye(initial_shape)
     X = np.zeros((initial_shape, initial_shape)) #np.eye(np.shape(As[0])[0])
+    A = plainA(As)
     for i in range(iterations):
-        y = nextY(S=S, X=X, As=As, C=C, b=b, mu=mu)
-        V = nextV(C=C, As=As, mu=mu, X=X, y=y)
+        y = nextY(S=S, X=X, As=As, A=A, C=C, b=b, mu=mu)
+        V = nextV(C=C, A=A, mu=mu, X=X, y=y)
 #        print("V")
 #        print(V)
         S = nextS(V)
@@ -122,6 +130,7 @@ def solveSDP(As, b, C, iterations):
 #        print(S)
         primeX = nextX(mu=mu, S=S, V=V)
         X = (1-rho)*X + rho * primeX
+        checkConstraints(As=As, bs=b, X=X, tolerance=.1)
 #        print("X")
 #        print(X)
 #        print("S times X")

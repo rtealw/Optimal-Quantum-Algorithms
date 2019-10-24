@@ -141,4 +141,5 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename):
     resultsDF.to_csv(index=False, path_or_buf= "./figures/{}.csv".format(filename))
 
 #calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
-calculateSDPSolverComplexity(5, getORWorst, "michaelTest")
+import cProfile
+cProfile.run("calculateSDPSolverComplexity(4, getORAll, 'michaelTest')")
