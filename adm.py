@@ -13,6 +13,7 @@
 #           = C - A_curly_star(y(k+1)) - mu X
 
 import numpy as np
+import scipy
 import numpy.linalg as LA
 
 #As = [[],[]]
@@ -20,7 +21,7 @@ import numpy.linalg as LA
 #As[1] = np.matrix([[5,6],[7,8]])
 
 def vec(X):
-    return np.matrix(X.ravel()).T
+    return np.matrix(X.ravel(), dtype = np.float32).T
 
 def mat(x):
     dimension = int(np.sqrt(len(x)))
@@ -35,15 +36,15 @@ def plainA(As):
 def scriptA(As, X):
     result = []
     for matA in As:
-        product = np.matmul(matA.T, X)
-        result.append(np.trace(product))
+        product = scipy.linalg.blas.sgemm(1, matA.T, X)
+        result.append(np.trace(product, dtype = np.float32))
 #    print(np.array(result))
-    return np.matrix(result).T
+    return np.matrix(result, dtype = np.float32).T
 
 def scriptAStar(A, y):
 #    print(A.shape)
 #    print(y.shape)
-    return mat(np.matmul(A.T, y))
+    return mat(scipy.linalg.blas.sgemm(1,A.T, y))
 
 # test scriptAStar
 
@@ -52,9 +53,9 @@ def scriptAStar(A, y):
 #              (mu (scriptA(X) - b) + scriptA(S - C))
 
 def nextY(S, X, As, A, C, b, mu):
-    matrixPart = -1 * np.linalg.pinv(np.matmul(A, A.T))
+    matrixPart = -1 * np.linalg.pinv(scipy.linalg.blas.sgemm(1,A, A.T))
     vectorPart = mu * (scriptA(As, X) + -1 * b) + scriptA(As, S - C)
-    return np.matmul(matrixPart, vectorPart)
+    return scipy.linalg.blas.sgemm(1, matrixPart, vectorPart)
 
 def decomposeV(V):
     eigVals, Q = np.linalg.eig(V)  #
@@ -106,7 +107,7 @@ def nextX(mu, S, V):
 def checkConstraints(As, bs, X, tolerance):
     result = []
     for i in range(len(As)):
-        value = np.trace(np.matmul(As[i].T, X))
+        value = np.trace(scipy.linalg.blas.sgemm(1,As[i].T, X,), dtype = np.float32)
         is_satisfied = value > bs[i] - tolerance and value < bs[i] + tolerance
         difference = round(float(np.absolute(value - bs[i])), 2)
         result.extend([difference])
@@ -117,8 +118,8 @@ def solveSDP(As, b, C, iterations):
     mu = 1
     rho = .5
     initial_shape = np.shape(As[0])[0]
-    S = np.eye(initial_shape)
-    X = np.zeros((initial_shape, initial_shape)) #np.eye(np.shape(As[0])[0])
+    S = np.eye(initial_shape, dtype = np.float32)
+    X = np.zeros((initial_shape, initial_shape), dtype = np.float32) #np.eye(np.shape(As[0])[0])
     A = plainA(As)
     for i in range(iterations):
         y = nextY(S=S, X=X, As=As, A=A, C=C, b=b, mu=mu)

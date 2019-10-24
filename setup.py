@@ -3,6 +3,7 @@ import pandas as pd
 from adm import solveSDP
 import time
 import math
+import scipy.linalg
 
 def getA1s(F, dimension, D, n):
     A1s = []
@@ -97,7 +98,7 @@ def getORWorst(n):
 
 def meetsConstraints(As, bs, X, tolerance):
     for i in range(len(As)):
-        value = np.trace(np.matmul(As[i].T, X))
+        value = np.trace(scipy.linalg.blas.sgemm(1, As[i].T, X))
         if value < bs[i] - tolerance or value > bs[i] + tolerance:
             print(value)
             print(bs[i])
@@ -142,4 +143,4 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename):
 
 #calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
 import cProfile
-cProfile.run("calculateSDPSolverComplexity(4, getORAll, 'michaelTest')")
+cProfile.run("calculateSDPSolverComplexity(5, getORAll, 'michaelTest')")
