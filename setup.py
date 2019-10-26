@@ -143,4 +143,4 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename):
 
 #calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
 import cProfile
-cProfile.run("calculateSDPSolverComplexity(5, getORAll, 'michaelTest')")
+cProfile.run("calculateSDPSolverComplexity(5, getORAll, 'michaelTest')", sort = "time")

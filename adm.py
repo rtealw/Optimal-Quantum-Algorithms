@@ -13,7 +13,6 @@
 #           = C - A_curly_star(y(k+1)) - mu X
 
 import numpy as np
-import numpy.linalg as LA
 
 #As = [[],[]]
 #As[0] = np.matrix([[1,2],[3,4]])
@@ -35,8 +34,13 @@ def plainA(As):
 def scriptA(As, X):
     result = []
     for matA in As:
-        product = np.matmul(matA.T, X)
-        result.append(np.trace(product, dtype=np.float32))
+        #product = np.matmul(matA.T, X)
+        #result.append(np.trace(product, dtype=np.float32))
+
+        #https://stackoverflow.com/questions/18854425/what-is-the-best-way-to-compute-the-trace-of-a-matrix-product-in-numpy
+        result.append(np.einsum('ij,ji->', matA.T, X))
+
+
 #    print(np.array(result))
     return np.matrix(result, dtype=np.float32).T
 
@@ -130,7 +134,7 @@ def solveSDP(As, b, C, iterations):
 #        print(S)
         primeX = nextX(mu=mu, S=S, V=V)
         X = (1-rho)*X + rho * primeX
-        checkConstraints(As=As, bs=b, X=X, tolerance=.1)
+        #checkConstraints(As=As, bs=b, X=X, tolerance=.1)
 #        print("X")
 #        print(X)
 #        print("S times X")
