@@ -5,6 +5,7 @@ import time
 import math
 import scipy.linalg
 
+
 def getA1s(F, dimension, D, n):
     A1s = []
     for (y,z) in F:

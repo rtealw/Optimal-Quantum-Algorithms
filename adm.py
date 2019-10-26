@@ -14,6 +14,7 @@
 
 import numpy as np
 
+
 #As = [[],[]]
 #As[0] = np.matrix([[1,2],[3,4]])
 #As[1] = np.matrix([[5,6],[7,8]])
@@ -55,8 +56,8 @@ def scriptAStar(A, y):
 # = y(S, X) = -(scriptA scriptAStar) inverse
 #              (mu (scriptA(X) - b) + scriptA(S - C))
 
-def nextY(S, X, As, A, C, b, mu):
-    matrixPart = -1 * np.linalg.pinv(np.matmul(A, A.T))
+def nextY(S, X, As, A, C, b, mu, pinvAAt):
+    matrixPart = -1 * pinvAAt
     vectorPart = mu * (scriptA(As, X) + -1 * b) + scriptA(As, S - C)
     return np.matmul(matrixPart, vectorPart)
 
@@ -124,8 +125,9 @@ def solveSDP(As, b, C, iterations):
     S = np.eye(initial_shape, dtype=np.float32)
     X = np.zeros((initial_shape, initial_shape), dtype=np.float32) #np.eye(np.shape(As[0])[0])
     A = plainA(As)
+    pinvAAt = np.linalg.pinv(np.matmul(A, A.T))
     for i in range(iterations):
-        y = nextY(S=S, X=X, As=As, A=A, C=C, b=b, mu=mu)
+        y = nextY(S=S, X=X, As=As, A=A, C=C, b=b, mu=mu, pinvAAt = pinvAAt)
         V = nextV(C=C, A=A, mu=mu, X=X, y=y)
 #        print("V")
 #        print(V)
