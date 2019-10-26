@@ -8,6 +8,7 @@ import scipy.linalg
 
 def getA1s(F, dimension, D, n):
     A1s = []
+    A1Indices = []
     for (y,z) in F:
         # Construct A_1 that ensures entries corresponding
         # to bits where y and z strings different sum to 1
@@ -16,30 +17,38 @@ def getA1s(F, dimension, D, n):
         stringz = D[z]
         xcoord = n * y
         ycoord = n * z
+        current_indices = []
         for i in range(n):
+            current_indices.append((xcoord, ycoord))
             if stringy[i] != stringz[i]:
                 A_1[xcoord, ycoord] = 1
             xcoord += 1
             ycoord += 1
         A1s.append(A_1.T) # transposing because of scriptA
-    return A1s
+        A1Indices.append(current_indices)
+    return A1s, A1Indices
 
 def getA0s(D, n, dimension):
-    A_0s = []
+    A0s = []
+    A0Indices = []
     count = 0 # add constants rather than multiply
     slack_starter = n * len(D)
     for i in range(len(D)):
-        # Construct A_0 that ensures input chunk
+        # Construct A0 that ensures input chunk
         # is less than or equal to z (using slack variables)
-        A_0 = np.zeros((dimension, dimension), dtype = np.float32)
+        A0 = np.zeros((dimension, dimension), dtype = np.float32)
+        current_indices = []
         for j in range(n):
-            A_0[count, count] = 1
+            current_indices.append((count, count))
+            A0[count, count] = 1
             count+=1
-        A_0[slack_starter, slack_starter] = 1
-        A_0[-1, -1] = -1
-        A_0s.append(A_0.T) # transposing because of scriptA
+        A0[slack_starter, slack_starter] = 1
+        current_indices.append((slack_starter, slack_starter))
+        A0[-1, -1] = -1
+        A0s.append(A0.T) # transposing because of scriptA
+        A0Indices.append(current_indices)
         slack_starter += 1
-    return A_0s
+    return A0s, A0Indices
 
 def getConstraints(D, E):
     F = []               # Cartesian product of inputs with different outputs
@@ -52,20 +61,19 @@ def getConstraints(D, E):
             if E[i] != E[j]:
                 F.append((i,j))
     
-    A_1s = getA1s(F=F, dimension=dimension, D=D, n=n)
-
+    A0s, A0Indices = getA0s(D=D, n=n, dimension=dimension)
+    A1s, A1Indices = getA1s(F=F, dimension=dimension, D=D, n=n)
+    As = []
+    As.extend(A0s)
+    As.extend(A1s)
 
     b_0s = np.zeros((len(D), 1), dtype = np.float32) # vector of 0s
     b_1s = np.ones((len(F), 1), dtype = np.float32) # vector of 1s
-
-    A_0s = getA0s(D=D, n=n, dimension=dimension)
-    A_0s.extend(A_1s)
-    As = A_0s
     bs = np.concatenate((b_0s, b_1s), axis=0)
 
     C = np.zeros((dimension, dimension))
     C[- 1, - 1] = 1
-    return As, bs, C
+    return As, bs, C, A0Indices, A1Indices
 
 D = ['000','001', '110', '110', '111'] # inputs to Boolean function f
 E = ['0', '1', '1', '1', '1']  # corresponding outputs to f
@@ -107,8 +115,8 @@ def meetsConstraints(As, bs, X, tolerance):
     return True
 
 def wrapSDPSolver(D, E):
-    As, bs, C = getConstraints(D=D, E=E)
-    X = solveSDP(As=As, b=bs, C=C, iterations=100)
+    As, bs, C, A0Indices, A1Indices = getConstraints(D=D, E=E)
+    X = solveSDP(As=As, b=bs, C=C, A0Indices=A0Indices, A1Indices=A1Indices, iterations=100)
     if not meetsConstraints(As=As, bs=bs, X=X, tolerance=1):
         raise "X does not meet constraints!"
     return X[-1, -1]
@@ -144,4 +152,4 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename):
 
 #calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
 import cProfile
-cProfile.run("calculateSDPSolverComplexity(5, getORAll, 'michaelTest')", sort = "time")
+cProfile.run("calculateSDPSolverComplexity(6, getORAll, 'michaelTest')", sort = "time")

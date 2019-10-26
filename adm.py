@@ -32,19 +32,27 @@ def plainA(As):
         A = np.hstack((A, vec(As[i])))
     return A.T
 
-def scriptA(As, X):
+def scriptA(As, X, A0Indices, A1Indices):
     result = []
-    for matA in As:
-        #https://stackoverflow.com/questions/18854425/what-is-the-best-way-to-compute-the-trace-of-a-matrix-product-in-numpy
-        result.append(np.einsum('ij,ji->', matA.T, X))
+    for current_indices in A0Indices:
+        current_trace = 0
+        for indice in current_indices:
+            current_trace += X[indice]
+        current_trace -= X[-1, -1]
+        result.append(current_trace)
+    for current_indices in A1Indices:
+        current_trace = 0
+        for indice in current_indices:
+            current_trace += X[indice]
+        result.append(current_trace)
     return np.matrix(result, dtype=np.float32).T
 
 def scriptAStar(A, y):
     return mat(np.matmul(A.T, y))
 
-def nextY(S, X, As, A, C, b, mu, pinvAAt):
+def nextY(S, X, As, A, C, b, mu, pinvAAt, A0Indices, A1Indices):
     matrixPart = -1 * pinvAAt
-    vectorPart = mu * (scriptA(As, X) + -1 * b) + scriptA(As, S - C)
+    vectorPart = mu * (scriptA(As=As, X=X, A0Indices=A0Indices, A1Indices=A1Indices) + -1 * b) + scriptA(As=As, X=S - C, A0Indices=A0Indices, A1Indices=A1Indices)
     return np.matmul(matrixPart, vectorPart)
 
 def decomposeV(V):
@@ -94,7 +102,7 @@ def checkConstraints(As, bs, X, tolerance):
     #print(result)
 
 #run this script, then run setup and proceed to the code below.
-def solveSDP(As, b, C, iterations):
+def solveSDP(As, b, C, A0Indices, A1Indices, iterations):
     mu = 1
     rho = .5
     initial_shape = np.shape(As[0])[0]
@@ -103,7 +111,10 @@ def solveSDP(As, b, C, iterations):
     A = plainA(As)
     pinvAAt = np.linalg.pinv(np.matmul(A, A.T))
     for i in range(iterations):
-        y = nextY(S=S, X=X, As=As, A=A, C=C, b=b, mu=mu, pinvAAt = pinvAAt)
+        y = nextY(
+            S=S, X=X, As=As, A=A, C=C, b=b, mu=mu, pinvAAt = pinvAAt,
+            A0Indices=A0Indices, A1Indices=A1Indices
+        )
         V = nextV(C=C, A=A, mu=mu, X=X, y=y)
         S = nextS(V)
         primeX = nextX(mu=mu, S=S, V=V)
