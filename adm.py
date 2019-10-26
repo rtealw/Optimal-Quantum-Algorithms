@@ -104,7 +104,6 @@ def checkConstraints(As, bs, X, tolerance):
 #run this script, then run setup and proceed to the code below.
 def solveSDP(As, b, C, A0Indices, A1Indices, iterations):
     mu = 1
-    rho = .5
     initial_shape = np.shape(As[0])[0]
     S = np.eye(initial_shape, dtype=np.float32)
     X = np.zeros((initial_shape, initial_shape), dtype=np.float32) #np.eye(np.shape(As[0])[0])
@@ -117,7 +116,6 @@ def solveSDP(As, b, C, A0Indices, A1Indices, iterations):
         )
         V = nextV(C=C, A=A, mu=mu, X=X, y=y)
         S = nextS(V)
-        primeX = nextX(mu=mu, S=S, V=V)
-        X = (1-rho)*X + rho * primeX
+        X = nextX(mu=mu, S=S, V=V)
         #checkConstraints(As=As, bs=b, X=X, tolerance=.1)
     return X
