@@ -6,7 +6,7 @@ we construct matrices corresponding to the constraints
 in \cref{Eq:boyd_obj}.
 Our implementation uses Python3 and the NumPy library \cite{numpy}.
 We build $A_i$ for $i \in [|F|]$ to enforce the condition
-outlined in \cref{Eq:off-diag} and set $b_i=1$.
+outlined in \cref{Eq:reichardtOffDiag} and set $b_i=1$.
 We build $\Ap_i$ for $i \in [|D|]$ to enforce
 that $z$ is the maximum $c_i$ and set $\bp_i = 0$.
 Finally, we build $C$ to select $z$ from $\Xb$. To solve the SDP with our constraints,
