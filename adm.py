@@ -35,26 +35,12 @@ def plainA(As):
 def scriptA(As, X):
     result = []
     for matA in As:
-        #product = np.matmul(matA.T, X)
-        #result.append(np.trace(product, dtype=np.float32))
-
         #https://stackoverflow.com/questions/18854425/what-is-the-best-way-to-compute-the-trace-of-a-matrix-product-in-numpy
         result.append(np.einsum('ij,ji->', matA.T, X))
-
-
-#    print(np.array(result))
     return np.matrix(result, dtype=np.float32).T
 
 def scriptAStar(A, y):
-#    print(A.shape)
-#    print(y.shape)
     return mat(np.matmul(A.T, y))
-
-# test scriptAStar
-
-# y(k+1)
-# = y(S, X) = -(scriptA scriptAStar) inverse
-#              (mu (scriptA(X) - b) + scriptA(S - C))
 
 def nextY(S, X, As, A, C, b, mu, pinvAAt):
     matrixPart = -1 * pinvAAt
@@ -64,22 +50,17 @@ def nextY(S, X, As, A, C, b, mu, pinvAAt):
 def decomposeV(V):
     eigVals, Q = np.linalg.eig(V) #
     ordering = (-eigVals).argsort() # puts indices in the descending order
-    
     #sigma = np.diag(eigVals) #creates a big matrix sigma
  
     # to make sure our notation is correct 
     # we need to ensure that we have sigma+, sigma-
     sigma_unordered = np.diag(eigVals)
     primeV = Q.dot(sigma_unordered).dot(Q.T)
-#    np.testing.assert_allclose(primeV, V, atol=1)
     assert primeV.shape == V.shape
  
     sigma = np.diag(eigVals[ordering])
     Q = Q[:, ordering] 
-    
-    # assert that the decomposition worked and we can reproduce V
-
-   
+  
     nNonNeg = sum(eigVals >= 0) #number of non-negative eigenvalues
     
     sigmaPlus = sigma[:nNonNeg, :nNonNeg]
@@ -95,11 +76,6 @@ def decomposeV(V):
 def nextV(C, A, mu, X, y):
     return C - scriptAStar(A=A, y=y) - mu * X
 
-# spectral decomposition
-# S(k+1)
-# = V_dag(k+1) = Q_dag sum Q_dag tranpose
-# where Q sum Q tranpose
-# (Q_dag Q_double_dag)((sum_plus, 0), (0, sum_minus)) (Q_dag tranpose, Q_double_dag tranpose)
 def nextS(V):
     sigmaPlus, sigmaMinus, Qplus, Qminus = decomposeV(V)
     stepOne = np.matmul(Qplus, sigmaPlus)
@@ -129,19 +105,8 @@ def solveSDP(As, b, C, iterations):
     for i in range(iterations):
         y = nextY(S=S, X=X, As=As, A=A, C=C, b=b, mu=mu, pinvAAt = pinvAAt)
         V = nextV(C=C, A=A, mu=mu, X=X, y=y)
-#        print("V")
-#        print(V)
         S = nextS(V)
-#        print("S")
-#        print(S)
         primeX = nextX(mu=mu, S=S, V=V)
         X = (1-rho)*X + rho * primeX
         #checkConstraints(As=As, bs=b, X=X, tolerance=.1)
-#        print("X")
-#        print(X)
-#        print("S times X")
-#        print(np.matmul(S, X))
-        #print("i: {}".format(i+1))
-        #print("obj func: {}".format(np.trace(np.matmul(C.T, X))))
-        #print(scriptA(As, X))
     return X
