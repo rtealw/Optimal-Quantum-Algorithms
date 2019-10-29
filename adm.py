@@ -62,9 +62,9 @@ def decomposeV(V):
  
     # to make sure our notation is correct 
     # we need to ensure that we have sigma+, sigma-
-    sigma_unordered = np.diag(eigVals)
-    primeV = Q.dot(sigma_unordered).dot(Q.T)
-    assert primeV.shape == V.shape
+    #sigma_unordered = np.diag(eigVals)
+    #primeV = Q.dot(sigma_unordered).dot(Q.T)
+    #assert primeV.shape == V.shape
  
     sigma = np.diag(eigVals[ordering])
     Q = Q[:, ordering] 

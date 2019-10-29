@@ -4,6 +4,7 @@ from adm import solveSDP
 import time
 import math
 import scipy.linalg
+import scipy.sparse
 
 
 def getA1s(F, dimension, D, n):
@@ -13,6 +14,31 @@ def getA1s(F, dimension, D, n):
         # Construct A_1 that ensures entries corresponding
         # to bits where y and z strings different sum to 1
         A_1 = np.zeros((dimension, dimension), dtype = np.float32)
+        stringy = D[y]
+        stringz = D[z]
+        xcoord = n * y
+        ycoord = n * z
+        current_indices = []
+        for i in range(n):
+            current_indices.append((xcoord, ycoord))
+            if stringy[i] != stringz[i]:
+                A_1[xcoord, ycoord] = 1
+            xcoord += 1
+            ycoord += 1
+        A1s.append(A_1.T) # transposing because of scriptA
+        A1Indices.append(current_indices)
+    return A1s, A1Indices
+
+def getA1sSparse(F, dimension, D, n):
+    A1s = []
+    A1Indices = []
+    for (y,z) in F:
+        # Construct A_1 that ensures entries corresponding
+        # to bits where y and z strings different sum to 1
+        #A_1 = np.zeros((dimension, dimension), dtype = np.float32)
+        I = []
+        J = []
+        V = []
         stringy = D[y]
         stringz = D[z]
         xcoord = n * y
@@ -152,4 +178,4 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename):
 
 #calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
 import cProfile
-cProfile.run("calculateSDPSolverComplexity(6, getORAll, 'michaelTest')", sort = "time")
+cProfile.run("calculateSDPSolverComplexity(5, getORAll, 'michaelTest')", sort = "time")

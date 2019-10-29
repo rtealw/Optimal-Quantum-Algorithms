@@ -5,7 +5,7 @@ library(ggthemes)
 generateFigures <- function(input_name, output_complexity_name, output_time_name, title_description) {
   results <- fread(input_name) %>%
     gather("Method", "Value", -RunTime, -n)
-  
+
   objFunCompPlot <- results %>%
     ggplot(aes(x = n, y = Value, group = Method)) +
     geom_line(aes(color = Method), size = 2)  +
@@ -20,7 +20,8 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
           axis.text = element_text(size = 12),
           legend.title = element_text(size = 14),
           legend.text = element_text(size = 12))
-  
+
+
   runTimePlot <- results %>%
     ggplot(aes(x = n, y = RunTime)) +
     geom_line(size = 2) +
@@ -34,7 +35,7 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
           axis.text = element_text(size = 12),
           legend.title = element_text(size = 14),
           legend.text = element_text(size = 12))
-  
+
   ggsave(output_complexity_name, plot = objFunCompPlot)
   ggsave(output_time_name, plot = runTimePlot)
 }
