@@ -1,31 +1,11 @@
 #http://mpc.zib.de/index.php/MPC/article/viewFile/40/20
 # Algorithm 1: Alternating direction augmented Lagrangian method for SDP
-# Set X_0 and S_0 as semidefinite matrices
-# for k in 0,1,... do
-#   compute y(k+1)
-#   compute V(k+1) and its eigenvalue decomposition
-#       and set S(k+1) = V_dag(k+1)
-#   compute X(k+1) = 1/mu (S(k+1) - V(k+1))
-
-
-# V(k+1)
-# = V(S, X) = C - A_curly_star(y(S,X)) - mu X
-#           = C - A_curly_star(y(k+1)) - mu X
 
 import numpy as np
 from scipy import sparse
 
-
-#As = [[],[]]
-#As[0] = np.matrix([[1,2],[3,4]])
-#As[1] = np.matrix([[5,6],[7,8]])
-
 def vec(X):
     return np.matrix(X.ravel(), dtype=np.float32).T
-
-def mat(x):
-    dimension = int(np.sqrt(len(x)))
-    return x.reshape((dimension, dimension))
 
 def plainA(As):
     A = vec(As[0])
@@ -33,27 +13,28 @@ def plainA(As):
         A = np.hstack((A, vec(As[i])))
     return A.T
 
-def scriptA(As, X, A0Indices, A1Indices):
-    result = []
-    for current_indices in A0Indices:
-        current_trace = 0
-        for indice in current_indices:
-            current_trace += X[indice]
-        current_trace -= X[-1, -1]
-        result.append(current_trace)
-    for current_indices in A1Indices:
-        current_trace = 0
-        for indice in current_indices:
-            current_trace += X[indice]
-        result.append(current_trace)
-    return np.matrix(result, dtype=np.float32).T
+def mat(x):
+    dimension = int(np.sqrt(len(x)))
+    return x.reshape((dimension, dimension))
+
+def scriptA(As, X, constraintAs, constraints):
+    traces = []
+    for constraint in constraints:
+        trace = 0
+        V = constraint["V"]
+        I = constraint["I"]
+        J = constraint["J"]
+        for num in range(len(V)):
+            trace += X[I[num], J[num]] * V[num]
+        traces.append(trace)
+    return np.matrix(traces, dtype=np.float32).T
 
 def scriptAStar(A, y):
     return mat(A.T.dot(y))
 
-def nextY(S, X, As, A, C, b, mu, pinvAAt, A0Indices, A1Indices):
+def nextY(S, X, As, A, C, b, mu, pinvAAt, constraints, constraintAs):
     matrixPart = -1 * pinvAAt
-    vectorPart = mu * (scriptA(As=As, X=X, A0Indices=A0Indices, A1Indices=A1Indices) + -1 * b) + scriptA(As=As, X=S - C, A0Indices=A0Indices, A1Indices=A1Indices)
+    vectorPart = mu * (scriptA(As=As, X=X, constraints=constraints, constraintAs=constraintAs) + -1 * b) + scriptA(As=As, X=S - C, constraints=constraints,  constraintAs=constraintAs)
     return matrixPart.dot(vectorPart)
 
 def decomposeV(V):
@@ -93,31 +74,48 @@ def nextS(V):
 def nextX(mu, S, V):
     return 1/mu *(S - V)
 
-def checkConstraints(As, bs, X, tolerance):
-    result = []
-    for i in range(len(As)):
-        value = np.trace(np.matmul(As[i].T, X), dtype=np.float32)
-        is_satisfied = value > bs[i] - tolerance and value < bs[i] + tolerance
-        difference = round(float(np.absolute(value - bs[i])), 2)
-        result.extend([difference])
-    #print(result)
+def simplifyX(X, initial_shape, close_enough=1e-5):
+    idx0 = np.absolute(X - np.zeros((initial_shape, initial_shape), dtype = np.float32)) < close_enough
+    X[idx0] = 0
+    idx1 = np.absolute(X - np.ones((initial_shape, initial_shape), dtype = np.float32)) < close_enough
+    X[idx1] = 1
+    return X
 
-#run this script, then run setup and proceed to the code below.
-def solveSDP(As, b, C, A0Indices, A1Indices, iterations):
-    mu = 1
+def getAs(constraints, dimensions):
+    As = []
+    for constraint in constraints:
+        V = np.array(constraint["V"])
+        I = np.array(constraint["I"])
+        J = np.array(constraint["J"])
+        A = sparse.coo_matrix((V, (I, J)), shape=dimensions).todense()
+        As.append(A)
+    return As
+
+def solveSDP(As, b, C, constraints, constraintAs, accuracy=1e-4, mu=1, min_iterations=69, max_iterations=420):
     initial_shape = np.shape(As[0])[0]
     S = np.eye(initial_shape, dtype=np.float32)
-    X = np.zeros((initial_shape, initial_shape), dtype=np.float32) #np.eye(np.shape(As[0])[0])
+    X = np.zeros((initial_shape, initial_shape), dtype=np.float32)
+    old_z = X[-1, -1]
+
+    As = getAs(constraints, C.shape)
+
     A = plainA(As)
     pinvAAt = sparse.csr_matrix(np.linalg.pinv(np.matmul(A, A.T)))
     sparseA = sparse.csr_matrix(A)
-    for i in range(iterations):
+
+    for iteration in range(max_iterations):
         y = nextY(
             S=S, X=X, As=As, A=sparseA, C=C, b=b, mu=mu, pinvAAt = pinvAAt,
-            A0Indices=A0Indices, A1Indices=A1Indices
+            constraints=constraints, constraintAs=constraintAs
         )
         V = nextV(C=C, A=sparseA, mu=mu, X=X, y=y)
         S = nextS(V)
         X = nextX(mu=mu, S=S, V=V)
-        #checkConstraints(As=As, bs=b, X=X, tolerance=.1)
+        X = simplifyX(X=X, initial_shape=initial_shape)
+
+        # Check if objective value is stagnating
+        if np.absolute(X[-1, -1] - old_z) < accuracy and iteration > min_iterations:
+            break
+        old_z = X[-1, -1]
+    print("Iterations: {}".format(iteration))
     return X

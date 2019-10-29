@@ -5,51 +5,93 @@ import time
 import math
 import scipy.linalg
 from scipy import sparse
+import sys
 
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 def getA1s(F, dimension, D, n):
     A1s = []
     A1Indices = []
+    A1Values = []
+    constraints = []
     for (y,z) in F:
         # Construct A_1 that ensures entries corresponding
         # to bits where y and z strings different sum to 1
         A_1 = np.zeros((dimension, dimension), dtype = np.float32)
-        stringy = D[y]
-        stringz = D[z]
+        constraint = {"V": [], "I" : [], "J" : []}
+#        stringy = D[y]
+#        stringz = D[z]
         xcoord = n * y
         ycoord = n * z
         current_indices = []
+        current_values = []
         for i in range(n):
+#            xcoord, ycoord = n*y + i, n*z + i
             current_indices.append((xcoord, ycoord))
-            if stringy[i] != stringz[i]:
+            current_values.append(1)
+            if D[y][i] != D[z][i]:
+                constraint["V"] += [1]
+                constraint["I"] += [xcoord]
+                constraint["J"] += [ycoord]
                 A_1[xcoord, ycoord] = 1
             xcoord += 1
             ycoord += 1
         A1s.append(A_1.T) # transposing because of scriptA
         A1Indices.append(current_indices)
-    return A1s, A1Indices
+        A1Values.append(current_values)
+        constraints.append(constraint)
+#    print("A1Values: {}".format(A1Values))
+#    print("A1 indices: {}".format(A1Indices))
+#    print("constraintsA1: {}".format(constraints))
+#    print(A1s)
+    return A1s, A1Indices, A1Values, constraints
 
 def getA0s(D, n, dimension):
     A0s = []
     A0Indices = []
+    A0Values = []
     count = 0 # add constants rather than multiply
     slack_starter = n * len(D)
+    slack = n * len(D)
+    constraints = []
     for i in range(len(D)):
         # Construct A0 that ensures input chunk
         # is less than or equal to z (using slack variables)
+        constraint = {"V" : [1, -1], "I" : [slack, dimension-1], "J" : [slack, dimension-1]}
         A0 = np.zeros((dimension, dimension), dtype = np.float32)
         current_indices = []
+        current_values = []
         for j in range(n):
+            #print("count: {}".format(count))
+            constraint["V"] += [1]
+            constraint["I"] += [count]
+            constraint["J"] += [count]
             current_indices.append((count, count))
+            current_values.append(1)
             A0[count, count] = 1
+            if i * n + j != count:
+                print(count)
+                print(i * n + j)
             count+=1
+        constraints.append(constraint)
         A0[slack_starter, slack_starter] = 1
         current_indices.append((slack_starter, slack_starter))
+        current_values.append(1)
         A0[-1, -1] = -1
         A0s.append(A0.T) # transposing because of scriptA
         A0Indices.append(current_indices)
+        current_indices.append((-1, -1))
+        current_values.append(-1)
+        A0Values.append(current_values)
         slack_starter += 1
-    return A0s, A0Indices
+        slack += 1
+#    print("A0Values: {}".format(A0Values))
+#    print("A0 indices: {}".format(A0Indices))
+#    print("constraintsA0: {}".format(constraints))
+#    print(A0s)
+    return A0s, A0Indices, A0Values, constraints
 
 def getConstraints(D, E):
     F = []               # Cartesian product of inputs with different outputs
@@ -62,11 +104,21 @@ def getConstraints(D, E):
             if E[i] != E[j]:
                 F.append((i,j))
     
-    A0s, A0Indices = getA0s(D=D, n=n, dimension=dimension)
-    A1s, A1Indices = getA1s(F=F, dimension=dimension, D=D, n=n)
+    A0s, A0Indices, A0Values, constraintsA0 = getA0s(D=D, n=n, dimension=dimension)
+    A1s, A1Indices, A1Values, constraintsA1 = getA1s(F=F, dimension=dimension, D=D, n=n)
     As = []
+    constraints = []
+    constraints.extend(constraintsA0)
+    constraints.extend(constraintsA1)
     As.extend(A0s)
     As.extend(A1s)
+    constraintIndices = []
+    constraintIndices.extend(A0Indices)
+    constraintIndices.extend(A1Indices)
+    constraintValues = []
+    constraintValues.extend(A0Values)
+    constraintValues.extend(A1Values)
+    constraintAs = {"indices" : constraintIndices, "values" : constraintValues}
 
     b_0s = np.zeros((len(D), 1), dtype = np.float32) # vector of 0s
     b_1s = np.ones((len(F), 1), dtype = np.float32) # vector of 1s
@@ -74,7 +126,7 @@ def getConstraints(D, E):
 
     C = sparse.csr_matrix(np.zeros((dimension, dimension)))
     C[- 1, - 1] = 1
-    return As, bs, C, A0Indices, A1Indices
+    return As, bs, C, constraints, constraintAs
 
 D = ['000','001', '110', '110', '111'] # inputs to Boolean function f
 E = ['0', '1', '1', '1', '1']  # corresponding outputs to f
@@ -116,8 +168,8 @@ def meetsConstraints(As, bs, X, tolerance):
     return True
 
 def wrapSDPSolver(D, E):
-    As, bs, C, A0Indices, A1Indices = getConstraints(D=D, E=E)
-    X = solveSDP(As=As, b=bs, C=C, A0Indices=A0Indices, A1Indices=A1Indices, iterations=100)
+    As, bs, C, constraints, constraintAs = getConstraints(D=D, E=E)
+    X = solveSDP(As=As, b=bs, C=C, constraints = constraints, constraintAs=constraintAs)
     if not meetsConstraints(As=As, bs=bs, X=X, tolerance=1):
         raise "X does not meet constraints!"
     return X[-1, -1]
@@ -153,4 +205,6 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename):
 
 #calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
 import cProfile
-cProfile.run("calculateSDPSolverComplexity(6, getORAll, 'michaelTest')", sort = "time")
+#cProfile.run("calculateSDPSolverComplexity(6, getORAll, 'michaelTest')", sort = "time")
+
+calculateSDPSolverComplexity(6, getORAll, 'michaelTest')
