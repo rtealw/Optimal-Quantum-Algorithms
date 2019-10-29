@@ -13,6 +13,7 @@
 #           = C - A_curly_star(y(k+1)) - mu X
 
 import numpy as np
+from scipy import sparse
 
 
 #As = [[],[]]
@@ -48,12 +49,12 @@ def scriptA(As, X, A0Indices, A1Indices):
     return np.matrix(result, dtype=np.float32).T
 
 def scriptAStar(A, y):
-    return mat(np.matmul(A.T, y))
+    return mat(A.T.dot(y))
 
 def nextY(S, X, As, A, C, b, mu, pinvAAt, A0Indices, A1Indices):
     matrixPart = -1 * pinvAAt
     vectorPart = mu * (scriptA(As=As, X=X, A0Indices=A0Indices, A1Indices=A1Indices) + -1 * b) + scriptA(As=As, X=S - C, A0Indices=A0Indices, A1Indices=A1Indices)
-    return np.matmul(matrixPart, vectorPart)
+    return matrixPart.dot(vectorPart)
 
 def decomposeV(V):
     eigVals, Q = np.linalg.eig(V) #
@@ -108,13 +109,14 @@ def solveSDP(As, b, C, A0Indices, A1Indices, iterations):
     S = np.eye(initial_shape, dtype=np.float32)
     X = np.zeros((initial_shape, initial_shape), dtype=np.float32) #np.eye(np.shape(As[0])[0])
     A = plainA(As)
-    pinvAAt = np.linalg.pinv(np.matmul(A, A.T))
+    pinvAAt = sparse.csr_matrix(np.linalg.pinv(np.matmul(A, A.T)))
+    sparseA = sparse.csr_matrix(A)
     for i in range(iterations):
         y = nextY(
-            S=S, X=X, As=As, A=A, C=C, b=b, mu=mu, pinvAAt = pinvAAt,
+            S=S, X=X, As=As, A=sparseA, C=C, b=b, mu=mu, pinvAAt = pinvAAt,
             A0Indices=A0Indices, A1Indices=A1Indices
         )
-        V = nextV(C=C, A=A, mu=mu, X=X, y=y)
+        V = nextV(C=C, A=sparseA, mu=mu, X=X, y=y)
         S = nextS(V)
         X = nextX(mu=mu, S=S, V=V)
         #checkConstraints(As=As, bs=b, X=X, tolerance=.1)
