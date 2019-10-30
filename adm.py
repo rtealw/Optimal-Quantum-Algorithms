@@ -103,5 +103,4 @@ def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=69, max_iter
         if np.absolute(X[-1, -1] - old_z) < accuracy and iteration > min_iterations:
             break
         old_z = X[-1, -1]
-    print("Iterations: {}".format(iteration))
-    return X
+    return X, iteration

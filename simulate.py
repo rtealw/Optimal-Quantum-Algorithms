@@ -7,6 +7,7 @@ import scipy.linalg
 from scipy import sparse
 import sys
 import cProfile
+from termcolor import cprint 
 
 if not sys.warnoptions:
     import warnings
@@ -92,8 +93,8 @@ def getORWorst(n):
 
 def wrapSDPSolver(D, E):
     constraints, bs, C = getConstraints(D=D, E=E)
-    X = solveSDP(constraints=constraints, b=bs, C=C)
-    return X[-1, -1]
+    X, iteration = solveSDP(constraints=constraints, b=bs, C=C)
+    return X[-1, -1], iteration
 
 def calculateSDPSolverComplexity(iterations, getDandE, filename=""):
     found_vals = []
@@ -108,10 +109,11 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename=""):
         print("E: {}".format(E))
 
         starting_time = time.time()
-        opt_val = wrapSDPSolver(D, E)
+        opt_val, iteration = wrapSDPSolver(D, E)
         t = time.time() - starting_time
 
         print("Obj. Func. Value: {}".format(opt_val))
+        print("Num. Iterations: {}".format(iteration))
         print("Run Time: {}  \n".format(t))
 
         found_vals.extend([opt_val.real])
@@ -124,6 +126,25 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename=""):
     if filename != "":
         resultsDF.to_csv(index=False, path_or_buf= "./figures/{}.csv".format(filename))
 
+def testSDPSolverOnOR(iterations=5, accuracy = 2):
+    all_passed = True
+    for n in range(1, iterations + 1):
+        print("Testing SDP solver on OR for n = {}...".format(n), end="")
+        D, E = getORAll(n)
+        result, iteration = wrapSDPSolver(D, E)
+        if round(result, accuracy) == round(np.sqrt(n), accuracy):
+            cprint("passed :)", "green")
+        else:
+            all_passed = False
+            cprint("failed :(", "red")
+    if all_passed:
+        cprint("Tests passed :)", "green")
+    else:
+        cprint("Tests failed :(", "red")
+
+if __name__ == '__main__':
+    testSDPSolverOnOR()
+
 #cProfile.run("calculateSDPSolverComplexity(20, getORWorst)", sort = "time")
 #cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort = "time")
-calculateSDPSolverComplexity(6, getORAll)
+#calculateSDPSolverComplexity(6, getORAll)
