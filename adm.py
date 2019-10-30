@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy import sparse
+import scipy.sparse.linalg
 
 def vec(X):
     return np.matrix(X.ravel(), dtype=np.float32).T
@@ -36,11 +37,16 @@ def nextY(S, X, C, b, mu, pinvAAt, constraints):
     return matrix.dot(vector_a + vector_b)
 
 def decomposeV(V):
-    eig_vals, Q = np.linalg.eig(V)
-    ordering = (-eig_vals).argsort() 
-    sigma = np.diag(eig_vals[ordering])
-    Q = Q[:, ordering] 
-    num_non_neg = sum(eig_vals >= 0) #number of non-negative eigenvalues
+    #sparse_unordered_vals, sparse_unordered_vecs = sparse.linalg.eigs(V)
+    unordered_vals, unordered_vecs = np.linalg.eig(V)
+    #print("Sparse eig vals: {}".format(sparse_unordered_vals))
+    #print("Regular eig vals: {}".format(unordered_vals))
+    #print("Sparse Q: {}".format(sparse_unordered_vecs))
+    #print("Regular Q: {}".format(unordered_vecs))
+    ordering = (-unordered_vals).argsort() 
+    sigma = np.diag(unordered_vals[ordering])
+    Q = unordered_vecs[:, ordering] 
+    num_non_neg = sum(unordered_vals >= 0) #number of non-negative eigenvalues
     
     sigma_plus = sigma[:num_non_neg, :num_non_neg]
     #Q dagger

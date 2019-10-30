@@ -6,6 +6,7 @@ import math
 import scipy.linalg
 from scipy import sparse
 import sys
+import cProfile
 
 if not sys.warnoptions:
     import warnings
@@ -94,7 +95,7 @@ def wrapSDPSolver(D, E):
     X = solveSDP(constraints=constraints, b=bs, C=C)
     return X[-1, -1]
 
-def calculateSDPSolverComplexity(iterations, getDandE, filename="output"):
+def calculateSDPSolverComplexity(iterations, getDandE, filename=""):
     found_vals = []
     true_vals = []
     input_size = []
@@ -120,11 +121,9 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename="output"):
 
     resultsDF = pd.DataFrame(data = {'Empirical': found_vals, 'Analytical': true_vals, 'n': input_size, 'RunTime': run_time})
 
-    #write ouput:
-    resultsDF.to_csv(index=False, path_or_buf= "./figures/{}.csv".format(filename))
+    if filename != "":
+        resultsDF.to_csv(index=False, path_or_buf= "./figures/{}.csv".format(filename))
 
-#calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
-import cProfile
-#cProfile.run("calculateSDPSolverComplexity(6, getORAll, 'michaelTest')", sort = "time")
-
+#cProfile.run("calculateSDPSolverComplexity(20, getORWorst)", sort = "time")
+#cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort = "time")
 calculateSDPSolverComplexity(6, getORAll)
