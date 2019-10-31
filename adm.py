@@ -8,6 +8,7 @@ def vec(X):
     return np.matrix(X.ravel(), dtype=np.float32).T
 
 def plainA(As):
+    # MAKE THIS EFFICIENT
     A = vec(As[0])
     for i in range(1,len(As)):
         A = np.hstack((A, vec(As[i])))
@@ -37,12 +38,8 @@ def nextY(S, X, C, b, mu, pinvAAt, constraints):
     return matrix.dot(vector_a + vector_b)
 
 def decomposeV(V):
-    #sparse_unordered_vals, sparse_unordered_vecs = sparse.linalg.eigs(V)
-    unordered_vals, unordered_vecs = np.linalg.eig(V)
-    #print("Sparse eig vals: {}".format(sparse_unordered_vals))
-    #print("Regular eig vals: {}".format(unordered_vals))
-    #print("Sparse Q: {}".format(sparse_unordered_vecs))
-    #print("Regular Q: {}".format(unordered_vecs))
+#    unordered_vals, unordered_vecs = sparse.linalg.eigs(V)
+    unordered_vals, unordered_vecs = np.linalg.eigh(V)
     ordering = (-unordered_vals).argsort() 
     sigma = np.diag(unordered_vals[ordering])
     Q = unordered_vecs[:, ordering] 
@@ -64,7 +61,8 @@ def nextS(V):
 def nextX(mu, S, V):
     return 1/mu *(S - V)
 
-def simplifyX(X, initial_shape, close_enough=1e-5):
+def simplifyX(X, close_enough=1e-5):
+    initial_shape = X.shape
     idx0 = np.absolute(X - np.zeros(initial_shape, dtype = np.float32)) < close_enough
     X[idx0] = 0
     idx1 = np.absolute(X - np.ones(initial_shape, dtype = np.float32)) < close_enough
@@ -97,7 +95,7 @@ def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=69, max_iter
         V = nextV(C=C, A=A, mu=mu, X=X, y=y)
         S = nextS(V)
         X = nextX(mu=mu, S=S, V=V)
-        X = simplifyX(X=X, initial_shape=initial_shape)
+        X = simplifyX(X=X)
 
         # Check if objective value is stabilizing
         if np.absolute(X[-1, -1] - old_z) < accuracy and iteration > min_iterations:

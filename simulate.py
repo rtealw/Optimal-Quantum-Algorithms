@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from adm import solveSDP
+from adm import solveSDP, simplifyX
 import time
 import math
 import scipy.linalg
@@ -94,6 +94,7 @@ def getORWorst(n):
 def wrapSDPSolver(D, E):
     constraints, bs, C = getConstraints(D=D, E=E)
     X, iteration = solveSDP(constraints=constraints, b=bs, C=C)
+    andre_louis(X, D=D, E=E)
     return X[-1, -1], iteration
 
 def calculateSDPSolverComplexity(iterations, getDandE, filename=""):
@@ -126,17 +127,61 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename=""):
     if filename != "":
         resultsDF.to_csv(index=False, path_or_buf= "./figures/{}.csv".format(filename))
 
+def getL(X, tolerance):
+    vals, vecs = np.linalg.eig(X)
+    L = np.zeros(X.shape)
+    for k in range(len(vals)):
+        val = vals[k]
+        vec = vecs[:,k]
+        ket_k = np.zeros((len(vals),1))
+        ket_k[k,0] = 1
+        scalar = np.sqrt(np.absolute(val))
+        L += scalar * ket_k.dot(vec.H)
+    reconstructed_little_X = simplifyX(np.matrix(L).H.dot(L))
+    assert (np.absolute(reconstructed_little_X - X) < tolerance).all()
+    return np.matrix(L)
+
+def checkL(L, D, E, tolerance):
+    n = len(D[0])
+    for x_index in range(len(D)):
+        x = D[x_index]
+        fx = E[x_index]
+        for y_index in range(x_index + 1, len(D)):
+            yi = np.zeros((len(D) * n, 1))
+            y = D[y_index]
+            fy = E[y_index]
+            should_be = 1 - (fx == fy)
+            summation = 0
+            for i in range(len(x)):
+                xi = np.zeros((1,len(D)*n))
+                xi[0,x_index*n + i] = 1
+                yi[y_index * n + i,0] = 1
+                vxi = xi.dot(L.H)
+                vyi = L.dot(yi)
+                if x[i] != y[i]:
+                    summation += vxi.dot(vyi)
+            assert np.absolute(should_be - summation) < tolerance
+
+def andre_louis(X, D, E, tolerance=1e-2):
+    little_X = X[:-len(D)-1, :-len(D)-1]
+    L = getL(X=little_X, tolerance=tolerance)
+    checkL(L=L, D=D, E=E, tolerance=tolerance)
+
 def testSDPSolverOnOR(iterations=5, accuracy = 2):
     all_passed = True
     for n in range(1, iterations + 1):
-        print("Testing SDP solver on OR for n = {}...".format(n), end="")
+        print("Testing SDP solver on OR for n = {}...".format(n), end=" ")
         D, E = getORAll(n)
-        result, iteration = wrapSDPSolver(D, E)
-        if round(result, accuracy) == round(np.sqrt(n), accuracy):
+        received, iteration = wrapSDPSolver(D, E)
+        expected = np.sqrt(n)
+        if round(received, accuracy) == round(expected, accuracy):
             cprint("passed :)", "green")
         else:
             all_passed = False
             cprint("failed :(", "red")
+            cprint("Expected: {}".format(expected), "green")
+            cprint("Received: {}".format(received), "red")
+
     if all_passed:
         cprint("Tests passed :)", "green")
     else:
