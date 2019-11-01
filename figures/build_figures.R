@@ -10,7 +10,7 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
     ggplot(aes(x = n, y = Value, group = Method)) +
     geom_line(aes(color = Method), size = 2)  +
     scale_color_colorblind() +
-    theme_bw() +
+    theme_tufte() +
     labs(title = paste("Numerical Performance for", title_description),
          x = "Input Size (n)",
          y = "Queries") +
@@ -25,7 +25,7 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
   runTimePlot <- results %>%
     ggplot(aes(x = n, y = RunTime)) +
     geom_line(size = 2) +
-    theme_bw() +
+    theme_tufte() +
     labs(title = paste("Run Time for", title_description),
          x = "Input Size (n)",
          y = "Run Time (s)") +
