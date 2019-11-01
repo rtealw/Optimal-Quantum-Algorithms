@@ -19,13 +19,13 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
          x = "Input Size (n)",
          y = "Queries") +
     scale_x_continuous(breaks = 1:max(results$n)) +
-    theme(plot.title = element_text(hjust = 0.5))
-    # theme(axis.title.y = element_text( size = 14),
-    #       axis.title.x = element_text(size = 14),
-    #       plot.title = element_text(hjust = 0.5, size = 16),
-    #       axis.text = element_text(size = 12),
-    #       legend.title = element_text(size = 14),
-    #       legend.text = element_text(size = 12))
+    theme(axis.title.y = element_text(color = "black"),
+          axis.title.x = element_text(color = "black"),
+          plot.title = element_text(hjust = 0.5, color = "black"),
+          axis.text.x = element_text(color = "black"),
+          axis.text.y = element_text(color = "black"),
+          legend.title = element_text(color = "black"),
+          legend.text = element_text(color = "black"))
 
 
   runTimePlot <- results %>%
@@ -36,13 +36,13 @@ generateFigures <- function(input_name, output_complexity_name, output_time_name
          x = "Input Size (n)",
          y = "Run Time (s)") +
     scale_x_continuous(breaks = 1:max(results$n)) +
-    theme(plot.title = element_text(hjust = 0.5))
-    # theme(axis.title.y = element_text( size = 14),
-    #       axis.title.x = element_text(size = 14),
-    #       plot.title = element_text(hjust = 0.5, size = 16),
-    #       axis.text = element_text(size = 12),
-    #       legend.title = element_text(size = 14),
-    #       legend.text = element_text(size = 12))
+    theme(axis.title.y = element_text(color = "black"),
+          axis.title.x = element_text(color = "black"),
+          plot.title = element_text(hjust = 0.5, color = "black"),
+          axis.text.x = element_text(color = "black"),
+          axis.text.y = element_text(color = "black"),
+          legend.title = element_text(color = "black"),
+          legend.text = element_text(color = "black"))
 
   ggsave(output_complexity_name, plot = objFunCompPlot)
   ggsave(output_time_name, plot = runTimePlot)
