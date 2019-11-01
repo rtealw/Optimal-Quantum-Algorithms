@@ -4,14 +4,15 @@ import numpy as np
 from scipy import sparse
 import scipy.sparse.linalg
 
-def vec(X):
-    return np.matrix(X.ravel(), dtype=np.float32).T
-
-def plainA(As):
-    # MAKE THIS EFFICIENT
-    A = vec(As[0])
-    for i in range(1,len(As)):
-        A = np.hstack((A, vec(As[i])))
+def plainA(constraints, dimension):
+    A = np.zeros((dimension**2, len(constraints)), dtype=np.float32)
+    for constraint_index in range(len(constraints)):
+        constraint = constraints[constraint_index]
+        for entry_index in range(len(constraint["V"])):
+            v = constraint["V"][entry_index]
+            i = constraint["I"][entry_index]
+            j = constraint["J"][entry_index]
+            A[j * dimension + i, constraint_index] = v
     return A.T
 
 def scriptA(constraints, X):
@@ -69,24 +70,13 @@ def simplifyX(X, close_enough=1e-5):
     X[idx1] = 1
     return X
 
-def getAs(constraints, dimensions):
-    As = []
-    for constraint in constraints:
-        V = np.array(constraint["V"])
-        I = np.array(constraint["I"])
-        J = np.array(constraint["J"])
-        A = sparse.coo_matrix((V, (I, J)), shape=dimensions).todense()
-        As.append(A)
-    return As
-
 def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=69, max_iterations=420):
     initial_shape = C.shape
-    S = np.eye(initial_shape[0], dtype=np.float32)
-    X = np.zeros(initial_shape, dtype=np.float32)
+    S = sparse.csr_matrix(np.eye(initial_shape[0], dtype=np.float32))
+    X = sparse.csr_matrix(np.zeros(initial_shape, dtype=np.float32))
     old_z = X[-1, -1]
 
-    As = getAs(constraints=constraints, dimensions=initial_shape)
-    A = plainA(As)
+    A = plainA(constraints=constraints, dimension=initial_shape[0])
     pinvAAt = sparse.csr_matrix(np.linalg.pinv(np.matmul(A, A.T)))
     A = sparse.csr_matrix(A)
 

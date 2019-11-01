@@ -92,8 +92,8 @@ def getORWorst(n):
     return D, E
 
 def wrapSDPSolver(D, E):
-    constraints, bs, C = getConstraints(D=D, E=E)
-    X, iteration = solveSDP(constraints=constraints, b=bs, C=C)
+    constraints, b, C = getConstraints(D=D, E=E)
+    X, iteration = solveSDP(constraints=constraints, b=b, C=C)
     andre_louis(X, D=D, E=E)
     return X[-1, -1], iteration
 
@@ -137,8 +137,8 @@ def getL(X, tolerance):
         ket_k[k,0] = 1
         scalar = np.sqrt(np.absolute(val))
         L += scalar * ket_k.dot(vec.H)
-    reconstructed_little_X = simplifyX(np.matrix(L).H.dot(L))
-    assert (np.absolute(reconstructed_little_X - X) < tolerance).all()
+    reconstructed_X = simplifyX(np.matrix(L).H.dot(L))
+    assert (np.absolute(reconstructed_X - X) < tolerance).all()
     return np.matrix(L)
 
 def checkL(L, D, E, tolerance):
@@ -191,5 +191,5 @@ if __name__ == '__main__':
     testSDPSolverOnOR()
 
 #cProfile.run("calculateSDPSolverComplexity(20, getORWorst)", sort = "time")
-#cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort = "time")
+cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort = "time")
 #calculateSDPSolverComplexity(6, getORAll)
