@@ -193,5 +193,5 @@ if __name__ == '__main__':
 
 #cProfile.run("calculateSDPSolverComplexity(20, getORWorst)", sort = "time")
 #cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort = "time")
-#calculateSDPSolverComplexity(6, getORAll)
-calculateSDPSolverComplexity(7, getORAll, "output_all_or")
+#calculateSDPSolverComplexity(6, getORAll, "output_all_or")
+calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
