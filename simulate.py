@@ -166,7 +166,7 @@ def checkL(L, D, E, tolerance):
 def andre_louis(X, D, E, tolerance=1e-2):
     little_X = X[:-len(D)-1, :-len(D)-1]
     L = getL(X=little_X, tolerance=tolerance)
-    checkL(L=L, D=D, E=E, tolerance=tolerance)
+    #checkL(L=L, D=D, E=E, tolerance=tolerance)
 
 def testSDPSolverOnOR(iterations=5, accuracy = 2):
     all_passed = True
@@ -192,5 +192,6 @@ if __name__ == '__main__':
     testSDPSolverOnOR()
 
 #cProfile.run("calculateSDPSolverComplexity(20, getORWorst)", sort = "time")
-cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort = "time")
+#cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort = "time")
 #calculateSDPSolverComplexity(6, getORAll)
+calculateSDPSolverComplexity(7, getORAll, "output_all_or")
