@@ -129,14 +129,15 @@ def calculateSDPSolverComplexity(iterations, getDandE, filename=""):
 
 def getL(X, tolerance):
     vals, vecs = np.linalg.eig(X)
-    L = np.zeros(X.shape)
+    L = np.zeros(X.shape, dtype = np.complex128)
     for k in range(len(vals)):
         val = vals[k]
         vec = vecs[:,k]
-        ket_k = np.zeros((len(vals),1))
+        ket_k = np.zeros((len(vals),1), dtype = np.complex128)
         ket_k[k,0] = 1
-        scalar = np.sqrt(np.absolute(val))
+        scalar = np.complex128(np.sqrt(np.absolute(val)))
         L += scalar * ket_k.dot(vec.H)
+
     reconstructed_X = simplifyX(np.matrix(L).H.dot(L))
     assert (np.absolute(reconstructed_X - X) < tolerance).all()
     return np.matrix(L)
