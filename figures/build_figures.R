@@ -3,8 +3,8 @@ library(tidyverse)
 library(ggthemes)
 
 # library(devtools)
-devtools::install_github("backlin/treesmapstheorems")
-library(treesmapstheorems)
+# devtools::install_github("backlin/treesmapstheorems")
+# library(treesmapstheorems)
 
 generateFigures <- function(input_name, output_complexity_name, output_time_name, title_description) {
   results <- fread(input_name) %>%
