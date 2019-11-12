@@ -70,7 +70,7 @@ def simplifyX(X, close_enough=1e-5):
     X[idx1] = 1
     return X
 
-def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=69, max_iterations=420):
+def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=68, max_iterations=421):
     initial_shape = C.shape
     S = sparse.csr_matrix(np.eye(initial_shape[0], dtype=np.float32))
     X = sparse.csr_matrix(np.zeros(initial_shape, dtype=np.float32))

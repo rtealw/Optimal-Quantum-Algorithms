@@ -1,16 +1,15 @@
 import numpy as np
 import pandas as pd
 from adm import solveSDP, simplifyX
-import time
 import math
 import scipy.linalg
 from scipy import sparse
 import sys
 import cProfile
 from termcolor import cprint 
+import warnings
 
 if not sys.warnoptions:
-    import warnings
     warnings.simplefilter("ignore")
 
 def getA0s(D, n, dimension):
@@ -61,71 +60,11 @@ def getConstraints(D, E):
     C[- 1, - 1] = 1
     return constraints, bs, C
 
-D = ['000','001', '110', '110', '111'] # inputs to Boolean function f
-E = ['0', '1', '1', '1', '1']  # corresponding outputs to f
-D = ['11', '10', '00', '01']
-E = ['1', '1', '0', '1']
-
-def getAllBitStrings(n):
-    return [np.binary_repr(i, width=n) for i in range(2**n)]
-
-def functionOR(bitstring):
-    if '1' in bitstring:
-        return '1'
-    return '0'
-
-def getE(bitstrings, function):
-    return [function(bitstring) for bitstring in bitstrings]
-
-def getORAll(n):
-    D = getAllBitStrings(n)
-    E = getE(D, functionOR)
-    return D, E
-
-def getORWorst(n):
-    D = ['0'*n]
-    E = ['0']
-    for i in range(n):
-        starting = '0' * (n-i-1) + '1' + '0' * i
-        D.append(starting)
-        E.append('1')
-    return D, E
-
 def wrapSDPSolver(D, E):
     constraints, b, C = getConstraints(D=D, E=E)
     X, iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
-    getSpanProgram(X, D=D, E=E)
+    V, target = getSpanProgram(X, D=D, E=E)
     return X[-1, -1], iteration
-
-def calculateSDPSolverComplexity(iterations, getDandE, filename="", start=1):
-    found_vals = []
-    true_vals = []
-    input_size = []
-    run_time = []
-    for i in range(start, iterations+1):
-        print("Input size: {}".format(i))
-        D, E = getDandE(i)
-
-        print("D: {}".format(D))
-        print("E: {}".format(E))
-
-        starting_time = time.time()
-        opt_val, iteration = wrapSDPSolver(D, E)
-        t = time.time() - starting_time
-
-        print("Obj. Func. Value: {}".format(opt_val))
-        print("Num. Iterations: {}".format(iteration))
-        print("Run Time: {}  \n".format(t))
-
-        found_vals.extend([opt_val.real])
-        true_vals.extend([math.sqrt(i)])
-        input_size.extend([i])
-        run_time.extend([t])
-
-    resultsDF = pd.DataFrame(data = {'Empirical': found_vals, 'Analytical': true_vals, 'n': input_size, 'RunTime': run_time})
-
-    if filename != "":
-        resultsDF.to_csv(index=False, path_or_buf= "./figures/{}.csv".format(filename))
 
 def getL(X, tolerance):
     vals, vecs = np.linalg.eig(X)
@@ -159,8 +98,6 @@ def checkL(L, D, E, tolerance=1e-3):
                 xi[0,x_index*n + i] = 1
                 yi[y_index * n + i,0] = 1
                 vxi = xi.dot(LH)
-                #print("vxi", vxi)
-                #print("toher_vxi", L.H[n*x_index+i, :])
                 vyi = L.dot(yi)
                 if x[i] != y[i]:
                     summation += vxi.dot(vyi)
@@ -188,7 +125,7 @@ def getSpanProgram(X, D, E, tolerance=1e-4):
         V.append(vx)
     checkL(L=L, D=D, E=E)
     target = np.ones((len(F0_idx),1))
-    checkSpanProgram(D=D, E=E, V=V, target=target)
+    #checkSpanProgram(D=D, E=E, V=V, target=target)
     return V, target
 
 def checkSpanProgram(D, E, V, target, tolerance = 1e-4):
@@ -209,11 +146,12 @@ def checkSpanProgram(D, E, V, target, tolerance = 1e-4):
         assert (residual < tolerance) == (E[y_index] == '1')
     return True
 
-def testSDPSolverOnOR(iterations=5, accuracy = 2):
+def testSDPSolver(iterations=5, accuracy = 2):
     all_passed = True
     for n in range(1, iterations + 1):
         print("Testing SDP solver on OR for n = {}...".format(n), end=" ")
-        D, E = getORAll(n)
+        D = [np.binary_repr(i, width=n) for i in range(2**n)]
+        E = ['1' if '1' in x else '0' for x in D]
         received, iteration = wrapSDPSolver(D, E)
         expected = np.sqrt(n)
         if round(received, accuracy) == round(expected, accuracy):
@@ -230,13 +168,4 @@ def testSDPSolverOnOR(iterations=5, accuracy = 2):
         cprint("Tests failed :(", "red")
 
 if __name__ == '__main__':
-    pass
-    #testSDPSolverOnOR()
-
-#cProfile.run("calculateSDPSolverComplexity(20, getORWorst)", sort = "time")
-#cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort = "time")
-#calculateSDPSolverComplexity(6, getORAll, "output_all_or")
-#calculateSDPSolverComplexity(20, getORWorst, "output_worst_or")
-
-cProfile.run("calculateSDPSolverComplexity(6, getORAll)", sort="time")
-#calculateSDPSolverComplexity(2, getORAll, start=2)
+    testSDPSolver()
