@@ -1,6 +1,7 @@
 from wrap_adm import wrapSDPSolver
 import numpy as np
 import time
+import random
 
 def runSDP(D, E, place=3):
     print("n:", len(D[0]))
@@ -36,9 +37,7 @@ def getDAll(n):
     return [np.binary_repr(i, width=n) for i in range(2**n)]
 
 def getDWorstOR(n):
-    D = ['0' * (n-i-1) + '1' + '0' * i for i in range(n)]
-    D += ['0' * n]
-    return D
+    return ['0' * n] + ['0' * (n-i-1) + '1' + '0' * i for i in range(n)]
 
 def getEOR(D):
     return ['1' if '1' in x else '0' for x in D]
@@ -46,4 +45,10 @@ def getEOR(D):
 def getEParity(D):
     return [str(x.count('1') % 2) for x in D]
 
-runSDPIterations(iterations=6, getD=getDAll, getE=getEParity, start=1)
+def getERandom(D):
+    return [str(random.randint(a=0, b=1)) for x in D]
+
+def getEFirst(D):
+    return [x[0] for x in D]
+
+runSDPIterations(iterations=5, getD=getDAll, getE=getERandom, start=1)
