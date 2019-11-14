@@ -75,4 +75,4 @@ The general adversary bound is nearly tight for every boolean function](https://
 To solve Reichardt's SDP,
 we use Zaiwen Wen, Donald Goldfarb, and Wotao Yin's
 `Algorithm 1` described in
-[Alternating direction augmented Lagrangian methodsfor semidefinite programming](http://mpc.zib.de/index.php/MPC/article/viewFile/40/20).
+[Alternating direction augmented Lagrangian methods for semidefinite programming](http://mpc.zib.de/index.php/MPC/article/viewFile/40/20).
