@@ -17,13 +17,17 @@ Second, create one function that generates the set D for arbitrary bitstring len
 and another function that generates the set E from D according to f.
 
 ## Example 1
+We consider the Boolean function `OR` on input bitstrings of length 2.
+The output is `'1'` if any bit is 1 and `'0'` otherwise.
+In this example, we explicitly define both `D` and `E`.
+Then we call our function `runSDP` from `scripts/wrap_adm.py`.
 
 ```python
 D = ['00', '01', '10', '11']
 E = ['0', '1', '1', '1']
 runSDP(D=D, E=E)
 ```
-
+The corresponding output should look similar to:
 ```
 n: 2
 D: ['00', '01', '10', '11']
@@ -34,6 +38,11 @@ Run Time: 0.067 seconds
 ```
 
 ## Example 2
+We again consider `OR` on bitstrings of length 2.
+In this example though, we define functions to generate
+all bitstrings of length n and evaluate the function `OR` on D.
+Then we pass our functions into `runSDPIterations` from `scripts/wrap_adm.py`
+and specify the number of iterations.
 
 ```python
 def getDAll(n):
@@ -44,7 +53,7 @@ def getEOR(D):
 
 runSDPIterations(iterations=2, getD=getDAll, getE=getEOR, start=2)
 ```
-
+The corresponding output should look similar to:
 ```
 n: 2
 D: ['00', '01', '10', '11']
