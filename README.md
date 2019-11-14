@@ -1,7 +1,6 @@
 # OptQuant
-#### A toolkit to find the optimal quantum query complexity and query optimal quantum algorithm for given Boolean functions.
 ### By R. Teal Witter and Michael T. Czekanski
-
+#### A toolkit to find the optimal quantum query complexity and query optimal quantum algorithm of arbitrary Boolean functions.
 
 
 Consider a function f that maps from D to E where D is a subset of bitstrings
