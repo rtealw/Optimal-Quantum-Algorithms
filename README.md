@@ -69,7 +69,6 @@ We use Ben Reichardt's formulation of the semidefinite program for
 optimal quantum query complexity (described in `Theorem 6.2`) 
 and query optimal span program (`Lemma 6.5`) in
 [Span programs and quantum query complexity:
-The general adversary bound is nearly tight for every boolean function]
-(https://arxiv.org/pdf/0904.2759.pdf).
+The general adversary bound is nearly tight for every boolean function](https://arxiv.org/pdf/0904.2759.pdf).
 
 ## Alternating Direction Method
