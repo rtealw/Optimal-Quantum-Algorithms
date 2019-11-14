@@ -65,10 +65,14 @@ Run Time: 0.058 seconds
 ```
 
 ## Semidefinite Program Formulation
-We use Ben Reichardt's formulation of the semidefinite program for
+We use Ben Reichardt's formulation of the semidefinite program (SDP) for
 optimal quantum query complexity (described in `Theorem 6.2`) 
 and query optimal span program (`Lemma 6.5`) in
 [Span programs and quantum query complexity:
 The general adversary bound is nearly tight for every boolean function](https://arxiv.org/pdf/0904.2759.pdf).
 
 ## Alternating Direction Method
+To solve Reichardt's SDP,
+we use Zaiwen Wen, Donald Goldfarb, and Wotao Yin's
+`Algorithm 1` described in
+[Alternating direction augmented Lagrangian methodsfor semidefinite programming](http://mpc.zib.de/index.php/MPC/article/viewFile/40/20).
