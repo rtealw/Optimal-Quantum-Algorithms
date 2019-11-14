@@ -13,7 +13,17 @@ import warnings
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-def getA0s(D, n, dimension):
+def getA0s(D, dimension):
+    '''
+    Parameters:
+        D : input bitstrings to f
+        dimension : dimension of matrix X
+    Returns: 
+        constraints : list of dictionaries that contains constraints
+                      to ensure objective value of X is the maximum
+                      of all diagonal entries correspoinding to bitstrings in D
+    '''
+    n = len(D[0])
     constraints = []
     for i in range(len(D)):
         slack = n * len(D) + i
@@ -26,7 +36,18 @@ def getA0s(D, n, dimension):
         constraints.append(constraint)
     return constraints
 
-def getA1s(D, n, F):
+def getA1s(D, F):
+    '''
+    Parameters:
+        D : input bitstrings to f
+        F : cartesian product of y and z where y,z in {0,...,len(D)-1}
+            such that f(D[y]) != f(D[z])
+    Returns: 
+        constraints : list of dictionaries that contains constraints
+                      to ensure that entries in X corresponding to bits
+                      where y and z differ sum to one for each pair y,z in F
+    '''
+    n = len(D[0])
     constraints = []
     for (y,z) in F:
         constraint = {"V": [], "I" : [], "J" : []}
@@ -39,29 +60,45 @@ def getA1s(D, n, F):
     return constraints
 
 def getConstraints(D, E):
-    F = []               # Cartesian product of inputs with different outputs
-    n = len(D[0])                     # length of bit string
-    dimension = len(D) * (n + 1) + 1  # dimension of matrix
+    '''
+    Parameters:
+        D : input bitstrings to f
+        E : output bits of f on D
+    Returns: 
+        constraints : list of dictionaries to ensure constraints
+        b : what the sum of X times each constraint should be
+        C : the matrix to extract the objective function from X
+    '''
+    F = []
+    n = len(D[0])
+    dimension = len(D) * (n + 1) + 1
 
-    # Construct F
     for i in range(len(D)):
         for j in range(len(D)):
             if E[i] != E[j]:
                 F.append((i,j))
     
     constraints = []
-    constraints.extend(getA0s(D=D, n=n, dimension=dimension))
-    constraints.extend(getA1s(D=D, n=n, F=F))
+    constraints.extend(getA0s(D=D, dimension=dimension))
+    constraints.extend(getA1s(D=D, F=F))
 
-    b_0s = np.zeros((len(D), 1), dtype = np.float32) # vector of 0s
-    b_1s = np.ones((len(F), 1), dtype = np.float32) # vector of 1s
-    bs = np.concatenate((b_0s, b_1s), axis=0)
+    b_0 = np.zeros((len(D), 1), dtype = np.float32)
+    b_1 = np.ones((len(F), 1), dtype = np.float32)
+    b = np.concatenate((b_0, b_1), axis=0)
 
     C = sparse.csr_matrix(np.zeros((dimension, dimension)))
     C[- 1, - 1] = 1
-    return constraints, bs, C
+    return constraints, b, C
 
 def getL(X, tolerance):
+    '''
+    Parameters:
+        X : matrix X
+        tolerance : how close the reconstruction has to be to X
+    Returns: 
+        L : matrix L such that L.H * L = X (the product of the conjugate
+            transpose of L and itself is X)
+    '''
     vals, vecs = np.linalg.eig(X)
     L = np.zeros(X.shape, dtype = np.complex128)
     for k in range(len(vals)):
@@ -76,7 +113,18 @@ def getL(X, tolerance):
     assert (np.absolute(reconstructed_X - X) < tolerance).all()
     return np.matrix(L)
 
-def checkL(L, D, E, tolerance=1e-3):
+def checkConstraints(L, D, E, tolerance=1e-3):
+    ''' 
+    Parameters:
+        L : matrix such that L.H * L = X
+        D : input bitstrings to f
+        E : output bits of f on D
+        tolerance : how closely the constraints have to be satisfied
+    Returns:
+        (boolean) : if the entries corresponding to the disagreeing bits
+                    of every pair of inputs x,y in D sums to
+                    1 if f(x) != f(y) and 0 otherwise
+    '''
     n = len(D[0])
     LH = L.H
     for x_index in range(len(D)):
@@ -88,21 +136,19 @@ def checkL(L, D, E, tolerance=1e-3):
             should_be = 1 - (fx == fy)
             summation = 0
             for i in range(len(x)):
-                xi = np.zeros((1,len(D)*n))
-                yi = np.zeros((len(D) * n, 1))
-                xi[0,x_index*n + i] = 1
-                yi[y_index * n + i,0] = 1
-                vxi = xi.dot(LH)
-                vyi = L.dot(yi)
                 if x[i] != y[i]:
+                    vxi = LH[x_index * n + i,:]
+                    vyi = L[:,y_index * n + i]
                     summation += vxi.dot(vyi)
             assert np.absolute(should_be - summation) < tolerance
+    return True
 
 def getSpanProgram(X, D, E, tolerance=1e-4):
     little_X = X[:-len(D)-1, :-len(D)-1]
     L = getL(X=little_X, tolerance=.1)
+    checkConstraints(L=L, D=D, E=E)
     n = len(D[0])
-    V = []
+    I = []
     F0_idx = []
     for i in range(len(D)):
         if E[i] == '0':
@@ -117,34 +163,39 @@ def getSpanProgram(X, D, E, tolerance=1e-4):
             vxi = np.round(np.real(L.H[n*x_index + i,:]))
             not_xi_times_vxi = np.kron(not_xi_vec, vxi)
             vx += np.asarray(not_xi_times_vxi).tolist()[0]
-        V.append(vx)
-    checkL(L=L, D=D, E=E)
-    target = np.ones((len(F0_idx),1))
-    #checkSpanProgram(D=D, E=E, V=V, target=target)
-    return V, target
+        I.append(vx)
+    t = np.ones((len(F0_idx),1))
+    #getIx(I=I, x='01', num_inputs=len(D), t=t)
+    checkSpanProgram(D=D, E=E, I=I, t=t)
+    return I, t
 
-def checkSpanProgram(D, E, V, target, tolerance = 1e-4):
-    V = np.array(V)
+def getIx(I, x, num_inputs, t):
+    I = np.array(I)
+    n = len(x)
+    subblock_length = n * num_inputs
+    Ix = np.zeros((t.shape[0], subblock_length *  n))
+    for i in range(n):
+        start_index = (2 * i + eval(x[i])) * subblock_length
+        current_subblock = I[:,start_index:start_index+subblock_length]
+        Ix[:,subblock_length*i:subblock_length*(i+1)] = current_subblock
+    return Ix
+
+def checkSpanProgram(D, E, I, t, tolerance = 1e-4):
+    I = np.array(I)
     n = len(D[0])
-    vxi_length = n *len(D)
-    for y_index in range(len(D)):
-        y = D[y_index]
-        I = []
-        for i in range(n):
-            start_index = (i*2 + eval(y[i])) *vxi_length
-            current_subblock = V[:,start_index:start_index+vxi_length]
-            I += current_subblock.tolist()[0]
-        I = np.matrix(I)
-        target = np.matrix(target)
-        linear_combo, residuals, rank, s = np.linalg.lstsq(a=I, b=target)
-        residual = sum((np.matmul(I, linear_combo) - target) ** 2)[0,0]
-        assert (residual < tolerance) == (E[y_index] == '1')
+    subblock_length = n *len(D)
+    for x_index in range(len(D)):
+        Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), t=t)
+        t = np.matrix(t)
+        linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t)
+        residual = sum((np.matmul(Ix, linear_combo) - t) ** 2)[0,0]
+        assert (residual < tolerance) == (E[x_index] == '1')
     return True
 
 def wrapSDPSolver(D, E):
     constraints, b, C = getConstraints(D=D, E=E)
     X, iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
-    V, target = getSpanProgram(X, D=D, E=E)
+    V, t = getSpanProgram(X, D=D, E=E)
     return X[-1, -1], iteration
 
 def runSDP(D, E, round_to=3):
