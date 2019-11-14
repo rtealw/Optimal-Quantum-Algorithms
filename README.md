@@ -13,18 +13,47 @@ this query complexity.
 
 There are two ways to run our program.
 First, explicitly specify the sets D and E.
-Second, create functions that generate the set D and evaluate f
-for arbitrary bitstring size n.
+Second, create one function that generates the set D for arbitrary bitstring length n
+and another function that generates the set E from D according to f.
 
 ## Example 1
+
 ```python
-import handle_input from scripts
-D = ['000', '001', '010', '100']
+D = ['00', '01', '10', '11']
 E = ['0', '1', '1', '1']
 runSDP(D=D, E=E)
 ```
 
+```
+n: 2
+D: ['00', '01', '10', '11']
+E: ['0', '1', '1', '1']
+Optimal Query Complexity: 1.414
+Number of Iterations: 73
+Run Time: 0.067 seconds
+```
+
 ## Example 2
+
+```python
+def getDAll(n):
+    return [np.binary_repr(i, width=n) for i in range(2**n)]
+
+def getEOR(D):
+    return ['1' if '1' in x else '0' for x in D]
+
+runSDPIterations(iterations=2, getD=getDAll, getE=getEOR, start=2)
+```
+
+```
+n: 2
+D: ['00', '01', '10', '11']
+E: ['0', '1', '1', '1']
+Optimal Query Complexity: 1.414
+Number of Iterations: 73
+Run Time: 0.058 seconds
+```
+
 
 ## Semidefinite Program Formulation
 

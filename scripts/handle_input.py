@@ -45,5 +45,10 @@ def getERandomOne(D):
 def getERandomTwo(D):
     return getERandomK(D=D, k=2)
 
-runSDP()
-runSDPIterations(iterations=5, getD=getDAll, getE=getEAlternating, start=1)
+## Example 1
+#D = ['00', '01', '10', '11']
+#E = ['0', '1', '1', '1']
+#runSDP(D=D, E=E)
+
+## Example 2
+#runSDPIterations(iterations=2, getD=getDAll, getE=getEOR, start=2)
