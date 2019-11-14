@@ -2,12 +2,14 @@ from wrap_adm import runSDP, runSDPIterations
 import numpy as np
 import random
 
+# Generating D
 def getDAll(n):
     return [np.binary_repr(i, width=n) for i in range(2**n)]
 
 def getDWorstOR(n):
     return ['0' * n] + ['0' * (n-i-1) + '1' + '0' * i for i in range(n)]
 
+# Generating E
 def getEOR(D):
     return ['1' if '1' in x else '0' for x in D]
 
@@ -43,4 +45,5 @@ def getERandomOne(D):
 def getERandomTwo(D):
     return getERandomK(D=D, k=2)
 
+runSDP()
 runSDPIterations(iterations=5, getD=getDAll, getE=getEAlternating, start=1)
