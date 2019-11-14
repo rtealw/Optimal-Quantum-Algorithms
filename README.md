@@ -1,4 +1,4 @@
-# OptQuant
+# QuantumQueryOptimizer
 ### By R. Teal Witter and Michael T. Czekanski
 #### A toolkit to find the optimal quantum query complexity and query optimal quantum algorithm of arbitrary Boolean functions.
 
