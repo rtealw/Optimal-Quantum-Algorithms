@@ -54,7 +54,7 @@ The number of times an algorithm queries the input.
 
 \section{Semidefinite Programming}
 
-\begin{frame}{Reichardt's Form \cite{reichardt2009span}}
+\begin{frame}{Quantum Query Complexity as SDP: Reichardt \cite{reichardt2009span}}
 \begin{align} \label{eq:reichardtObj} 
     f_{\text{bound}} = \min_{\X} M(\X) = \max_{y \in D} \sum_{j \in [n]}
     \bra{y,j}\X\ket{y,j} 
@@ -69,7 +69,7 @@ Subject to
 \end{align}
 \end{frame}
 
-\begin{frame}{Boyd's Form \cite{boyd2004convex}}
+\begin{frame}{A Standard Form: Boyd\cite{boyd2004convex}}
 Minimize
 \begin{align}\label{Eq:boyd_obj}
     M(\X) = \tr(C\X) 
@@ -85,7 +85,7 @@ Subject to
 \end{frame}
 
 \section{Alternating Direction Methods}
-\begin{frame}{Alternating Direction Methods \cite{adm}}
+\begin{frame}{We use ADM \cite{adm}}
 \centering
 \includegraphics[scale=.15]{figures/adm_algorithm}
 \bigskip
@@ -97,25 +97,26 @@ Subject to
 \end{frame}
 
 \section{Our Work}
-\begin{frame}{Results}
+\begin{frame}{Numerial Results: Our Algorithm is Good.}
 \centering
 \includegraphics[scale=.5]{figure_all_or_complexity.eps}
 \end{frame}
 
-\begin{frame}{Speed}
+\begin{frame}{Run Time Results: Our Algorithm is Bad.}
 \centering
 \includegraphics[scale=.5]{figure_all_or_time.eps}
 \end{frame}
 
-\begin{frame}{Plans}
+\begin{frame}{We Have Plans (For the Future)}
 \begin{itemize}
-    \item Span programs
+    \item Document
     \item More optimization
+    \item Span program
 \end{itemize} 
 \end{frame}
 
 \begin{frame}{Thank you!}
-\bibliographystyle{alpha}
+\bibliographystyle{abbrv}
 \bibliography{main}
 \end{frame}
 
