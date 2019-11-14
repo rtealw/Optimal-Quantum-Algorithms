@@ -165,19 +165,21 @@ def getSpanProgram(X, D, E, tolerance=1e-4):
             vx += np.asarray(not_xi_times_vxi).tolist()[0]
         I.append(vx)
     t = np.ones((len(F0_idx),1))
-    #getIx(I=I, x='01', num_inputs=len(D), t=t)
     checkSpanProgram(D=D, E=E, I=I, t=t)
     return I, t
 
-def getIx(I, x, num_inputs, t):
+def getIx(I, x, num_inputs, num_rows):
     I = np.array(I)
     n = len(x)
     subblock_length = n * num_inputs
-    Ix = np.zeros((t.shape[0], subblock_length *  n))
+    Ix = np.zeros((num_rows, subblock_length *  n))
     for i in range(n):
         start_index = (2 * i + eval(x[i])) * subblock_length
         current_subblock = I[:,start_index:start_index+subblock_length]
         Ix[:,subblock_length*i:subblock_length*(i+1)] = current_subblock
+    Ix = Ix[:,~np.all(Ix == 0, axis=0)]
+    if Ix.size == 0:
+        Ix = np.zeros((num_rows,1))
     return Ix
 
 def checkSpanProgram(D, E, I, t, tolerance = 1e-4):
@@ -185,17 +187,24 @@ def checkSpanProgram(D, E, I, t, tolerance = 1e-4):
     n = len(D[0])
     subblock_length = n *len(D)
     for x_index in range(len(D)):
-        Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), t=t)
+        Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), num_rows=t.shape[0])
         t = np.matrix(t)
         linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t)
-        residual = sum((np.matmul(Ix, linear_combo) - t) ** 2)[0,0]
-        assert (residual < tolerance) == (E[x_index] == '1')
+        spanned = Ix.dot(linear_combo)
+        residual = np.sum(Ix.dot(linear_combo) - t) ** 2
+        if (residual < tolerance) !=  (E[x_index] == '1'):
+            print("Ix", Ix)
+            print("spanned", spanned)
+            print("residual", residual)
+            print("x", D[x_index])
+            print("fx", E[x_index])
+        #assert (residual < tolerance) == (E[x_index] == '1')
     return True
 
 def wrapSDPSolver(D, E):
     constraints, b, C = getConstraints(D=D, E=E)
     X, iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
-    V, t = getSpanProgram(X, D=D, E=E)
+    I, t = getSpanProgram(X, D=D, E=E)
     return X[-1, -1], iteration
 
 def runSDP(D, E, round_to=3):

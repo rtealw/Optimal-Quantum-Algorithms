@@ -53,4 +53,4 @@ def getERandomTwo(D):
 ## Example 2
 #runSDPForN(getD=getDAll, getE=getEOR, n_end=2, n_start=2)
 
-runSDPForN(getD=getDAll, getE=getEOR, n_end=2, n_start=2)
+runSDPForN(getD=getDAll, getE=getERandomOne, n_end=5, n_start=2)
