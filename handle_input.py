@@ -1,37 +1,6 @@
-from wrap_adm import wrapSDPSolver
+from wrap_adm import runSDP, runSDPIterations
 import numpy as np
-import time
 import random
-
-def runSDP(D, E, place=3):
-    print("n:", len(D[0]))
-    print("D:", D)
-    print("E:", E)
-
-    starting_time = time.time()
-    optimal_value, num_iteration = wrapSDPSolver(D=D, E=E)
-    run_time = time.time() - starting_time
-
-    print("Optimal Query Complexity:", np.round(optimal_value, place))
-    print("Number of Iterations:", num_iteration)
-    print("Run Time:", np.round(run_time, place), "seconds")
-    print()
-
-    return optimal_value, num_iteration, run_time
-
-def runSDPIterations(iterations, getD, getE, filename="", start=1, place=3):
-    input_sizes = []
-    optimal_values = []
-    run_times = []
-    num_iterations = []
-    for n in range(start, iterations + 1):
-        D = getD(n=n)
-        E = getE(D=D)
-        optimal_value, num_iteration, run_time = runSDP(D=D, E=E, place=place)
-        input_sizes += [n]
-        optimal_values += [optimal_value]
-        run_times += [run_time]
-        num_iterations += [num_iteration]
 
 def getDAll(n):
     return [np.binary_repr(i, width=n) for i in range(2**n)]
@@ -51,4 +20,27 @@ def getERandom(D):
 def getEFirst(D):
     return [x[0] for x in D]
 
-runSDPIterations(iterations=5, getD=getDAll, getE=getERandom, start=1)
+def getEHalfZeros(D):
+    return ['0' if x.count('0') <= len(x)//2 else '1' for x in D]
+
+def getEAlternating(D):
+    n = len(D[0])
+    alter0 = '01' * (n//2) if n % 2 == 0 else '01' * (n//2) + '0'
+    alter1 = '10' * (n//2) if n % 2 == 0 else '10' * (n//2) + '1'
+    return ['1' if x in [alter0, alter1] else '0' for x in D]
+
+def getESorted(D):
+    return ['1' if list(x) == sorted(list(x)) else '0' for x in D]
+
+def getERandomK(D, k):
+    k = k if k <= len(D) else k % len(D)
+    chosen = random.sample(D, k=k)
+    return ['1' if x in chosen else '0' for x in D]
+
+def getERandomOne(D):
+    return getERandomK(D=D, k=1)
+
+def getERandomTwo(D):
+    return getERandomK(D=D, k=2)
+
+runSDPIterations(iterations=5, getD=getDAll, getE=getEAlternating, start=1)

@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import time
 from adm import solveSDP, simplifyX
 import math
 import scipy.linalg
@@ -60,12 +61,6 @@ def getConstraints(D, E):
     C[- 1, - 1] = 1
     return constraints, bs, C
 
-def wrapSDPSolver(D, E):
-    constraints, b, C = getConstraints(D=D, E=E)
-    X, iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
-    V, target = getSpanProgram(X, D=D, E=E)
-    return X[-1, -1], iteration
-
 def getL(X, tolerance):
     vals, vecs = np.linalg.eig(X)
     L = np.zeros(X.shape, dtype = np.complex128)
@@ -105,7 +100,7 @@ def checkL(L, D, E, tolerance=1e-3):
 
 def getSpanProgram(X, D, E, tolerance=1e-4):
     little_X = X[:-len(D)-1, :-len(D)-1]
-    L = getL(X=little_X, tolerance=tolerance)
+    L = getL(X=little_X, tolerance=.1)
     n = len(D[0])
     V = []
     F0_idx = []
@@ -145,6 +140,42 @@ def checkSpanProgram(D, E, V, target, tolerance = 1e-4):
         residual = sum((np.matmul(I, linear_combo) - target) ** 2)[0,0]
         assert (residual < tolerance) == (E[y_index] == '1')
     return True
+
+def wrapSDPSolver(D, E):
+    constraints, b, C = getConstraints(D=D, E=E)
+    X, iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
+    V, target = getSpanProgram(X, D=D, E=E)
+    return X[-1, -1], iteration
+
+def runSDP(D, E, place=3):
+    print("n:", len(D[0]))
+    print("D:", D)
+    print("E:", E)
+
+    starting_time = time.time()
+    optimal_value, num_iteration = wrapSDPSolver(D=D, E=E)
+    run_time = time.time() - starting_time
+
+    print("Optimal Query Complexity:", np.round(optimal_value, place))
+    print("Number of Iterations:", num_iteration)
+    print("Run Time:", np.round(run_time, place), "seconds")
+    print()
+
+    return optimal_value, num_iteration, run_time
+
+def runSDPIterations(iterations, getD, getE, filename="", start=1, place=3):
+    input_sizes = []
+    optimal_values = []
+    run_times = []
+    num_iterations = []
+    for n in range(start, iterations + 1):
+        D = getD(n=n)
+        E = getE(D=D)
+        optimal_value, num_iteration, run_time = runSDP(D=D, E=E, place=place)
+        input_sizes += [n]
+        optimal_values += [optimal_value]
+        run_times += [run_time]
+        num_iterations += [num_iteration]
 
 def testSDPSolver(iterations=5, accuracy = 2):
     all_passed = True
