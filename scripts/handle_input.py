@@ -1,4 +1,4 @@
-from wrap_adm import runSDP, runSDPIterations
+from wrap_adm import runSDP, runSDPForN
 import numpy as np
 import random
 
@@ -51,4 +51,4 @@ def getERandomTwo(D):
 #runSDP(D=D, E=E)
 
 ## Example 2
-#runSDPIterations(iterations=2, getD=getDAll, getE=getEOR, start=2)
+runSDPForN(getD=getDAll, getE=getEOR, n_end=2, n_start=2)

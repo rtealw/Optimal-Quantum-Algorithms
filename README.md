@@ -1,7 +1,8 @@
 # OptQuant
+#### A toolkit to find the optimal quantum query complexity and query optimal quantum algorithm for given Boolean functions.
 ### By R. Teal Witter and Michael T. Czekanski
 
-#### A toolkit to find the optimal quantum query complexity and query optimal quantum algorithm for given Boolean functions.
+
 
 Consider a function f that maps from D to E where D is a subset of bitstrings
 of length n and E is the set of single bit outputs.
@@ -15,6 +16,7 @@ There are two ways to run our program.
 First, explicitly specify the sets D and E.
 Second, create one function that generates the set D for arbitrary bitstring length n
 and another function that generates the set E from D according to f.
+(Note: We provide example functions in `scripts/handle_input`.)
 
 ## Example 1
 We consider the Boolean function `OR` on input bitstrings of length 2.
@@ -41,9 +43,8 @@ Run Time: 0.067 seconds
 We again consider `OR` on bitstrings of length 2.
 In this example though, we define functions to generate
 all bitstrings of length n and evaluate the function `OR` on D.
-Then we pass our functions into `runSDPIterations` from `scripts/wrap_adm.py`
-and specify the number of iterations.
-
+Then we pass our functions into `runSDPForN` from `scripts/wrap_adm.py`
+and specify the starting and ending `n`.
 ```python
 def getDAll(n):
     return [np.binary_repr(i, width=n) for i in range(2**n)]
@@ -51,7 +52,7 @@ def getDAll(n):
 def getEOR(D):
     return ['1' if '1' in x else '0' for x in D]
 
-runSDPIterations(iterations=2, getD=getDAll, getE=getEOR, start=2)
+runSDPForN(getD=getDAll, getE=getEOR, n_end=2, n_start=2))
 ```
 The corresponding output should look similar to:
 ```
@@ -63,7 +64,12 @@ Number of Iterations: 73
 Run Time: 0.058 seconds
 ```
 
-
 ## Semidefinite Program Formulation
+We use Ben Reichardt's formulation of the semidefinite program for
+optimal quantum query complexity (described in `Theorem 6.2`) 
+and query optimal span program (`Lemma 6.5`) in
+[Span programs and quantum query complexity:
+The general adversary bound is nearly tight for every boolean function]
+(https://arxiv.org/pdf/0904.2759.pdf).
 
 ## Alternating Direction Method

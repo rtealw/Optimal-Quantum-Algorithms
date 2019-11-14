@@ -147,7 +147,7 @@ def wrapSDPSolver(D, E):
     V, target = getSpanProgram(X, D=D, E=E)
     return X[-1, -1], iteration
 
-def runSDP(D, E, place=3):
+def runSDP(D, E, round_to=3):
     print("n:", len(D[0]))
     print("D:", D)
     print("E:", E)
@@ -156,22 +156,22 @@ def runSDP(D, E, place=3):
     optimal_value, num_iteration = wrapSDPSolver(D=D, E=E)
     run_time = time.time() - starting_time
 
-    print("Optimal Query Complexity:", np.round(optimal_value, place))
+    print("Optimal Query Complexity:", np.round(optimal_value, round_to))
     print("Number of Iterations:", num_iteration)
-    print("Run Time:", np.round(run_time, place), "seconds")
+    print("Run Time:", np.round(run_time, round_to), "seconds")
     print()
 
     return optimal_value, num_iteration, run_time
 
-def runSDPIterations(iterations, getD, getE, filename="", start=1, place=3):
+def runSDPForN(getD, getE, n_end, n_start=1, round_to=3):
     input_sizes = []
     optimal_values = []
     run_times = []
     num_iterations = []
-    for n in range(start, iterations + 1):
+    for n in range(n_start, n_end + 1):
         D = getD(n=n)
         E = getE(D=D)
-        optimal_value, num_iteration, run_time = runSDP(D=D, E=E, place=place)
+        optimal_value, num_iteration, run_time = runSDP(D=D, E=E, round_to=round_to)
         input_sizes += [n]
         optimal_values += [optimal_value]
         run_times += [run_time]
