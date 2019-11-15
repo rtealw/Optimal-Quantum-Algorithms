@@ -15,7 +15,7 @@ def wrapSDPSolver(D, E):
     starting_time = time.time()
     constraints, b, C = getConstraints(D=D, E=E)
     X, num_iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
-    I, t = getSpanProgram(X, D=D, E=E)
+    I, t = getSpanProgram(X=X,D=D,E=E) if X[-1,-1] > 0 else 0,0
     return {
         "query_complexity" : X[-1,-1],
         "matrix_solution" : X,
