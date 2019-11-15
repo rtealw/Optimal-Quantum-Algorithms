@@ -6,7 +6,7 @@ from termcolor import cprint
 import warnings
 from adm import solveSDP
 from constraints import getConstraints
-from span_program import getSpanProgram
+from span_program import getSpanProgram, checkSpanProgram
 
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
@@ -59,10 +59,10 @@ def testSDPSolver(iterations=5, accuracy = 2):
         solution = wrapSDPSolver(D=D, E=E)
         expected = np.sqrt(n)
         if round(solution['query_complexity'], accuracy) == round(expected, accuracy):
-            cprint("passed :)", "green")
+            cprint("SDP solution passed :)", "green")
         else:
             all_passed = False
-            cprint("failed :(", "red")
+            cprint("SDP solution failed :(", "red")
             cprint("Expected: {}".format(expected), "green")
             cprint("Received: {}".format(received), "red")
 
@@ -70,6 +70,37 @@ def testSDPSolver(iterations=5, accuracy = 2):
         cprint("Tests passed :)", "green")
     else:
         cprint("Tests failed :(", "red")
+
+def testSDPSolver(iterations=5, accuracy = 2):
+    all_passed = True
+    for n in range(1, iterations + 1):
+        print("Testing SDP solver on OR for n = {}... \n".format(n), end=" ")
+        D = [np.binary_repr(i, width=n) for i in range(2**n)]
+        E = ['1' if '1' in x else '0' for x in D]
+        #received, iteration, I, t = wrapSDPSolver(D, E)
+        solution = wrapSDPSolver(D=D, E=E)
+        expected = np.sqrt(n)
+
+        # check optimization results
+        if round(solution['query_complexity'], accuracy) == round(expected, accuracy):
+            cprint("SDP solution passed :)", "green")
+        else:
+            all_passed = False
+            cprint("SDP solution failed :(", "red")
+            cprint("Expected: {}".format(expected), "green")
+            cprint("Received: {}".format(received), "red")
+
+        # check span program
+        if checkSpanProgram(D, E, solution["span_vectors"], solution["target_vector"], tolerance=1e-4):
+            cprint("Span solution passed :)", "green")
+        else:
+            cprint("Span solution failed :(", "red")
+
+        #print(solution["span_vectors"])
+    if all_passed:
+        cprint("\n All Tests passed :)", "green")
+    else:
+        cprint("\n Tests failed :(", "red")
 
 if __name__ == '__main__':
     testSDPSolver()

@@ -69,20 +69,17 @@ def getIx(I, x, num_inputs, num_rows):
 
 def checkSpanProgram(D, E, I, t, tolerance = 1e-4):
     I = np.array(I)
-    n = len(D[0])
+
     for x_index in range(len(D)):
         Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), num_rows=t.shape[0])
+
         t = np.matrix(t)
         linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t)
-        spanned = Ix.dot(linear_combo)
-        residual = np.sum(Ix.dot(linear_combo) - t) ** 2
+        residual = np.sum((Ix.dot(linear_combo) - t) ** 2)
+
+        # residual < tolerance means satisified if output is 0
         if (residual < tolerance) !=  (E[x_index] == '1'):
-            print("Ix", Ix)
-            print("spanned", spanned)
-            print("residual", residual)
-            print("x", D[x_index])
-            print("fx", E[x_index])
-        #assert (residual < tolerance) == (E[x_index] == '1')
+            return False
     return True
 
 def getSpanProgram(X, D, E, tolerance=1e-4, run_checks=True):
