@@ -77,7 +77,7 @@ Number of Iterations: 73
 Run Time: 0.058 seconds
 ```
 
-Both examples live in `examples.py`.
+(You can find both examples in `examples.py`.)
 
 ## Semidefinite Program Formulation
 We use Ben Reichardt's formulation of the SDP for
