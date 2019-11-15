@@ -60,14 +60,14 @@ def getIx(I, x, num_inputs, num_rows):
     Ix = np.zeros((num_rows, subblock_length *  n))
     for i in range(n):
         start_index = (2 * i + eval(x[i])) * subblock_length
-        current_subblock = I[:,start_index:start_index+subblock_length]
+        current_subblock = I[:,start_index:(start_index+subblock_length)]
         Ix[:,subblock_length*i:subblock_length*(i+1)] = current_subblock
     Ix = Ix[:,~np.all(Ix == 0, axis=0)]
     if Ix.size == 0:
         Ix = np.zeros((num_rows,1))
     return Ix
 
-def checkSpanProgram(D, E, I, t, tolerance = 1e-4):
+def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
     I = np.array(I)
 
     for x_index in range(len(D)):
@@ -75,14 +75,20 @@ def checkSpanProgram(D, E, I, t, tolerance = 1e-4):
 
         t = np.matrix(t)
         linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t)
-        residual = np.sum((Ix.dot(linear_combo) - t) ** 2)
+        closest_vector = Ix.dot(linear_combo)
+        residual = np.sum(np.square(closest_vector - t))
 
         # residual < tolerance means satisfied if output is 0
-        if (residual < tolerance) !=  (E[x_index] == '1'):
+        if (residual < tolerance) ==  (E[x_index] == '0'):
+            print("x", D[x_index])
+            print("f(x)", E[x_index])
+            print("Closest_vector", closest_vector)
+            print("Residual", residual)
+            raise "Residual above tolerance"
             return False
     return True
 
-def getSpanProgram(X, D, E, tolerance=1e-4, run_checks=True):
+def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
     little_X = X[:-len(D)-1, :-len(D)-1]
     L = getL(X=little_X, tolerance=.1)
     n = len(D[0])
