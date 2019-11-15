@@ -77,7 +77,7 @@ def checkSpanProgram(D, E, I, t, tolerance = 1e-4):
         linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t)
         residual = np.sum((Ix.dot(linear_combo) - t) ** 2)
 
-        # residual < tolerance means satisified if output is 0
+        # residual < tolerance means satisfied if output is 0
         if (residual < tolerance) !=  (E[x_index] == '1'):
             return False
     return True

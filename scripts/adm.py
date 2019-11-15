@@ -1,8 +1,8 @@
-#http://mpc.zib.de/index.php/MPC/article/viewFile/40/20
+# many of the variables in this file refer to the notation in the link below
+# http://mpc.zib.de/index.php/MPC/article/viewFile/40/20
 
 import numpy as np
 from scipy import sparse
-import scipy.sparse.linalg
 
 def plainA(constraints, dimension):
     A = np.zeros((dimension**2, len(constraints)), dtype=np.float32)
@@ -39,6 +39,13 @@ def nextY(S, X, C, b, mu, pinvAAt, constraints):
     return matrix.dot(vector_a + vector_b)
 
 def decomposeV(V):
+    '''
+       Parameters:
+           V : matrix V as described in ADM paper
+       Returns:
+           sigma_plus : positive eigenvalues of V
+           Q_plus : eigenvectors of V corresponding to elements of sigma_plus
+       '''
 #    unordered_vals, unordered_vecs = sparse.linalg.eigs(V)
     unordered_vals, unordered_vecs = np.linalg.eigh(V)
     ordering = (-unordered_vals).argsort() 
