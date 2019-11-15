@@ -1,4 +1,3 @@
-from wrap_adm import runSDP, runSDPForN
 import numpy as np
 import random
 
@@ -44,13 +43,3 @@ def getERandomOne(D):
 
 def getERandomTwo(D):
     return getERandomK(D=D, k=2)
-
-## Example 1
-#D = ['00', '01', '10', '11']
-#E = ['0', '1', '1', '1']
-#runSDP(D=D, E=E)
-
-## Example 2
-#runSDPForN(getD=getDAll, getE=getEOR, n_end=2, n_start=2)
-
-runSDPForN(getD=getDAll, getE=getERandomOne, n_end=5, n_start=2)
