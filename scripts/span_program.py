@@ -69,7 +69,7 @@ def getIx(I, x, num_inputs, num_rows):
 
 def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
     I = np.array(I)
-
+    print("I=", I)
     for x_index in range(len(D)):
         Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), num_rows=t.shape[0])
 
@@ -79,12 +79,14 @@ def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
         residual = np.sum(np.square(closest_vector - t))
 
         # residual < tolerance means satisfied if output is 0
-        if (residual < tolerance) ==  (E[x_index] == '0'):
+        if (residual < tolerance) == (E[x_index] == '0'):
             print("x", D[x_index])
             print("f(x)", E[x_index])
             print("Closest_vector", closest_vector)
             print("Residual", residual)
-            raise "Residual above tolerance"
+            print("Ix=", Ix)
+            print("t=",t)
+            raise ValueError("Residual above tolerance")
             return False
     return True
 
