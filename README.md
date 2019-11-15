@@ -8,7 +8,7 @@ In the query model, an algorithm looks at the bits of the input string x in D
 as few times as possible before correctly determing f(x).
 Given f, our program finds the optimal query complexity of a quantum algorithm
 that evaluates f and a span program (i.e. quantum algorithm) that meets
-this query complexity.
+this query complexity by solving a semidefinite program (SDP).
 
 There are two ways to run our program.
 First, explicitly specify the sets D and E.
@@ -57,7 +57,7 @@ Run Time: 0.067 seconds
 
 ## Example 2 - Function Construction
 We again consider `OR` on bitstrings of length 2.
-In this example though, we define functions to generate
+In this example, though, we define functions to generate
 all bitstrings of length n and evaluate the function `OR` on D.
 Then we pass our functions into `qqo.runSDPForN` and specify
 for which sizes of bitstring `n` we want to solve the SDP. 
@@ -80,7 +80,7 @@ Run Time: 0.058 seconds
 Both examples live in `examples.py`.
 
 ## Semidefinite Program Formulation
-We use Ben Reichardt's formulation of the semidefinite program (SDP) for
+We use Ben Reichardt's formulation of the SDP for
 optimal quantum query complexity (described in `Theorem 6.2`) 
 and query optimal span program (`Lemma 6.5`) in
 [Span programs and quantum query complexity:
