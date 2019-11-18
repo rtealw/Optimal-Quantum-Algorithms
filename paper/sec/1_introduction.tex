@@ -1,32 +1,30 @@
 \section{Introduction}
 
-Given the vast potential of quantum computers to solve
-computationally difficult problems more efficiently
-than classical computers, it is of interest to
-determine for which functions this is the case. Although a
-simple solution would be to run equivalent functions using
+An important topic in quantum computing is
+to determine the problems for which quantum
+computers can outperform classical computers.
+Although a simple solution would be to run equivalent functions using
 both quantum and classical computers and compare their
-performance, sufficiently large quantum computers don't
+performance, sufficiently large quantum computers do not
 currently exist.
 
 Therefore, we must rely on analytical, asymptotic methods
-to characterize the run time on quantum computers on
+to characterize the runtime on quantum computers on
 complex functions. More specifically, we make use of the
 query complexity of a function on a quantum computer to
-place a lower bound on its run time. Simply put, the query
+place a lower bound on its runtime. Simply put, the query
 complexity is the number of times we must examine the
 contents of the input string to determine the correct
 output of the function. This represents a lower bound of
-the asymptotic run time of the optimal algorithm because to
+the asymptotic runtime of the optimal algorithm because to
 evaluate a function, we must examine the input string the
 minimum number of times and additionally perform other
 computations to evaluate the function. These other
 computations could overtake the queries of the input string
-to alter the overall run time of the algorithm, meaning the
-run time is at least as large as the query complexity. In comparing quantum and classical algorithms for evaluating a function, we conclude that the algorithm with the lower query complexity is more efficient.
+to alter the overall runtime of the algorithm, meaning the
+runtime is at least as large as the query complexity. In comparing quantum and classical algorithms for evaluating a function, we conclude that the algorithm with the lower query complexity is more efficient.
 
-To give a concrete example for query complexity, as well as
-for the remainder of the paper, we invite the reader to
+To give a concrete example for query complexity,
 recall the canonical one bit OR function. This function
 returns a $1$ if at least one of the inputs is $1$ and
 otherwise results in a $0$. More generally, the $n$-bit OR
@@ -50,9 +48,9 @@ bound on quantum query complexity for a function over all
 inputs by finding the complexity of the worst-case input.
 Lee et al. show that this optimal upper bound of quantum
 query complexity corresponds to the solution of a
-semidefinite program (referred to as SDP)
-\cite{lee2011quantum}. Reichardt thenreformulated this SDP
-into a form we found more useful in our analysis
+semidefinite program (SDP)
+\cite{lee2011quantum}. Reichardt then reformulated this SDP
+into a form we more useful in our analysis
 \cite{reichardt2009span}. We convert Reichardt's
 form into the standard SDP definition as defined by Boyd
 \cite{boyd2004convex}. We then implement an SDP
@@ -64,7 +62,7 @@ scope of our implementation to Boolean functions.
 There exist many implementations of SDP solvers in Python
 libraries for convex optimization, such as CVXOPT and SDPA
 \cite{cvxopt, SDPA}. However, neither of these libraries,
-or others we examined, easily support the standard form of
+easily support the standard form of
 the SDP problem we have formulated. We implement our own
 solver in Python to specifically target the solution of
 SDP's corresponding to these bounds on quantum query
@@ -78,4 +76,9 @@ Mathematically, our goal is to create a tool that takes as
 input a natural number $n$ and a Boolean function 
 $f: \{0,1\}^n \rightarrow \{0,1\}$. 
 By solving Reichardt's SDP problem with
-Wen et al.'s ADM algorithm, we return the optimal adversary bound for the quantum query complexity of $f$. We hope that quantum algorithm researchers use our tool to discover and verify the optimality of quantum algorithms.
+Wen et al.'s ADM algorithm, we return the optimal adversary bound for 
+the quantum query complexity of $f$. 
+We hope that quantum algorithm researchers use our tool to 
+discover and verify the optimality of quantum algorithms.
+
+\todo{introduce span programs and what they have to do with quantum computers}

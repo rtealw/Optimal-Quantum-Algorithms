@@ -1,222 +1,210 @@
 \section{Methodology}\label{sec:method}
-To understand Reichardt's formulation and our conversion
-to Boyd's standard form, consider as inputs to our tool
-the general case with function $f: D \rightarrow E$ where
-$D \subseteq {\{0,1\}}^n$ and $E \subset {\{0,1\}}$. From
-previous work, we can formulate the problem as in
-\cref{eq:reichardtObj} where $f_{\text{bound}}$ represents
-the optimal bound for the function $f$ with the input size
-$n$ \cite{reichardt2009span}. Let $F$ be the set of $(y,z)$ such that $f(y) \neq f(z)$.
-Then the objective function of the SDP is:
-\begin{align} \label{eq:reichardtObj} 
-    f_{\text{bound}} = M(\X) = \max_{y \in D} \sum_{j \in [n]}
-    \bra{y,j}\X\ket{y,j} 
+
+\subsection{Original Form}
+Consider a Boolean function $f$ such that
+$f: D \rightarrow E$ where 
+$D \subseteq {\{0,1\}}^n$ and $E \subseteq {\{0,1\}}$.
+We state Reichardt's formulation of the SDP \cite{reichardt2009span}.
+The quantum query complexity of $f$ is
+\begin{align} \label{Eq:reichardt_obj} 
+    \max_{y \in D} \sum_{j \in [n]} \bra{y,j}\X\ket{y,j} 
 \end{align}
-subject to constraints
-\begin{align}\label{Eq:reichardtSemi}
-    \X \succcurlyeq 0 
-\end{align}
-and
-\begin{align}\label{Eq:reichardtOffDiag}
+for some $\X$ subject to the constraints that $\X$ is semidefinite
+(all its eigenvalues are non-negative)
+and that
+\begin{align}\label{Eq:reichardt_F0}
     \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
     \bra{y,j} \X \ket{z, j} = 1.
 \end{align}
-Our goal is to minimize $M$, and thus $f_{\text{bound}}$ by finding the optimal value of $\X$.
+for the set $F$ such that $(y,z) \in F$ if and only if
+$f(y) \neq f(z)$.
 
-To make use of this definition, it's helpful to convert
-the problem into a more canonical form to make use of
-ready-made solvers, and algorithms published on the
-topic of solving SDP's generally. We covert Reichardt's problem to Boyd's form as we believe it to be a generally recognized standard form. Boyd's definition is shown below \cite{boyd2004convex}:
+\subsection{Standard Form}
+In order to implement an algorithm that solves 
+Reichardt's formulation, we convert the SDP
+into the canonical standard form
+\cite{boyd2004convex}.
+Let $\tr$ denote the trace operation
+that takes as input a square matrix
+and returns the sum of the main diagonal entries.
+Then the standard form objective function of the SDP is
 \begin{align}\label{Eq:boyd_obj}
-    M(\X) = \tr(C\X) 
+    \tr(C\Xb)
 \end{align}
-subject to
-\begin{align} \label{Eq:boydSemi}
-    \X \succcurlyeq 0   
+for some fixed matrix $C$, subject to the constraints
+that $\Xb$ is semidefinite and for $i \in [p]$
+\begin{align} \label{Eq:boyd_trace}
+    \tr(A_i \Xb) = b_i
 \end{align}
-and for $i \in \{1,...,p\}$
-\begin{align} \label{Eq:boydTraceCon}
-    \tr(A_i \X) = b_i. 
-\end{align}
-where $A_i$ and $C$ are matrices and $b_i$ is a scalar for each $i$.
+for some fixed matrices $A_i$ and $b_i$.
 
-Once we are given and the function $f$ and input size
-$n$ of interest, we can then define our set of matrices
-and scalars $A_i$, $b_i$, and $C$ such that these two
-problems are equivalent. We can then use developed algorithms to solve the problem and obtain our optimal bound on quantum query complexity for the function $f$.
+\subsection{Converting from Original to Standard Form}
+We now convert the original form of the SDP to
+the standard form by constructing appropriate matrices $A_i$, $b_i$, $\Xb$, and $C$.
 
-We can begin our conversion by examining the formulation of Reichardt's definition. $\X$ contains chunks of size 
-$n \times n$, each corresponding to an element of the Cartesian product $D \times D$. Each axis of the matrix is partitioned into $|D| = 2^n$ equal parts such that we have chunks on the interior of the matrix corresponding to ordered pairs of inputs. Each chunk is of size $n \times n$ as mentioned previously so $\X$ is an $n2^n \times n2^n$ matrix. Below we consider $\X$ of the OR function with one bit inputs:
+We start by gaining some intuition about $\X$.
+It is clear from \cref{Eq:reichardt_obj} that for 
+each $y \in D$, there exists an $n \times n$ sub-matrix of $\X$ along its diagonal.
+Then $\X$ must have a total of $n|D|$ rows and $n|D|$ columns.
+(In general, $|D| = 2^n$ but it is possible to take 
+worst-case subsets of $D$ and still find the correct solution.)
+
+To convert \cref{Eq:reichardt_F0} into \cref{Eq:boyd_trace},
+we must construct $A_i$ for $i \in [p]$.
+Let $p = |F|$, then each pair $(y,z) \in F$
+gets a corresponding $A_i$.
+For $(y,z)$, we are interested in the entries
+in $\X$ that correspond to the bits $y_i$ and $z_i$
+where $y_i \neq z_i$ for $i \in [n]$.
+These entries must necessarily live off the main diagonal,
+because $y\neq z$,
+so our $A_i$ will map them to the main diagonal 
+and ensure that the trace $\tr(A_i \X)$ sums to 1.
+Note that $b_i = 1$.
+
+To place particular entries of $\X$ onto the main diagonal,
+let $A_i$ be the transpose of the zero matrix with
+ones only in the particular entries we want.
+We illustrate on a small example.
+Let
 \begin{align}
-\X = \begin{blockarray}{ccc}
-\qquad & 0 & 1 \\
-\begin{block}{c[cc]}
-  0 & X_{(0,0)} & X_{(0,1)} \\
-  1 & X_{(1,0)} & X_{(1,1)} \\
-\end{block}
-\end{blockarray}
+    \X = \left[ \begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix} \right] \nonumber
 \end{align}
-
-In this instance, each sub-matrix $X_{(i,j)}$ is a $ 1
-\times 1 $ matrix. This is the same construction used for
-each input size $n$ where there is a sub-matrix
-corresponding to every ordered pair of inputs in $D$.
-
-To mathematically convert Reichardt's form into an
-equivalent SDP in standard form, we first convert the
-constraints and then the objective function. It's clear
-that constraints in \cref{Eq:reichardtSemi} and 
-\cref{Eq:boydSemi} are equivalent, simply requiring that
-$\X$ is positive semidefinite.
-
-The second constraint in Reichardt's form requires that
-given a sub-matrix corresponding to a pair of inputs with
-different outputs, the elements on this sub-matrix's
-diagonal corresponding to bits that differ in the two
-input strings sum to $1$. For each element in $F$, we can
-define a matrix $A_i$ that moves the correct elements of
-the corresponding sub-matrix's diagonal to the diagonal
-of $A_i \X$ and sets other diagonal entries of $A_i \X$
-to zero. In this way the trace of $A_i \X$ is equal to
-the sum in \cref{Eq:reichardtOffDiag}. Therefore we set
-each $b_i$ to $1$ to make the constraints equivalent.
-
-
-For example, consider a matrix $X$ where
+and the particular entry of interest be the top right value of $\X$.
+Then
 \begin{align}
-    X = \left[ \begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix} \right] \nonumber
+    A_i = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \end{matrix} \right]^\textrm{T} \nonumber
+    = \left[ \begin{matrix} 0 & 0 \\ 1 & 0 \end{matrix} \right] \nonumber
 \end{align}
-and suppose we want to put the top right value $2$ on the diagonal.
-We could define $A$ as below:
-
+so that
 \begin{align}
-    A = \left[ \begin{matrix} 0 & 0 \\ 1 & 0 \end{matrix} \right] \nonumber
+    A_i \cdot \X = \left[ \begin{matrix} 2 & 0 \\ 4 & 0 \end{matrix} \right] \nonumber
 \end{align}
+and $\tr(A_i \cdot \X) = 2$ as desired.
 
-Therefore,
-\begin{align}
-    A \cdot X = \left[ \begin{matrix} 2 & 0 \\ 4 & 0 \end{matrix} \right] \nonumber
-\end{align}
-and subsequently,
-\begin{align}
-    \tr(A \cdot X) = 2. \nonumber
-\end{align}
-
-Through a similar construction we can build our set of
-matrices $A_i$ for each element of $F$ where we set $b_i
-= 1$. Having now created $A_i$ and $b_i$ for $i = 1,2,..., |F|$, we have defined constraints equivalent to \cref{Eq:reichardtSemi} and eq. \ref{Eq:reichardtOffDiag} thus creating a SDP constraints in Boyd's form that are equivalent to Reichardt's form.
-
-The problem is now that \cref{Eq:boyd_obj}
-does not have a maximum in the way \cref{eq:reichardtObj}
-requires. Our solution is to convert this maximum to a
-linear function by introducing slack variables. We 
-construct a new $\mathcal{X}$ from our original $\X$,
-\begin{align}
-    \Xb =
-    \left[
-    \begin{matrix}
-    \X & 0 \\
-    0 & S
-    \end{matrix}
-    \right] \nonumber
-\end{align}
-%\begin{equation}
-%    \Xb = \left[\begin{matrix} \X \cdots \cdots 0 \\
-%                                \vdots \ddots \vdots \\
-%                                0 \cdots \cdots z  \end{matrix}
-%                                \right]  
-%\end{equation}
-where $S$ is a diagonal matrix
-with objective function $z$ in the bottom right most entry
-and slack variables $s_i$ for $i \in [|D|]$
-along the rest of the diagonal.
-
-We guarantee that $z$ is the maximum
-diagonal chunk of $\X$
-by generating another set of matrices 
-$\Ap_i$ and scalars $\bp_i$ for $i \in [|D|]$
-where $\bp_i = 0$.
-For each element of $D$, define a $c_i$ such that
+Let $c_i$ be the sum of the $n$ entries
+in the $i^{th}$ section of the main diagonal of $\X$:
 \begin{align}
     c_i = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
     \nonumber
 \end{align} 
-where $y$ is the $i^{th}$ element of $D$, making $c_i$ equivalent to the trace of the corresponding sub-matrix on the diagonal of $\X$.
-Our goal is to enforce that $z$ is the maximum $c_i$.
-By requiring that $s_i + c_i = z$ and using
-the fact that $s_i$ is positive
-($\Xb$ is semidefinite so $S$ is as well),
-we can keep $z$ larger than or equal to $c_i$.
-The semidefinite program minimizes $z$
-by our choice of $C$ so $z$ meets the maximum $c_i$.
+where $y$ is the $i^{th}$ element of $D$ and
+$i \in [|D|]$.
+Let $z$ be $\tr(C\Xb)$ and, so as to extract the bottom right entry,
+let $C$ be the zero matrix with a single one in the bottom right entry.
+Our last challenge is to satisfy \cref{Eq:boyd_obj}
+by enforcing that $z$ is the maximum $c_i$.
+Our solution is to introduce non-negative slack variables
+$s_i$ for $i \in [|D|]$ and the constraints
+$c_i + s_i = z$.
 
-To enforce $s_i + c_i = z$, define $\Ap_i$ as a diagonal
-matrix  with 1s along the chunk
-corresponding to the $i^{th}$ input,
-1 in the entry corresponding to $s_i$,
-and -1 in the entry corresponding to $z$.
-In a slight abuse of notation, we show an example
-of $\Xb A_i$.
+To construct $\Xb$, call $S$ the zero matrix
+whose diagonal holds the entries $s_1,...,s_{|D|}, z$.
+Then
 \begin{align}
-\left[\begin{matrix} c_i & 0 & 0 \\
-                    0 & s_i & 0 \\
-                    0 & 0 & z \end{matrix} \right]
-\left[\begin{matrix} 1 & 0 & 0 \\
-                    0 & 1 & 0 \\
-                    0 & 0 & -1 \end{matrix} \right]
-= \left[\begin{matrix} c_i & 0 & 0 \\
-                    0 & s_i & 0 \\
-                    0 & 0 & -z \end{matrix} \right]
-            \nonumber
+    \Xb = \left[ \begin{matrix} \X & 0 \\ 0 & S \end{matrix} \right] \nonumber.
 \end{align}
-Notice that the trace of $\Xb A_i$
-is $c_i + s_i - z$.
-By setting $\bp_i = 0$, we have that $z$ is
-greater than or equal to $c_i$.
+(Since $\Xb$ is semidefinite, the main diagonal entries of
+$\Xb$ must be non-negative so $s_i \geq 0$.)
 
-The final matrix we define is $C$.
-Our goal is to select out $z$ from $\Xb$
-so $C$ has a single non-zero value in the 
-entry corresponding to $z$.
+To enforce that $z$ is the maximum $c_i$,
+we construct $\Ap_i$ and set $\bp_i$ to 0
+for $i \in [|D|]$.
+(For the purposes of the standard form,
+we now have two sets of $A_i$ and $b_i$ constraints.)
+Let $\Ap_i$ be the zero matrix with ones
+along the entries corresponding to the input $i$ of D,
+a one in the entry corresponding to $s_i$,
+and a negative one in the bottom right entry corresponding
+to the objective function $z$.
+Then
 \begin{align}
-    C = \left[\begin{matrix} 0  \cdots 0 \\
-                                \vdots \ddots \vdots \\
-                                0 \cdots  1  \end{matrix}
-                                \right]  
-                                \nonumber
+    \tr (\Ap_i \Xb ) &= c_i + s_i -z = 0 \nonumber.
+\end{align}
+Because we are minimizing over the objective function $z$,
+$z$ will meet some $c_i$ while staying greater than or equal to each $c_i$
+so $z$ is therefore the maximum $c_i$, as desired.
+
+The solution $\Xb$ that satisfies the standard form according
+to the $A_i$, $\Ap_i$, $b_i$, $\bp_i$, and $C$ we construct will 
+also hold the solution $\X$ to the original form.
+Therefore, to find the optimal quantum query complexity of $f$,
+we need only solve \cref{Eq:boyd_obj} subject to our constraints.
+
+\subsection{Query Efficient Span Programs}
+
+A span program is a model of computation that outputs a
+Boolean value corresponding to whether or not a set
+of vectors "spans" to a target vector. The algorithm is a set of
+vectors such that on a given input, the vectors are
+partitioned into available and unavailable sets. The
+available vectors are turned into the columns of a
+matrix $A$, and create a linear system along with the
+target vector $\tau$, which does not depend on the input.
+These vectors form a linear system $Ax = \tau$.
+If this system is homogeneous--and there exists
+some non-trivial vector x that satisfies the equation--
+then the algorithm returns true.
+Otherwise, the algorithm returns false.
+
+Both Childs and Reichardt mathematically formulate
+algorithms for turning the results of the SDP we solved
+into a span program \cite{reichardt2009span, childs}. To
+begin, we must construct a set of vectors
+$\bra{v_{y,i}}$ for all $y \in D$ where $i = [n]$.
+Given any two input strings $y, z \in D$ such that $y\neq z$,
+\begin{align}
+    \sum_{i: y_i \ne z_i} \braket{v_{y,i}|v_{z,i}} = 1 - \delta_{f(y), f(z)} \nonumber
+\end{align}
+where $\delta_{f(y), f(z)} = 1$ if $f(y) = f(z)$ and $0$ otherwise.
+
+Recall from \cref{Eq:reichardt_F0} that our $\X$ satisfies
+\begin{align}
+    \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
+    \bra{y,j} \X \ket{z, j} = 1 \nonumber.
+\end{align}
+We would like to construct $\bra{v_{y,i}}$ and $\ket{v_{z,i}}$
+from $\X$.
+Let us define a matrix $L$ such that $L^\dagger L = \X$.
+Then $\bra{v_{y,i}} = \bra{y_i}L^\dagger$.
+We can now reformulate the requirement of our vectors $\bra{v_{y,i}}$. 
+\begin{align}
+    \sum_{i: y_i \ne z_i} \braket{v_{y,i}|v_{z,i}} &= \sum_{i: y_i \ne z_i}
+    \bra{y,i} L^\dagger L \ket{z, i} \nonumber \\
+    &= \sum_{i: y_i \ne z_i} \bra{y,i} \X \ket{z, i} = \begin{cases}
+        1 & f(y) \ne f(z) \\
+        0 & f(y) = f(z)
+    \end{cases} \nonumber 
+\end{align}
+Our constraints enforce the $f(y) \neq f(z)$ case and we
+check the $f(y) = f(z)$ case before returning $\X$ in our algorithm.
+
+Given the set of vectors $\bra{v_{y,i}}$ for all $y \in
+D$, $i = 0, 1, \ldots , n-1$, we construct 
+matrix $I$ that contains the vectors for the span
+program. We will make use of the sets $F_i =
+\{y \in D: f(y) = i\}$.
+(Note that $F_i[k]$ denotes the $k^{th}$ element of $F_i$.)
+
+\begin{align}
+    I = \sum_{k \in [|F_0|], j \in [n], y = F_0[k]}
+    \ket{k}\bra{j, \overline{y_j}} \bra{v_{y,j}}
+    \nonumber
 \end{align}
 
-We will now prove that using our construction,
-$z = \max\{c_1, c_2, ... c_{|D|}\}$ in the optimal $\Xb$
-
-Notice that because our matrix $\Xb$ is semidefinite 
-and diagonal, all of its diagonal entries are non-negative. 
-Assume for contradiction that $z < c_i$
-for some $i \in \{1,2,..., |D|\}$.
-Therefore $z < c_i + s_i$ since $s_i \geq 0$.
-
-By our constraint, $z = c_i + s_i$, 
-meaning that $z < z$, a contradiction! 
-Therefore it must be the case that $z$ is an 
-upper bound of the traces of our sub-matrices $c_i$. 
-
-Now assume for contradiction that $z \ne  \max\{c_1, c_2, ...
-c_{|D|}\}$. We know that $z$ is an upper bound so we only need to
-show that there is no upper bound of this finite set that is less
-than $z$ to show it is the maximum. Our assumption is equivalent to
-the statement that there does not exist a constant $a$ such that $a
-> c_i \forall i$ and $a < z$. If $a$ did exist, then there would
-exist an $\Xb$ that also satisfies all of our constraints,
-but with $a$ in the bottom right most entry instead of $z$. This
-would mean that our objective function was improved over our
-initial matrix as $a < z$, meaning that the $\Xb$ we found
-is not optimal: a contradiction. We conclude that our constraints
-are equivalent to those outlined by Reichardt, while matching the
-form of Boyd.
-
-Once given a function $f$ and all possible inputs to the
-function of length $n$ ($D$), we can then define matrices
-$C, A_i, \Ap_i$ and vectors $b_i, \bp_i$ such that the solution of Boyd's SDP
-produces the solution of the Reichardt's SDP which
-produces the optimal bound of quantum query complexity for
-arbitrary Boolean functions.
+This matrix $I$ is divided into sub-matrices that
+correspond to different bits in the input to the
+algorithm.
+The columns of $I$ are evenly divided into
+$n$ chunks corresponding to each input bit.
+Each of these sub-matrices is further divided into a left and
+right sub-matrix, corresponding to a $0$ or $1$
+in the relevant bit of the input.
+Let $A=I(y)$ be the set of columns in $I$ that are available
+on input $y \in D$.
+The target vector $\tau$ is the all ones vector with the same number
+of rows as $I$.
+Then whether there is a solution $x$ to $Ax = \tau$ is equivalent
+to whether $f(y) = 1$.
+Reichardt proves that span program $I$ and $\tau$ meet
+the optimal quantum query complexity of $f$ \cite{reichardt2009span}.
