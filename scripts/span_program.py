@@ -128,7 +128,7 @@ def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
             # create each v_xi
             vxi = np.real(L.H[n*x_index + i,:])
 
-            # print("test")
+
             # print("vxi", vxi)
             # for j in range(len(vxi)):
             #     print(vxi[0,j])
@@ -138,6 +138,12 @@ def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
             not_xi_times_vxi = np.kron(not_xi_vec, vxi)
             vx += np.asarray(not_xi_times_vxi).tolist()[0]
         I.append(vx)
+
+    # set small values to zero
+    I = np.matrix(I)
+    I.real[abs(I.real) < tolerance] = 0.0
+
+
     t = np.ones((len(F0_idx),1))
     if run_checks:
         checkConstraints(L=L, D=D, E=E, tolerance=tolerance)
