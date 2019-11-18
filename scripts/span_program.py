@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 def getL(X, tolerance):
     '''
@@ -78,6 +79,13 @@ def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
         closest_vector = Ix.dot(linear_combo)
         residual = np.sum(np.square(closest_vector - t))
 
+        print("x", D[x_index])
+        print("f(x)", E[x_index])
+        print("Closest_vector", closest_vector)
+        print("Residual", residual)
+        print("Ix=", Ix)
+        print("t=", t)
+
         # residual < tolerance means satisfied if output is 0
         if (residual < tolerance) == (E[x_index] == '0'):
             print("x", D[x_index])
@@ -91,22 +99,42 @@ def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
     return True
 
 def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
+    print("entering getSpanProgram")
     little_X = X[:-len(D)-1, :-len(D)-1]
+    print("little_X", little_X)
     L = getL(X=little_X, tolerance=.1)
+
+    # print()
+    assert ((np.absolute(np.matmul(L.H,L) - little_X)) < tolerance).all()
+
     n = len(D[0])
     I = []
     F0_idx = []
     for i in range(len(D)):
         if E[i] == '0':
             F0_idx.append(i)
-    for x_index in F0_idx:
+
+    zeros = L.shape[0]
+    for x_index in F0_idx: # iterate through Reichardt's F_0
         x = D[x_index]
         vx = []
-        for i in range(n):
-            not_xi = 1 - eval(x[i])
+        for i in range(n): # iterate through a single bit string
+            not_xi = 1 - eval(x[i]) # negate this single bit
+
+            # create bra(not xi)
             not_xi_vec = [0,0]
             not_xi_vec[not_xi] = 1
-            vxi = np.round(np.real(L.H[n*x_index + i,:]))
+
+            # create each v_xi
+            vxi = np.real(L.H[n*x_index + i,:])
+
+            # print("test")
+            # print("vxi", vxi)
+            # for j in range(len(vxi)):
+            #     print(vxi[0,j])
+            #     if abs(vxi[0,j]) < tolerance:
+            #         vxi[0,j] = 0
+            print("vxi", vxi)
             not_xi_times_vxi = np.kron(not_xi_vec, vxi)
             vx += np.asarray(not_xi_times_vxi).tolist()[0]
         I.append(vx)
