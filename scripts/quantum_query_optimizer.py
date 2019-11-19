@@ -42,12 +42,15 @@ def runSDP(D, E, round_to=3):
     return solution
 
 def runSDPForN(getD, getE, n_end, n_start=1, round_to=3):
-    solutions = []
+    solutions = {}
     for n in range(n_start, n_end + 1):
         D = getD(n=n)
         E = getE(D=D)
         solution = runSDP(D=D, E=E, round_to=round_to)
-        solutions += [solution]
+        for key in solution:
+            if key not in solutions:
+                solutions[key] = []
+            solutions[key] += [solution[key]]
     return solutions
 
 def testSDPSolver(iterations=5, accuracy = 2):

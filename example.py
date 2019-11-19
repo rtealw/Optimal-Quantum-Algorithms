@@ -13,3 +13,4 @@ import boolean_functions as bf
 
 # solutions = qqo.runSDP(D=['00', '01', '10', '11'], E=['0', '0', '0', '1'])
 solutions = qqo.runSDPForN(getD=bf.getDAll, getE=bf.getERandom, n_end=4, n_start=2)
+#qqo.visualize(solutions)

@@ -70,7 +70,6 @@ def getIx(I, x, num_inputs, num_rows):
 
 def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
     I = np.array(I)
-    print("I=", I)
     for x_index in range(len(D)):
         Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), num_rows=t.shape[0])
 
@@ -78,33 +77,14 @@ def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
         linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t)
         closest_vector = Ix.dot(linear_combo)
         residual = np.sum(np.square(closest_vector - t))
-
-        print("x", D[x_index])
-        print("f(x)", E[x_index])
-        print("Closest_vector", closest_vector)
-        print("Residual", residual)
-        print("Ix=", Ix)
-        print("t=", t)
-
         # residual < tolerance means satisfied if output is 0
         if (residual < tolerance) == (E[x_index] == '0'):
-            print("x", D[x_index])
-            print("f(x)", E[x_index])
-            print("Closest_vector", closest_vector)
-            print("Residual", residual)
-            print("Ix=", Ix)
-            print("t=",t)
             raise ValueError("Residual above tolerance")
-            return False
     return True
 
 def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
-    print("entering getSpanProgram")
     little_X = X[:-len(D)-1, :-len(D)-1]
-    print("little_X", little_X)
     L = getL(X=little_X, tolerance=.1)
-
-    # print()
     assert ((np.absolute(np.matmul(L.H,L) - little_X)) < tolerance).all()
 
     n = len(D[0])
@@ -114,7 +94,6 @@ def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
         if E[i] == '0':
             F0_idx.append(i)
 
-    zeros = L.shape[0]
     for x_index in F0_idx: # iterate through Reichardt's F_0
         x = D[x_index]
         vx = []
@@ -127,14 +106,6 @@ def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
 
             # create each v_xi
             vxi = np.real(L.H[n*x_index + i,:])
-
-
-            # print("vxi", vxi)
-            # for j in range(len(vxi)):
-            #     print(vxi[0,j])
-            #     if abs(vxi[0,j]) < tolerance:
-            #         vxi[0,j] = 0
-            print("vxi", vxi)
             not_xi_times_vxi = np.kron(not_xi_vec, vxi)
             vx += np.asarray(not_xi_times_vxi).tolist()[0]
         I.append(vx)
