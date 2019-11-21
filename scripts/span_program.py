@@ -69,7 +69,7 @@ def getIx(I, x, num_inputs, num_rows):
     return Ix
 
 def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
-    I = np.array(I)
+#    I = np.array(I)
     for x_index in range(len(D)):
         Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), num_rows=t.shape[0])
 

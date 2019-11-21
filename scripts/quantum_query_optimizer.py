@@ -4,20 +4,23 @@ import sys
 import cProfile
 from termcolor import cprint 
 import warnings
+
 from adm import solveSDP
 from constraints import getConstraints
 from span_program import getSpanProgram, checkSpanProgram
-import matplotlib.pyplot as plt
+from visualize import visualizeRuntime, visualizeComplexity
+from boolean_functions import *
 
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
-def wrapSDPSolver(D, E):
+def wrapSDPSolver(D, E, run_checks=True):
     starting_time = time.time()
     constraints, b, C = getConstraints(D=D, E=E)
     X, num_iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
-    print("nQueries", X[-1,-1])
-    I, t = getSpanProgram(X=X,D=D,E=E) if X[-1,-1] > 0 else 0,0
+    I, t = getSpanProgram(X=X,D=D,E=E) if X[-1,-1] > 0 else (0,0)
+    if run_checks and X[-1, -1] > 0:
+        checkSpanProgram(D, E, I, t, tolerance=1e-4)
     return {
         "query_complexity" : X[-1,-1],
         "matrix_solution" : X,
@@ -61,29 +64,7 @@ def testSDPSolver(iterations=5, accuracy = 2):
         D = [np.binary_repr(i, width=n) for i in range(2**n)]
         E = ['1' if '1' in x else '0' for x in D]
         #received, iteration, I, t = wrapSDPSolver(D, E)
-        solution = wrapSDPSolver(D=D, E=E)
-        expected = np.sqrt(n)
-        if round(solution['query_complexity'], accuracy) == round(expected, accuracy):
-            cprint("SDP solution passed :)", "green")
-        else:
-            all_passed = False
-            cprint("SDP solution failed :(", "red")
-            cprint("Expected: {}".format(expected), "green")
-            cprint("Received: {}".format(received), "red")
-
-    if all_passed:
-        cprint("Tests passed :)", "green")
-    else:
-        cprint("Tests failed :(", "red")
-
-def testSDPSolver(iterations=5, accuracy = 2):
-    all_passed = True
-    for n in range(1, iterations + 1):
-        print("Testing SDP solver on OR for n = {}... \n".format(n), end=" ")
-        D = [np.binary_repr(i, width=n) for i in range(2**n)]
-        E = ['1' if '1' in x else '0' for x in D]
-        #received, iteration, I, t = wrapSDPSolver(D, E)
-        solution = wrapSDPSolver(D=D, E=E)
+        solution = wrapSDPSolver(D=D, E=E, run_checks=True)
         expected = np.sqrt(n)
 
         # check optimization results
@@ -95,29 +76,10 @@ def testSDPSolver(iterations=5, accuracy = 2):
             cprint("Expected: {}".format(expected), "green")
             cprint("Received: {}".format(received), "red")
 
-        # check span program
-        if checkSpanProgram(D, E, solution["span_vectors"], solution["target_vector"], tolerance=1e-4):
-            cprint("Span solution passed :)", "green")
-        else:
-            cprint("Span solution failed :(", "red")
-
-        #print(solution["span_vectors"])
     if all_passed:
-        cprint("\n All Tests passed :)", "green")
+        cprint("\n All tests passed :)", "green")
     else:
-        cprint("\n Tests failed :(", "red")
-
-
-
-def visualizeSolutions(solution):
-    plt.style.use('ggplot')
-    plt.rcParams['axes.facecolor'] = 'w'
-    plt.plot(solution["n_bitstring"], solution["run_time"], 'k')
-    plt.xlabel('Input Size (n)')
-    plt.ylabel('Run Time', rotation=0, ha = 'right')
-    plt.title("Run Time of OR as a function of input size")
-    plt.savefig('RunTimeVSInputSize.png')
-    # make runtime graph
+        cprint("\n Some tests failed :(", "red")
 
 if __name__ == '__main__':
     testSDPSolver()
