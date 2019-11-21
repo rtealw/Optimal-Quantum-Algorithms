@@ -7,6 +7,7 @@ import warnings
 from adm import solveSDP
 from constraints import getConstraints
 from span_program import getSpanProgram, checkSpanProgram
+import matplotlib.pyplot as plt
 
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
@@ -105,6 +106,18 @@ def testSDPSolver(iterations=5, accuracy = 2):
         cprint("\n All Tests passed :)", "green")
     else:
         cprint("\n Tests failed :(", "red")
+
+
+
+def visualizeSolutions(solution):
+    plt.style.use('ggplot')
+    plt.rcParams['axes.facecolor'] = 'w'
+    plt.plot(solution["n_bitstring"], solution["run_time"], 'k')
+    plt.xlabel('Input Size (n)')
+    plt.ylabel('Run Time', rotation=0, ha = 'right')
+    plt.title("Run Time of OR as a function of input size")
+    plt.savefig('RunTimeVSInputSize.png')
+    # make runtime graph
 
 if __name__ == '__main__':
     testSDPSolver()
