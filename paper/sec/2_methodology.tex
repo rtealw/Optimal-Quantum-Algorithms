@@ -5,6 +5,8 @@ Consider a Boolean function $f$ such that
 $f: D \rightarrow E$ where 
 $D \subseteq {\{0,1\}}^n$ and $E \subseteq {\{0,1\}}$.
 We state Reichardt's formulation of the SDP \cite{reichardt2009span}.
+(Note that $[n]$ denotes the array
+$[1,2,...,n]$.)
 The quantum query complexity of $f$ is
 \begin{align} \label{Eq:reichardt_obj} 
     \max_{y \in D} \sum_{j \in [n]} \bra{y,j}\X\ket{y,j} 
@@ -31,7 +33,7 @@ Then the standard form objective function of the SDP is
 \begin{align}\label{Eq:boyd_obj}
     \tr(C\Xb)
 \end{align}
-for some fixed matrix $C$, subject to the constraints
+for some fixed matrix $C$ subject to the constraints
 that $\Xb$ is semidefinite and for $i \in [p]$
 \begin{align} \label{Eq:boyd_trace}
     \tr(A_i \Xb) = b_i
@@ -83,12 +85,13 @@ so that
 and $\tr(A_i \cdot \X) = 2$ as desired.
 
 Let $c_i$ be the sum of the $n$ entries
-in the $i^{th}$ section of the main diagonal of $\X$:
+in the $i^{th}$ section of the main diagonal of $\X$
+such that
 \begin{align}
     c_i = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
     \nonumber
 \end{align} 
-where $y$ is the $i^{th}$ element of $D$ and
+where $y$ is the $i^{th}$ element of $D$ for
 $i \in [|D|]$.
 Let $z$ be $\tr(C\Xb)$ and, so as to extract the bottom right entry,
 let $C$ be the zero matrix with a single one in the bottom right entry.
@@ -135,13 +138,14 @@ we need only solve \cref{Eq:boyd_obj} subject to our constraints.
 
 A span program is a model of computation that outputs a
 Boolean value corresponding to whether or not a set
-of vectors "spans" to a target vector. The algorithm is a set of
+of vectors "spans" to a target vector. The algorithm consists
+of a set of
 vectors such that on a given input, the vectors are
 partitioned into available and unavailable sets. The
 available vectors are turned into the columns of a
-matrix $A$, and create a linear system along with the
-target vector $\tau$, which does not depend on the input.
-These vectors form a linear system $Ax = \tau$.
+matrix $A$.
+These vectors form a linear system $Ax = \tau$
+for fixed target vector $\tau$.
 If this system is homogeneous--and there exists
 some non-trivial vector x that satisfies the equation--
 then the algorithm returns true.
@@ -149,8 +153,8 @@ Otherwise, the algorithm returns false.
 
 Both Childs and Reichardt mathematically formulate
 algorithms for turning the results of the SDP we solved
-into a span program \cite{reichardt2009span, childs}. To
-begin, we must construct a set of vectors
+into a span program \cite{reichardt2009span, childs}.
+To begin, we must construct a set of vectors
 $\bra{v_{y,i}}$ for all $y \in D$ where $i = [n]$.
 Given any two input strings $y, z \in D$ such that $y\neq z$,
 \begin{align}
@@ -165,9 +169,10 @@ Recall from \cref{Eq:reichardt_F0} that our $\X$ satisfies
 \end{align}
 We would like to construct $\bra{v_{y,i}}$ and $\ket{v_{z,i}}$
 from $\X$.
-Let us define a matrix $L$ such that $L^\dagger L = \X$.
+So we define a matrix $L$ such that $L^\dagger L = \X$.
 Then $\bra{v_{y,i}} = \bra{y_i}L^\dagger$.
-We can now reformulate the requirement of our vectors $\bra{v_{y,i}}$. 
+We can now reformulate the requirement of our vectors $\bra{v_{y,i}}$
+as
 \begin{align}
     \sum_{i: y_i \ne z_i} \braket{v_{y,i}|v_{z,i}} &= \sum_{i: y_i \ne z_i}
     \bra{y,i} L^\dagger L \ket{z, i} \nonumber \\
@@ -204,7 +209,7 @@ Let $A=I(y)$ be the set of columns in $I$ that are available
 on input $y \in D$.
 The target vector $\tau$ is the all ones vector with the same number
 of rows as $I$.
-Then whether there is a solution $x$ to $Ax = \tau$ is equivalent
+Then whether there is a solution $x$ to $Ax = \tau$, where $\tau$ is a vector with a one in entries corresponding to elements of $D$ that are also in $F_0$ and zeros otherwise, is equivalent
 to whether $f(y) = 1$.
 Reichardt proves that span program $I$ and $\tau$ meet
 the optimal quantum query complexity of $f$ \cite{reichardt2009span}.
