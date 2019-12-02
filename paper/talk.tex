@@ -32,11 +32,31 @@
 \frame{\titlepage}
 
 \begin{frame}{Overview}
+\setcounter{tocdepth}{1}
 \tableofcontents
 \end{frame}
 
+\section{Introduction}
+\begin{frame}{Motivation}
+    \begin{itemize}
+        \item Quantum computers are getting bigger and stronger
+        \item Identify problems where quantum computers are
+        more efficient
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{The Problem}
+    \begin{itemize}
+        \item Calculate optimal quantum query complexity
+        \item Create query optimal quantum algorithm
+    \end{itemize}
+\end{frame}
+
+
+
+
 \section{Query Complexity}
-\begin{frame}{Query Complexity}
+\begin{frame}{Query Complexity Definition}
 \begin{center}
 The number of times an algorithm queries the input.
 \end{center}
@@ -54,49 +74,56 @@ The number of times an algorithm queries the input.
 
 \section{Semidefinite Programming}
 
-\begin{frame}{Quantum Query Complexity as SDP: Reichardt \cite{reichardt2009span}}
-\begin{align} \label{eq:reichardtObj} 
-    f_{\text{bound}} = \min_{\X} M(\X) = \max_{y \in D} \sum_{j \in [n]}
-    \bra{y,j}\X\ket{y,j} 
-\end{align}
-Subject to
-\begin{align}\label{Eq:reichardtSemi}
-    \X \succcurlyeq 0 
-\end{align}
-\begin{align}\label{Eq:reichardtOffDiag}
-    \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
-    \bra{y,j} \X \ket{z, j} = 1.
-\end{align}
-\end{frame}
-
 \begin{frame}{A Standard Form: Boyd\cite{boyd2004convex}}
 Minimize
 \begin{align}\label{Eq:boyd_obj}
-    M(\X) = \tr(C\X) 
+    M(\X) = \tr(C\X) \nonumber
 \end{align}
 Subject to
 \begin{align} \label{Eq:boydSemi}
-    \X \succcurlyeq 0   
+    \X \succcurlyeq 0   \nonumber
 \end{align}
 
 \begin{align} \label{Eq:boydTraceCon}
     \tr(A_i \X) = b_i  \text{$\qquad$ for $i \in \{1,...,p\}$}
+    \nonumber
 \end{align}
 \end{frame}
 
-\section{Alternating Direction Methods}
+\section{Our Work}
+
+\subsection{SDP Conversion}
+\begin{frame}{This problem was originally posed in a different
+form: Reichardt \cite{reichardt2009span}}
+\begin{align} \label{eq:reichardtObj} 
+    f_{\text{bound}} = \min_{\X} \left( \max_{y \in D} \sum_{j \in [n]}
+    \bra{y,j}\X\ket{y,j}  \right) \nonumber
+\end{align}
+Subject to:
+\begin{align}\label{Eq:reichardtSemi}
+    \X \succcurlyeq 0 \nonumber
+\end{align}
+\begin{align}\label{Eq:reichardtOffDiag}
+    \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
+    \bra{y,j} \X \ket{z, j} = 1 \nonumber
+\end{align}
+Where  D \subseteq \{0,1\}^n\newline
+$F = \{(x,y) : f(x) \ne f(y) \text{ for } x,y \in D\}$
+\end{frame}
+
+
+\subsection{SDP Solution}
 \begin{frame}{We use ADM \cite{adm}}
 \centering
 \includegraphics[scale=.15]{figures/adm_algorithm}
 \bigskip
 \begin{itemize}
     \item Easy to implement
-    \item Exploits sparsity (yay zeroes!)
+    \item Exploits sparsity
     \item Exploits constraint orthogonality
 \end{itemize}
 \end{frame}
 
-\section{Our Work}
 \begin{frame}{Numerial Results: Our Algorithm is Good.}
 \centering
 \includegraphics[scale=.5]{figure_all_or_complexity.eps}
@@ -107,12 +134,25 @@ Subject to
 \includegraphics[scale=.5]{figure_all_or_time.eps}
 \end{frame}
 
-\begin{frame}{We Have Plans (For the Future)}
+\subsection{Span Programs}
+\begin{frame}{Might need to skip span programs}
 \begin{itemize}
-    \item Document
-    \item More optimization
-    \item Span program
-\end{itemize} 
+    \item We might run out of time
+    \item There's too much math earlier
+\end{itemize}
+    
+\end{frame}
+
+
+
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{itemize}
+    \item Expand our algorithm beyond binary outputs
+    \item Utilize a more efficient solver
+    \item Memory efficiency of span programs
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Thank you!}

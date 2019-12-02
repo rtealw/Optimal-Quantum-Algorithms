@@ -60,19 +60,20 @@ of Boolean Functions}
 % a couple of paragraphs describing your project
 \section*{Abstract}
 
-As quantum computers become increasingly feasible,
-we want to find the problems that quantum computers
+With the increasing size and computational power of quantum
+computers, we want to find the problems that quantum computers
 can solve more efficiently than classical computers.
-To determine problems with a so-called "quantum speed-up,"
-we need to find quantum algorithms that are optimal
-in the sense that no other quantum algorithm can solve
-the same problem more efficiently.
-We consider a query model where an algorithm
-that evaluates the Boolean function $f$
-takes as input a bitstring and returns 0 or 1
-by querying the input.
-The optimal query complexity for $f$ is
-the worst-case number of queries the best
+It's essential to identify optimal quantum algorithms for this
+comparison. We define an optimal quantum algorithm to be the
+algorithm that solves a given problem with the lowest
+asymptotic query complexity. It's also important to consider
+post-processing steps and overall runtime, but we consider a
+query model where an algorithm that evaluates the Boolean
+function $f$ takes as input a bitstring and returns 0 or 1
+by simply querying the input. For a given function $f$, the
+optimal query complexity of $f$ is the query complexity of the
+query optimal algorithm. The optimal query complexity for $f$
+is the worst-case number of queries the best
 quantum algorithm needs to solve $f$.
 The query optimal algorithm for $f$ is
 the algorithm that evaluates $f$ and
