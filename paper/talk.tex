@@ -21,10 +21,24 @@
 \DeclareMathOperator{\bp}{$b$ ^\prime} 		     % b'
 \DeclareMathOperator{\Xb}{\mathcal{X}}		     % big X
 
+\newcommand\coolover[2]{\mathrlap{\smash{\overbrace{\phantom{%
+    \begin{matrix} #2 \end{matrix}}}^{\mbox{$#1$}}}}#2}
+
+\newcommand\coolunder[2]{\mathrlap{\smash{\underbrace{\phantom{%
+    \begin{matrix} #2 \end{matrix}}}_{\mbox{$#1$}}}}#2}
+
+\newcommand\coolleftbrace[2]{%
+#1\left\{\vphantom{\begin{matrix} #2 \end{matrix}}\right.}
+
+\newcommand\coolrightbrace[2]{%
+\left.\vphantom{\begin{matrix} #1 \end{matrix}}\right\}#2}
+
 \title{Semidefinite Programming and Quantum Algorithms}
 \author{Michael Czekanski \& R. Teal Witter}
 \institute{Middlebury College}
 \date{November 5, 2019}
+
+\newcommand{\todo}[1]{{\color{red}{[{\bf TODO:} #1]}}}
 
 \begin{document}
 \graphicspath{{./../figures/}}
@@ -45,8 +59,9 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{The Problem}
+\begin{frame}{Problem}
     \begin{itemize}
+        \item Identify functions that have quantum speed ups
         \item Calculate optimal quantum query complexity
         \item Create query optimal quantum algorithm
     \end{itemize}
@@ -55,39 +70,65 @@
 
 
 
-\section{Query Complexity}
-\begin{frame}{Query Complexity Definition}
-\begin{center}
-The number of times an algorithm queries the input.
-\end{center}
-\begin{table}[]
-\begin{tabular}{cc}
-\hline
-\textbf{Input} & \textbf{Output} \\ \hline
-00             & 0               \\
-01             & 1               \\
-10             & 1               \\
-11             & 1               \\ \hline
-\end{tabular}
-\end{table}
+\section{Background}
+\begin{frame}{Query Complexity}
+Given bitstring $x$ and function $f$,
+how many bits of $x$ do I need to know $f(x)$ in the worst case?
+\only<2-3>
+{
+\begin{align}
+ f: x_1 \wedge (x_2 \vee \bar{x_2}) \vee x_3 \nonumber
+\end{align}
+}
+\only<3>
+{
+\begin{align}
+x &\rightarrow f(x) \nonumber \\
+000 &\rightarrow 0 \nonumber \\
+010 &\rightarrow 0 \nonumber \\
+011 &\rightarrow 1 \nonumber
+\end{align}
+}
+\only<4-5>
+{
+\begin{align}
+ f: x_1 \vee x_2 \vee x_3 \nonumber
+\end{align}
+}
+\only<5>
+{
+\begin{align}
+x &\rightarrow f(x) \nonumber \\
+000 &\rightarrow 0 \nonumber \\
+010 &\rightarrow 1 \nonumber \\
+011 &\rightarrow 1 \nonumber
+\end{align}
+}
 \end{frame}
 
-\section{Semidefinite Programming}
-
-\begin{frame}{A Standard Form: Boyd\cite{boyd2004convex}}
-Minimize
-\begin{align}\label{Eq:boyd_obj}
-    M(\X) = \tr(C\X) \nonumber
-\end{align}
-Subject to
-\begin{align} \label{Eq:boydSemi}
-    \X \succcurlyeq 0   \nonumber
-\end{align}
-
-\begin{align} \label{Eq:boydTraceCon}
-    \tr(A_i \X) = b_i  \text{$\qquad$ for $i \in \{1,...,p\}$}
-    \nonumber
-\end{align}
+\begin{frame}{Span Program}
+Given $x$ and $f$, is $f(x)$ true?
+$$\iff$$
+Given input vectors $I(x)$ and target vector $\tau$,
+do the input vectors span to the target vector?
+\newline
+\newline
+\only<2->
+{
+For OR, $I(x) = x$ and $\tau = 1$.
+}
+\newline
+\newline
+\only<3>
+{
+I(000) = {0,0,0} does not span to $\tau$
+:(
+}
+\only<4>
+{
+I(010) = {0,1,0} does span to $\tau$
+:)
+}
 \end{frame}
 
 \section{Our Work}
@@ -107,8 +148,87 @@ Subject to:
     \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
     \bra{y,j} \X \ket{z, j} = 1 \nonumber
 \end{align}
-Where  D \subseteq \{0,1\}^n\newline
-$F = \{(x,y) : f(x) \ne f(y) \text{ for } x,y \in D\}$
+\end{frame}
+
+\begin{frame}{Intuition behind these constraints}
+    \begin{align}
+\X = \begin{blockarray}{ccccc}
+\qquad & 00 & 01 & 10 & 11 \\
+\begin{block}{c[cccc]}
+  00 & X_{(00,00)} & X_{(00,01)} & X_{(00,10)} & X_{(00,11)}\\
+  01 & X_{(01,00)} & X_{(01,01)} & X_{(01,10)} & X_{(01,11)}\\
+  10 & X_{(10,00)} & X_{(10,01)} & X_{(10,10)} & X_{(10,11)}\\
+  11 & X_{(11,00)} & X_{(11,01)} & X_{(11,10)} & X_{(11,11)}\\
+\end{block}
+\end{blockarray} \nonumber 
+\end{align}
+\end{frame}
+
+\begin{frame}{An example}
+    \begin{align}
+    \X = \left[ \begin{array}{cc|cc|cc|cc}
+    0.7 & 0 & 0 & 0 & 1 & 0 & 0.5 & 0\\
+    0 & 0.7 & 0 & 1 & 0 & 0 & 0 & 0.5\\
+    \hline
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+    0 & 1 & 0 & \sqrt{2} & 0 & 0 & 0 & 0.7\\
+    \hline
+    1 & 0 & 0 & 0 & \sqrt{2} & 0 & 0.7 & 0\\
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+    \hline
+    0.5 & 0 & 0 & 0 & 0.7 & 0 & 0.6 & 0\\
+    0 & 0.5 & 0 & 0.7 & 0 & 0 & 0 & 0.6\\
+    \end{array}
+\right] \nonumber
+\end{align}
+\end{frame}
+
+\begin{frame}{An example}
+    We want to minimize the maximum (over inputs $y$) of:
+    \begin{align}
+         \sum_{j \in [n]}
+    \bra{y,j}\X\ket{y,j}   \nonumber
+    \end{align}
+    \begin{align}
+    \X = \left[ \begin{array}{cc|cc|cc|cc}
+    \color{blue}0.7 & 0 & 0 & 0 & 1 & 0 & 0.5 & 0\\
+    0 & \color{blue}0.7 & 0 & 1 & 0 & 0 & 0 & 0.5\\
+    \hline
+    0 & 0 & \color{orange}0 & 0 & 0 & 0 & 0 & 0\\
+    0 & 1 & 0 & \color{orange}\sqrt{2} & 0 & 0 & 0 & 0.7\\
+    \hline
+    1 & 0 & 0 & 0 & \color{purple}\sqrt{2} & 0 & 0.7 & 0\\
+    0 & 0 & 0 & 0 & 0 & \color{purple}0 & 0 & 0\\
+    \hline
+    0.5 & 0 & 0 & 0 & 0.7 & 0 & \color{cyan}0.6 & 0\\
+    0 & 0.5 & 0 & 0.7 & 0 & 0 & 0 & \color{cyan}0.6\\
+    \end{array}
+\right] \nonumber
+\end{align}
+\end{frame}
+
+\begin{frame}{An example}
+    For $y,z$ such that $f(y) \neq f(z)$:
+    
+    \begin{align}
+         \sum_{j \in [n]: y_j \ne z_j} 
+    \bra{y,j} \X \ket{z, j} = 1 \nonumber
+    \end{align}
+    \begin{align}
+    \X = \begin{array}{cccccccc}
+    \coolover{00}{0.7} & 0 & \color{blue}0 & 0 &  & 0 & 0.5 & 0\\
+    0 & 0.7 & 0 & \color{blue}1 & 0 & \color{orange}0 & 0 & \color{cyan}0.5\\
+    \hline
+    \color{blue}0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+    0 & \color{blue}1 & 0 & \sqrt{2} & 0 & 0 & 0 & 0.7\\
+    \hline
+    \color{orange}1 & 0 & 0 & 0 & \sqrt{2} & 0 & 0.7 & 0\\
+    0 & \color{orange}0 & 0 & 0 & 0 & 0 & 0 & 0\\
+    \hline
+    \color{cyan}0.5 & 0 & 0 & 0 & 0.7 & 0 & 0.6 & 0\\
+    0 & \color{cyan}0.5 & 0 & 0.7 & 0 & 0 & 0 & 0.6\\
+    \end{array} \nonumber
+\end{align}
 \end{frame}
 
 
@@ -120,31 +240,18 @@ $F = \{(x,y) : f(x) \ne f(y) \text{ for } x,y \in D\}$
 \begin{itemize}
     \item Easy to implement
     \item Exploits sparsity
-    \item Exploits constraint orthogonality
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Numerial Results: Our Algorithm is Good.}
+\begin{frame}{Numerical Results: Very Accurate :)}
 \centering
-\includegraphics[scale=.5]{figure_all_or_complexity.eps}
+\includegraphics[scale=.5]{or_all_complexity.eps}
 \end{frame}
 
-\begin{frame}{Run Time Results: Our Algorithm is Bad.}
+\begin{frame}{Run Time Results: Too Many Inputs :(}
 \centering
-\includegraphics[scale=.5]{figure_all_or_time.eps}
+\includegraphics[scale=.5]{or_all_runtime.eps}
 \end{frame}
-
-\subsection{Span Programs}
-\begin{frame}{Might need to skip span programs}
-\begin{itemize}
-    \item We might run out of time
-    \item There's too much math earlier
-\end{itemize}
-    
-\end{frame}
-
-
-
 
 \section{Future Work}
 \begin{frame}{Future Work}
