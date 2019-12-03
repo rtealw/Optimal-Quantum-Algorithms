@@ -5,12 +5,12 @@ from termcolor import cprint
 
 def getL(X, run_checks=True, tolerance=.1):
     '''
-    Parameters:
-        X : matrix X
-        tolerance : how close the reconstruction has to be to X
-    Returns: 
-        L : matrix L such that L.H * L = X (the product of the conjugate
-            transpose of L and itself is X)
+        Parameters:
+            X : matrix X
+            tolerance : how close the reconstruction has to be to X
+        Returns: 
+            L : matrix L such that L.H * L = X (the product of the conjugate
+                transpose of L and itself is X)
     '''
     vals, vecs = np.linalg.eig(X)
     L = np.zeros(X.shape, dtype = np.complex128)
@@ -30,15 +30,15 @@ def getL(X, run_checks=True, tolerance=.1):
 
 def checkConstraints(L, D, E, tolerance=1e-3):
     ''' 
-    Parameters:
-        L : matrix such that L.H * L = X
-        D : input bitstrings to f
-        E : output bits of f on D
-        tolerance : how closely the constraints have to be satisfied
-    Returns:
-        (boolean) : if the entries corresponding to the disagreeing bits
-                    of every pair of inputs x,y in D sums to
-                    1 if f(x) != f(y) and 0 otherwise
+        Parameters:
+            L : matrix such that L.H * L = X
+            D : input bitstrings to f
+            E : output bits of f on D
+            tolerance : how closely the constraints have to be satisfied
+        Returns:
+            (boolean) : if the entries corresponding to the disagreeing bits
+                        of every pair of inputs x,y in D sums to
+                        1 if f(x) != f(y) and 0 otherwise
     '''
     is_valid = True
     n = len(D[0])
@@ -62,12 +62,12 @@ def checkConstraints(L, D, E, tolerance=1e-3):
 
 def getIx(I, x, num_inputs):
     ''' 
-    Parameters:
-        I : matrix of input vectors to span program
-        x : element of D
-        num_inputs : size of D
-    Returns:
-        Ix : input vectors for x
+        Parameters:
+            I : matrix of input vectors to span program
+            x : element of D
+            num_inputs : size of D
+        Returns:
+            Ix : input vectors for x
     '''
     I = np.array(I)
     num_rows = len(I)
@@ -88,14 +88,14 @@ def getIx(I, x, num_inputs):
 
 def checkSpanProgram(D, E, I, t, tolerance=1e-10):
     ''' 
-    Parameters:
-        D : input bitstrings to f
-        E : output bits on f to D
-        I : input vectors of span program
-        t : target vector of span program
-        tolerance : how small the residual must be
-    Returns:
-        Ix : input vectors for x
+        Parameters:
+            D : input bitstrings to f
+            E : output bits on f to D
+            I : input vectors of span program
+            t : target vector of span program
+            tolerance : how small the residual must be
+        Returns:
+            Ix : input vectors for x
     '''
     is_valid = True
     # Check span program determines correct output for each element of D
@@ -111,14 +111,14 @@ def checkSpanProgram(D, E, I, t, tolerance=1e-10):
 
 def getSpanProgram(X, D, E, run_checks=True):
     ''' 
-    Parameters:
-        X : solution to SDP
-        D : Boolean inputs
-        E : Boolean outputs
-        run_checks : whether to run checks
-    Returns:
-        I : input vectors of span program
-        t : target vector of span program
+        Parameters:
+            X : solution to SDP
+            D : Boolean inputs
+            E : Boolean outputs
+            run_checks : whether to run checks
+        Returns:
+            I : input vectors of span program
+            t : target vector of span program
     '''
     little_X = X[:-len(D)-1, :-len(D)-1]
     L = getL(X=little_X, run_checks=run_checks, tolerance=1e-5)

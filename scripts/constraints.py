@@ -3,13 +3,13 @@ from scipy import sparse
 
 def getA0s(D, dimension):
     '''
-    Parameters:
-        D : input bitstrings to f
-        dimension : dimension of matrix X
-    Returns: 
-        constraints : list of dictionaries that contains constraints
-                      to ensure objective value of X is the maximum
-                      of all diagonal entries correspoinding to bitstrings in D
+        Parameters:
+            D : input bitstrings to f
+            dimension : dimension of matrix X
+        Returns: 
+            constraints : list of dictionaries that contains constraints
+                        to ensure objective value of X is the maximum
+                        of all diagonal entries correspoinding to bitstrings in D
     '''
     n = len(D[0])
     constraints = []
@@ -26,14 +26,14 @@ def getA0s(D, dimension):
 
 def getA1s(D, F):
     '''
-    Parameters:
-        D : input bitstrings to f
-        F : cartesian product of y and z where y,z in {0,...,len(D)-1}
-            such that f(D[y]) != f(D[z])
-    Returns: 
-        constraints : list of dictionaries that contains constraints
-                      to ensure that entries in X corresponding to bits
-                      where y and z differ sum to one for each pair y,z in F
+        Parameters:
+            D : input bitstrings to f
+            F : cartesian product of y and z where y,z in {0,...,len(D)-1}
+                such that f(D[y]) != f(D[z])
+        Returns: 
+            constraints : list of dictionaries that contains constraints
+                        to ensure that entries in X corresponding to bits
+                        where y and z differ sum to one for each pair y,z in F
     '''
     n = len(D[0])
     constraints = []
@@ -49,13 +49,13 @@ def getA1s(D, F):
 
 def getConstraints(D, E):
     '''
-    Parameters:
-        D : input bitstrings to f
-        E : output bits of f on D
-    Returns: 
-        constraints : list of dictionaries to ensure constraints
-        b : what the sum of X times each constraint should be
-        C : the matrix to extract the objective function from X
+        Parameters:
+            D : input bitstrings to f
+            E : output bits of f on D
+        Returns: 
+            constraints : list of dictionaries to ensure constraints
+            b : what the sum of X times each constraint should be
+            C : the matrix to extract the objective function from X
     '''
     F = []
     n = len(D[0])
