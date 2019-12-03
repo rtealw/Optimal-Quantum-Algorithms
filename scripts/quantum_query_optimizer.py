@@ -79,7 +79,7 @@ def testSDPSolver(iterations=5, accuracy = 2):
     if all_passed:
         cprint("\n All tests passed :)", "green")
     else:
-        cprint("\n Some tests failed :(", "red")
+        cprint("\n Tests failed :(", "red")
 
 if __name__ == '__main__':
     testSDPSolver()
