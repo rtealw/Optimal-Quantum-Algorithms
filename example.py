@@ -20,5 +20,5 @@ solutions = qqo.runSDPForN(getD=qqo.getDAll, getE=qqo.getERandom, n_end=5, n_sta
 #qqo.visualizeComplexity(all_solutions, title="Complexity of OR by Input Size for All Inputs", filename="figures/or_all_complexity.png")
 #
 #worst_solutions = qqo.runSDPForN(getD=qqo.getDWorstOR, getE=qqo.getEOR, n_end=20, n_start=1)
-#qqo.visualizeRuntime(worst_solutions, title="Runtime of OR by Input Size for Worse Inputs", filename="figures/or_worst_runtime.png")
+#qqo.visualizeRuntime(solutions, title="Runtime of OR by Input Size for Worse Inputs", filename="figures/temp.png")
 #qqo.visualizeComplexity(worst_solutions, title="Complexity of OR by Input Size for Worse Inputs", filename="figures/or_worst_complexity.png")
