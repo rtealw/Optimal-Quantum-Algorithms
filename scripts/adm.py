@@ -1,9 +1,10 @@
-# There are several functions in this file named after notation used in the following paper:
-# http://mpc.zib.de/index.php/MPC/article/viewFile/40/20
-# Our SDP solver is an implementation of this algorithm
-
 import numpy as np
 from scipy import sparse
+
+# There are several functions in this file named after notation used in the following paper:
+# http://mpc.zib.de/index.php/MPC/article/viewFile/40/20
+# (Alternating direction augmented Lagrangian methods
+# for semidefinite programming)
 
 def plainA(constraints, dimension):
     '''
@@ -35,7 +36,7 @@ def scriptA(constraints, X):
     '''
     traces = []
 
-    # calculate trace of each constraint matrix times X
+    # Calculate trace of each constraint matrix times X
     for constraint in constraints:
         trace = 0
         V = constraint["V"]
@@ -45,7 +46,7 @@ def scriptA(constraints, X):
             trace += X[I[num], J[num]] * V[num]
         traces.append(trace)
 
-    return np.matrix(traces, dtype=np.float32).T # vector of traces
+    return np.matrix(traces, dtype=np.float32).T # Vector of traces
 
 def scriptAStar(A, y):
     '''
@@ -86,16 +87,16 @@ def decomposeV(V):
     '''
     unordered_vals, unordered_vecs = np.linalg.eigh(V)
 
-    # order eigenvalues and corresponding eigenvectors
+    # Order eigenvalues and corresponding eigenvectors
     ordering = (-unordered_vals).argsort() 
     sigma = np.diag(unordered_vals[ordering])
     Q = unordered_vecs[:, ordering] 
-    num_non_neg = sum(unordered_vals >= 0) #number of non-negative eigenvalues
+    num_non_neg = sum(unordered_vals >= 0) # Number of non-negative eigenvalues
     
     sigma_plus = sigma[:num_non_neg, :num_non_neg]
 
-    #Q dagger
-    Q_plus = Q[:, :num_non_neg] #get columns corresponding to positive eigenvalues
+    # Q dagger
+    Q_plus = Q[:, :num_non_neg] # Get columns corresponding to positive eigenvalues
     return sigma_plus, Q_plus
 
 def nextV(C, A, mu, X, y):
@@ -166,7 +167,7 @@ def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=50, max_iter
     '''
     initial_shape = C.shape
 
-    # intialize values
+    # Intialize values
     S = sparse.csr_matrix(np.eye(initial_shape[0], dtype=np.float32))
     X = sparse.csr_matrix(np.zeros(initial_shape, dtype=np.float32))
     old_z = X[-1, -1]
@@ -174,7 +175,7 @@ def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=50, max_iter
     pinvAAt = sparse.csr_matrix(np.linalg.pinv(np.matmul(A, A.T)))
     A = sparse.csr_matrix(A)
 
-    # iteratively solve SDP
+    # Iteratively solve SDP
     for iteration in range(max_iterations):
         y = nextY(S=S, X=X, C=C, b=b, mu=mu, pinvAAt = pinvAAt, constraints=constraints)
         V = nextV(C=C, A=A, mu=mu, X=X, y=y)
