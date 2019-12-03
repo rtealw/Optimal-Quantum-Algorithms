@@ -1,7 +1,11 @@
 import numpy as np
 import math
-
 from termcolor import cprint
+
+# The process of getting input vectors from the SDP solution
+# is described in Andrew Childs' notes in section 23.2 Span programs
+# http://www.cs.umd.edu/~amchilds/qa/qa.pdf
+# (Lecture Notes on Quantum Algorithms)
 
 def getL(X, run_checks=True, tolerance=.1):
     '''
