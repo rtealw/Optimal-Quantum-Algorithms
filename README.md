@@ -63,9 +63,8 @@ Then we pass our functions into `qqo.runSDPForN` and specify
 for which sizes of bitstring `n` we want to solve the SDP. 
 ```python
 import quantum_query_optimizer as qqo
-import boolean_functions as bf
 
-qqo.runSDPForN(getD=bf.getDAll, getE=bf.getEOR, n_end=2, n_start=2))
+qqo.runSDPForN(getD=qqo.getDAll, getE=qqo.getEOR, n_end=2, n_start=2))
 ```
 The corresponding output should look similar to:
 ```
