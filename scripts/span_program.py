@@ -69,7 +69,6 @@ def getIx(I, x, num_inputs, num_rows):
     return Ix
 
 def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
-#    I = np.array(I)
     for x_index in range(len(D)):
         Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), num_rows=t.shape[0])
 
@@ -113,7 +112,6 @@ def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
     # set small values to zero
     I = np.matrix(I)
     I.real[abs(I.real) < tolerance] = 0.0
-
 
     t = np.ones((len(F0_idx),1))
     if run_checks:
