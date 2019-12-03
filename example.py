@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 
 # Example 2
 solutions = qqo.runSDPForN(getD=qqo.getDAll, getE=qqo.getERandom, n_end=5, n_start=1)
-print(solutions['span_vectors'])
 
 # solutions = qqo.runSDP(D=['00', '01', '10', '11'], E=['0', '0', '0', '1'])
 

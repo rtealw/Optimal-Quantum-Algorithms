@@ -1,7 +1,9 @@
 import numpy as np
 import math
 
-def getL(X, tolerance):
+from termcolor import cprint
+
+def getL(X, run_checks=True, tolerance=.1):
     '''
     Parameters:
         X : matrix X
@@ -20,8 +22,10 @@ def getL(X, tolerance):
         scalar = np.complex128(np.sqrt(np.absolute(val)))
         L += scalar * ket_k.dot(vec.H)
 
-    reconstructed_X = np.matrix(L).H.dot(L)
-    assert (np.absolute(reconstructed_X - X) < tolerance).all()
+    if run_checks:
+        reconstructed_X = np.matrix(L).H.dot(L)
+        if not (np.absolute(reconstructed_X - X) < tolerance).all():
+            cprint("Warning: The reconstruction of X from L is not close enough to X.", "yellow")
     return np.matrix(L)
 
 def checkConstraints(L, D, E, tolerance=1e-3):
@@ -36,6 +40,7 @@ def checkConstraints(L, D, E, tolerance=1e-3):
                     of every pair of inputs x,y in D sums to
                     1 if f(x) != f(y) and 0 otherwise
     '''
+    is_valid = True
     n = len(D[0])
     LH = L.H
     for x_index in range(len(D)):
@@ -51,70 +56,104 @@ def checkConstraints(L, D, E, tolerance=1e-3):
                     vxi = LH[x_index * n + i,:]
                     vyi = L[:,y_index * n + i]
                     summation += vxi.dot(vyi)
-            assert np.absolute(should_be - summation) < tolerance
-    return True
+            if  np.absolute(should_be - summation) > tolerance:
+                is_valid = False
+    return is_valid
 
-def getIx(I, x, num_inputs, num_rows):
+def getIx(I, x, num_inputs):
+    ''' 
+    Parameters:
+        I : matrix of input vectors to span program
+        x : element of D
+        num_inputs : size of D
+    Returns:
+        Ix : input vectors for x
+    '''
     I = np.array(I)
+    num_rows = len(I)
     n = len(x)
     subblock_length = n * num_inputs
     Ix = np.zeros((num_rows, subblock_length *  n))
+    # Get corresponding subblock for each bit of x
     for i in range(n):
         start_index = (2 * i + eval(x[i])) * subblock_length
         current_subblock = I[:,start_index:(start_index+subblock_length)]
         Ix[:,subblock_length*i:subblock_length*(i+1)] = current_subblock
+    # Compress Ix to all non-zero vectors
     Ix = Ix[:,~np.all(Ix == 0, axis=0)]
+    # If all zero vectors, return one zero vector
     if Ix.size == 0:
         Ix = np.zeros((num_rows,1))
     return Ix
 
-def checkSpanProgram(D, E, I, t, tolerance = 1e-3):
+def checkSpanProgram(D, E, I, t, tolerance=1e-10):
+    ''' 
+    Parameters:
+        D : input bitstrings to f
+        E : output bits on f to D
+        I : input vectors of span program
+        t : target vector of span program
+        tolerance : how small the residual must be
+    Returns:
+        Ix : input vectors for x
+    '''
+    is_valid = True
+    # Check span program determines correct output for each element of D
     for x_index in range(len(D)):
-        Ix = getIx(I=I, x=D[x_index], num_inputs=len(D), num_rows=t.shape[0])
-
+        Ix = getIx(I=I, x=D[x_index], num_inputs=len(D))
         t = np.matrix(t)
         linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t)
         closest_vector = Ix.dot(linear_combo)
         residual = np.sum(np.square(closest_vector - t))
-        # residual < tolerance means satisfied if output is 0
         if (residual < tolerance) == (E[x_index] == '0'):
-            raise ValueError("Residual above tolerance")
-    return True
+            is_valid = False
+    return is_valid
 
-def getSpanProgram(X, D, E, tolerance=1e-3, run_checks=True):
+def getSpanProgram(X, D, E, run_checks=True):
+    ''' 
+    Parameters:
+        X : solution to SDP
+        D : Boolean inputs
+        E : Boolean outputs
+        run_checks : whether to run checks
+    Returns:
+        I : input vectors of span program
+        t : target vector of span program
+    '''
     little_X = X[:-len(D)-1, :-len(D)-1]
-    L = getL(X=little_X, tolerance=.1)
-    assert ((np.absolute(np.matmul(L.H,L) - little_X)) < tolerance).all()
+    L = getL(X=little_X, run_checks=run_checks, tolerance=1e-5)
 
     n = len(D[0])
     I = []
-    F0_idx = []
+    F0_idx = [] # Indices of x such that f(x) = 0
     for i in range(len(D)):
         if E[i] == '0':
             F0_idx.append(i)
 
-    for x_index in F0_idx: # iterate through Reichardt's F_0
+    for x_index in F0_idx: # Iterate through x such that f(x) = 0
         x = D[x_index]
         vx = []
-        for i in range(n): # iterate through a single bit string
-            not_xi = 1 - eval(x[i]) # negate this single bit
+        for i in range(n): # Iterate through every bit of x
+            not_xi = 1 - eval(x[i]) # Negate bit
 
-            # create bra(not xi)
+            # Encode in vector negated bit in vector
             not_xi_vec = [0,0]
             not_xi_vec[not_xi] = 1
 
-            # create each v_xi
+            # Create each v_xi
             vxi = np.real(L.H[n*x_index + i,:])
             not_xi_times_vxi = np.kron(not_xi_vec, vxi)
             vx += np.asarray(not_xi_times_vxi).tolist()[0]
         I.append(vx)
 
-    # set small values to zero
+    # Set small values to zero
     I = np.matrix(I)
-    I.real[abs(I.real) < tolerance] = 0.0
+    I.real[abs(I.real) < 1e-5] = 0.0
 
-    t = np.ones((len(F0_idx),1))
+    t = np.ones((len(F0_idx),1)) # Target vector dimension of F0_idx
     if run_checks:
-        checkConstraints(L=L, D=D, E=E, tolerance=tolerance)
-        checkSpanProgram(D=D, E=E, I=I, t=t, tolerance=tolerance)
+        if not checkConstraints(L=L, D=D, E=E):
+            cprint("Warning: Matrix L from SDP solution X does not satisfy constraints", "yellow")
+        if not checkSpanProgram(D=D, E=E, I=I, t=t):
+            cprint("Warning: Span program does not return correct output.", "yellow")
     return I, t
