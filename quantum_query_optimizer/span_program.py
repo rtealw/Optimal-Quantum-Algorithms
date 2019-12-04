@@ -6,6 +6,11 @@ from termcolor import cprint
 # is described in Andrew Childs' notes in section 23.2 Span programs
 # http://www.cs.umd.edu/~amchilds/qa/qa.pdf
 # (Lecture Notes on Quantum Algorithms)
+# and Ben Reichardt's paper in Lemma 6.5 
+# https://arxiv.org/pdf/0904.2759.pdf
+# (Span programs and quantum query complexity
+# The general adversary bound is nearly tight
+# for every boolean function)
 
 def getL(X, run_checks=True, tolerance=.1):
     '''
