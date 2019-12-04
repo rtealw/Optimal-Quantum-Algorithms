@@ -17,19 +17,7 @@ and another function that generates the set E from D according to f.
 (Note: We provide example functions in `boolean_functions.py`.)
 
 ## Set-up
-Clone this repository onto your computer by
-running `git clone git@github.com:rtealw/QuantumQueryOptimizer.git`
-from the command line in your preferred directory.
-Then add the relative or absolute filepath to the directory to
-`sys.path` in the `python` file with your code
-(substituting your own path to `QuantumQueryOptimizer/scripts`
-for mine):
-```python
-import sys
-sys.path.append('/Users/rtealw/Desktop/GitHub/QuantumQueryOptimizer/scripts')
-```
-Finally, to import the solver insert `import quantum_query_optimizer as qqo` into your file
-and to import the example boolean functions insert `import boolean_functions as bf`.
+Install via pip with `pip install quantum-query-optimizer`.
 
 ## Example 1 - Explicit Construction
 We consider the Boolean function `OR` on input bitstrings of length 2.

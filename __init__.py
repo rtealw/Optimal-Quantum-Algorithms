@@ -4,6 +4,8 @@ import sys
 import cProfile
 import warnings
 
+import sys
+sys.path.append('scripts/')
 from adm import solveSDP
 from constraints import getConstraints
 from span_program import getSpanProgram
