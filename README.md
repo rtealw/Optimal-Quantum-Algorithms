@@ -16,7 +16,7 @@ Second, create one function that generates the set D for arbitrary bitstring len
 and another function that generates the set E from D according to f.
 (Note: We provide example functions in `boolean_functions.py`.)
 
-## Set-up
+## Installation
 Install via pip with `pip install quantum-query-optimizer`.
 
 ## Example 1 - Explicit Construction
@@ -24,7 +24,7 @@ We consider the Boolean function `OR` on input bitstrings of length 2.
 The output is `'1'` if any bit is 1 and `'0'` otherwise.
 In this example, we explicitly define both `D` and `E`.
 Then we call our function `qqo.runSDP` after loading the 
-file `quantum_query_optimizer.py` as `qqo`.
+our package `quantum_query_optimizer` as `qqo`.
 
 ```python
 import quantum_query_optimizer as qqo
