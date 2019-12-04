@@ -36,7 +36,7 @@
 \title{Semidefinite Programming and Quantum Algorithms}
 \author{Michael Czekanski \& R. Teal Witter}
 \institute{Middlebury College}
-\date{November 5, 2019}
+\date{December 3, 2019}
 
 \newcommand{\todo}[1]{{\color{red}{[{\bf TODO:} #1]}}}
 
@@ -52,28 +52,29 @@
 
 \section{Introduction}
 \begin{frame}{Motivation}
-    \begin{itemize}
-        \item Quantum computers are getting bigger and stronger
-        \item Identify problems where quantum computers are
-        more efficient
-    \end{itemize}
+As quantum computers someday soon maybe might become a reality...
+\newline
+\newline
+What are the problems that quantum computers 
+can solve more efficiently
+than classical computers? \#QuantumSpeedUp
+
 \end{frame}
 
-\begin{frame}{Problem}
-    \begin{itemize}
-        \item Identify functions that have quantum speed ups
-        \item Calculate optimal quantum query complexity
-        \item Create query optimal quantum algorithm
-    \end{itemize}
+\begin{frame}{Houston, we have a problem:}
+Given Boolean function $f$...
+\newline
+\newline
+What is the optimal quantum query complexity?
+\newline
+\newline
+What is a query optimal quantum algorithm?
 \end{frame}
-
-
-
 
 \section{Background}
 \begin{frame}{Query Complexity}
 Given bitstring $x$ and function $f$,
-how many bits of $x$ do I need to know $f(x)$ in the worst case?
+how many bits of $x$ to determine $f(x)$ in the worst case?
 \only<2-3>
 {
 \begin{align}
@@ -133,9 +134,13 @@ I(010) = {0,1,0} does span to $\tau$
 
 \section{Our Work}
 
-\subsection{SDP Conversion}
-\begin{frame}{This problem was originally posed in a different
-form: Reichardt \cite{reichardt2009span}}
+
+\begin{frame}{Our Approach, Generally} 
+\centering
+\includegraphics[scale=.5]{convex_optimization.pdf}
+\end{frame}
+
+\begin{frame}{Our Approach, Specifically \cite{reichardt2009span}}
 \begin{align} \label{eq:reichardtObj} 
     f_{\text{bound}} = \min_{\X} \left( \max_{y \in D} \sum_{j \in [n]}
     \bra{y,j}\X\ket{y,j}  \right) \nonumber
@@ -150,7 +155,7 @@ Subject to:
 \end{align}
 \end{frame}
 
-\begin{frame}{Intuition behind these constraints}
+\begin{frame}{What $\X$ Looks Like (2-bit OR)}
     \begin{align}
 \X = \begin{blockarray}{ccccc}
 \qquad & 00 & 01 & 10 & 11 \\
@@ -164,7 +169,7 @@ Subject to:
 \end{align}
 \end{frame}
 
-\begin{frame}{An example}
+\begin{frame}{What $\X$ Looks Like (2-bit OR)}
     \begin{align}
     \X = \left[ \begin{array}{cc|cc|cc|cc}
     0.7 & 0 & 0 & 0 & 1 & 0 & 0.5 & 0\\
@@ -183,7 +188,7 @@ Subject to:
 \end{align}
 \end{frame}
 
-\begin{frame}{An example}
+\begin{frame}{What $\X$ Looks Like (2-bit OR)}
     We want to minimize the maximum (over inputs $y$) of:
     \begin{align}
          \sum_{j \in [n]}
@@ -207,7 +212,7 @@ Subject to:
 \end{align}
 \end{frame}
 
-\begin{frame}{An example}
+\begin{frame}{What $\X$ Looks Like (2-bit OR)}
     For $y,z$ such that $f(y) \neq f(z)$:
     
     \begin{align}
@@ -215,8 +220,8 @@ Subject to:
     \bra{y,j} \X \ket{z, j} = 1 \nonumber
     \end{align}
     \begin{align}
-    \X = \begin{array}{cccccccc}
-    \coolover{00}{0.7} & 0 & \color{blue}0 & 0 &  & 0 & 0.5 & 0\\
+    \X = \begin{array}{cc|cc|cc|cc}
+    0.7 & 0 & \color{blue}0 & 0 & \color{orange}1 & 0 & \color{cyan}0.5 & 0\\
     0 & 0.7 & 0 & \color{blue}1 & 0 & \color{orange}0 & 0 & \color{cyan}0.5\\
     \hline
     \color{blue}0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
@@ -232,13 +237,13 @@ Subject to:
 \end{frame}
 
 
-\subsection{SDP Solution}
+\subsection{How We Get Our $\X$}
 \begin{frame}{We use ADM \cite{adm}}
 \centering
 \includegraphics[scale=.15]{figures/adm_algorithm}
 \bigskip
 \begin{itemize}
-    \item Easy to implement
+    \item "Easy" to implement
     \item Exploits sparsity
 \end{itemize}
 \end{frame}
@@ -251,6 +256,13 @@ Subject to:
 \begin{frame}{Run Time Results: Too Many Inputs :(}
 \centering
 \includegraphics[scale=.5]{or_all_runtime.eps}
+\end{frame}
+
+\begin{frame}{In Conclusion...}
+    \begin{itemize}
+        \item Our algorithm rocks
+        \item Except on large inputs
+    \end{itemize}
 \end{frame}
 
 \section{Future Work}
