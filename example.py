@@ -6,7 +6,7 @@ E = ['0', '1', '1', '1']
 qqo.runSDP(D=D, E=E)
 
 # Example 2
-solutions = qqo.runSDPForN(getD=qqo.getDAll, getE=qqo.getERandom, n_end=5, n_start=1)
+solutions = qqo.runSDPForN(getD=qqo.getDAll, getE=qqo.getERandom, n_end=2, n_start=2)
 
 ## Additional Example: Generate Figures
 #all_solutions = qqo.runSDPForN(getD=qqo.getDAll, getE=qqo.getEOR, n_end=6, n_start=1)
