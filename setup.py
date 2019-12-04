@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="quantum-query-optimizer",
-    version="0.1.0",
+    version="0.1.2",
     author="R. Teal Witter & Michael Czekanski",
     author_email="rtealwitter@gmail.com, michaeltczekanski@gmail.com",
     description="A toolkit to find the optimal quantum query complexity and query optimal quantum algorithm of arbitrary Boolean functions.",

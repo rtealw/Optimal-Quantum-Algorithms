@@ -5,7 +5,10 @@ import cProfile
 import warnings
 
 import sys
-sys.path.append('scripts/')
+import os 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(dir_path)
+
 from adm import solveSDP
 from constraints import getConstraints
 from span_program import getSpanProgram
