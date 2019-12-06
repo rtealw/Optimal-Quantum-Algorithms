@@ -1,7 +1,8 @@
-#import quantum_query_optimizer as qqo
-import sys
-sys.path.append('quantum_query_optimizer')
-import __init__ as qqo
+import quantum_query_optimizer as qqo
+# For development testing
+#import sys
+#sys.path.append('quantum_query_optimizer')
+#import __init__ as qqo
 
 # Example 1
 D = ['00', '01', '10', '11']
