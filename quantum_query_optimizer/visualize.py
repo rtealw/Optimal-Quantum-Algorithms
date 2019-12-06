@@ -13,10 +13,11 @@ def visualize(x_var, y_var, xlabel, ylabel, title):
             plt : plot created
     '''
     plt.rcParams['axes.facecolor'] = 'w'
-    plt.plot(x_var, y_var, 'k', label="Empirical", color="red")
+    plt.plot(x_var, y_var, 'k')
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
+    plt.xticks(range(min(x_var), max(x_var)+1))
     return plt
 
 def visualizeRuntime(solutions, title="Runtime by Input Size", filename="RuntimeByInputSize.eps"):
@@ -54,11 +55,5 @@ def visualizeComplexity(solutions, title="Query Complexity by Input Size", filen
         ylabel='Queries',
         title=title
     )
-    ns = [int(n) for n in solutions['n_bitstring']]
-    x = np.arange(min(ns), max(ns)+1)
-    y = np.sqrt(x)
-    plt.plot(x,y, label="Theoretical", color="black")
-    plt.xticks(x)
-    plt.legend(['Theoretical', 'Empirical'])
     plt.savefig(filename)
     plt.close() 
