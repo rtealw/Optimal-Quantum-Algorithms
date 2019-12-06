@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 def visualize(x_var, y_var, xlabel, ylabel, title):
     '''
@@ -11,9 +12,8 @@ def visualize(x_var, y_var, xlabel, ylabel, title):
         Returns:
             plt : plot created
     '''
-    plt.style.use('ggplot')
     plt.rcParams['axes.facecolor'] = 'w'
-    plt.plot(x_var, y_var, 'k')
+    plt.plot(x_var, y_var, 'k', label="Empirical", color="red")
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
@@ -54,5 +54,11 @@ def visualizeComplexity(solutions, title="Query Complexity by Input Size", filen
         ylabel='Queries',
         title=title
     )
+    ns = [int(n) for n in solutions['n_bitstring']]
+    x = np.arange(min(ns), max(ns)+1)
+    y = np.sqrt(x)
+    plt.plot(x,y, label="Theoretical", color="black")
+    plt.xticks(x)
+    plt.legend(['Theoretical', 'Empirical'])
     plt.savefig(filename)
     plt.close() 
