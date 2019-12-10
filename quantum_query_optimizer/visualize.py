@@ -58,9 +58,9 @@ def visualizeComplexity(solutions, title="Query Complexity by Input Size", filen
     plt.savefig(filename)
     plt.close() 
 
-def visualizeComplexityOR(solutions, title, filename):
+def visualizeComplexityFunction(solutions, title, filename, function):
     xs = [int(n) for n in solutions['n_bitstring']]
-    ys = np.sqrt(xs)
+    ys = function(xs)
     plt.plot(xs, ys, color="red")
     visualize(
         x_var=solutions['n_bitstring'],
@@ -71,9 +71,9 @@ def visualizeComplexityOR(solutions, title, filename):
     )
     plt.legend(['Analytical', 'Empirical'])
     plt.savefig(filename)
-    plt.close()  
+    plt.close() 
 
-def visualizeRuntimeOR(all_solutions, worst_solutions, title, filename):
+def visualizeRuntimeWorst(all_solutions, worst_solutions, title, filename):
     visualize(
         x_var=all_solutions['n_bitstring'],
         y_var=all_solutions['run_time'],
