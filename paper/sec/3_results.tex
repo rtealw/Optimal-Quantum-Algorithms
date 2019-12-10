@@ -110,18 +110,18 @@ It is clear from this matrix that if either input bit is
 $1$ the function will return true and otherwise
 will return false.
 
-\subsection{Accuracy with OR}
+\subsection{Accuracy with OR and Parity}
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=.5]{or_complexity}
 \caption{The proven analytical optimal query complexity
 and calculated empirical optimal query complexity by 
-size of input bit string.}
+size of input bitstring for OR.}
 \label{fig:or_complexity}
 \end{figure}
 
-We verify that our implementation works correctly
+We verify that the implementation works correctly
 with results for OR on various input sizes.
 The optimal quantum query complexity of OR
 is $\sqrt{n}$ and, as demonstrated in
@@ -129,83 +129,60 @@ is $\sqrt{n}$ and, as demonstrated in
 we the empirical results match the analytical
 to the thousandth place.
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=.5]{parity_complexity}
+\caption{The proven analytical optimal query complexity
+and calculated empirical optimal query complexity by 
+size of input bitstring for parity.}
+\label{fig:parity_complexity}
+\end{figure}
 
+The parity function, determining whether
+there are an even number of 1's an input
+bitstring, is known to have optimal
+quantum query complexity linear to the number of bits.
+The implementation also correctly
+calculates the complexity of parity to the thousandth
+place as demonstrated in \cref{fig:parity_complexity}.
+
+The results for OR and parity demonstrate
+that the implementation accurately calculates
+optimal quantum query complexity.
 
 \subsection{Runtime with OR}
-
-\subsection{OR Function: Worst-case Boolean Inputs}\label{sec:speed}
-
-
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=.5]{or_runtime}
 \caption{Runtime of SDP solver by size of input strings.}
-\label{fig:or_all_runtime}
+\label{fig:or_runtime}
 \end{figure}
 
-In \cref{fig:or_all_complexity}, observe that our algorithm
-correctly calculates the optimal query complexity of the OR function (the
-analytical and empirical lines are so close that one
-is mostly obscured).
-Our algorithm's performance is displayed in \cref{fig:or_all_runtime}.
-We see that runtime grows exponentially with respect to input size as expected, 
-given the exponential increase in the cardinality of the set $D$ of all
-inputs of length $n$. 
-We also see that our algorithm is accurately calculating the
-optimal quantum query complexity of the OR function. 
+Recall that the size of the input to the implementation
+does not have to be all $2^n$ input bitstrings
+for input size $n$. In fact,
+by choosing different and smaller inputs,
+we can improve runtime while maintaining accuracy.
 
-The correctness of our algorithm is supported 
-by it's performance on the OR function as it 
-exactly matches the theoretical values. 
-This is further supported by the proofs of Reichardt, 
-Wen, and our Methodology section. 
-In addition, we have made our source code 
-available on GitHub for review. 
-Given the correctness of our algorithm, 
-we can address improvements to its runtime.
-
-First, we can attempt to improve runtime while
-maintaining the correctness of the algorithm. Later,
-we might be able to alter the algorithm
-mathematically to take advantage of the structure
-given in SDP's formed from quantum algorithms. 
-It has also been claimed that the dual of this semidefinite
-programming problem yields the quantum algorithm with minimal query complexity.
-However, this optimal solution to the dual may not be easily 
-interpreted as an algorithm as there could be many optimal, feasible solutions. 
-Semidefinite programming problems also don't guarantee the tightness of the dual,
-as is the case in linear programming. 
-These problems all pose potential areas of future expansion.
-
-\subsection{OR Function: All Boolean Inputs}
-
-A simple approach to speeding up the runtime of our
-algorithm is to simply decrease the number of input
-strings considered for a given input size $n$. It's
-important that we still obtain a good approximation
-of the correct answer, so we need to ensure that the
-inputs we do analyze will lead to the correct result.
-Because the bounds of our algorithm are adversarial,
-meaning that they are worst-case bounds, we can opt
-to only use the worst-case inputs.
-
-Again returning to our OR example, the hardest inputs are
-either entirely zeros, or contain only a single 1. 
-Using these inputs, we can then run our algorithm to 
-compare both runtime and precision of results.
-
-The runtime is drastically improved over the all-case scenario. 
-This result is not only shown via \todo{put both runtimes on the same figure and reference it here} of the graphs, 
-but also in the x-axis because the speed up was so 
-significant that we were able to solve for many more 
-input sizes than in the all-case scenario. 
-Looking at the optimal query complexities returned, 
-we observe that we are still obtaining good 
-approximations of the true value. 
-We believe that more iterations could drastically 
-improve the performance of the algorithm as well as 
-improved stopping conditions. Instead of simply stopping 
-after some number of iterations (in this case 100), 
-we could look to see if the improvements to the objective 
-function are negligible and conclude that the algorithm has converged.
+In \cref{fig:or_runtime}, observe that the
+runtime of the implementation on OR with all
+inputs increases exponentially
+with the input size $n$.
+(Since the number of inputs grows exponentially,
+it follows that the size of the problem grows
+exponentially, too.)
+The bottleneck in the implementation is
+the eigenvalue decomposition of the current
+solution at each step of the iteration.
+However, if we limit the inputs to the `worst-case`
+bitstrings we observe much lower runtimes.
+It is in general very difficult to find the worst-case
+inputs and OR is a special case.
+When searching for at least one 1, the most
+difficult bitstrings to search are those with a single 1.
+So, by supplying only the worst-case inputs that
+have at most one 1, we can maintain accuracy while
+greatly reducing runtime.
+We know of no other Boolean functions with
+similarly intuitive worst-case sets of inputs.
