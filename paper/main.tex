@@ -60,9 +60,11 @@ of Boolean Functions}
 % a couple of paragraphs describing your project
 \section*{Abstract}
 
-We implement an algorithm that takes in a Boolean function and outputs the optimal
-quantum query complexity of this function as well as a query optimal span program
-for evaluating this function on a quantum computer. 
+We implement an algorithm that takes in a 
+Boolean function and outputs the optimal
+quantum query complexity of the function 
+as well as a query optimal span program
+for evaluating it on a quantum computer. 
 Let $f$ be a Boolean function
 and $x$ be a bitstring input to $f$.
 We consider the query model where
@@ -73,17 +75,10 @@ is the fewest queries any quantum algorithm
 takes to determine $f(x)$ over all inputs $x$.
 We find the optimal quantum query complexity
 of $f$ by solving a semidefinite 
-programming (SDP)
-problem.
-This solution also provides a span program 
+programming (SDP) problem.
+The SDP solution also provides a span program 
 that evaluates $f$ in optimal
-quantum query complexity on a quantum computer.
-
-We call our Python package QuantumQueryOptimizer
-and hope researchers will find it helpful
-in gaining intuition about how to construct optimal
-quantum algorithms. It is published on PyPI and accessible through pip with the name
-quantum-query-optimizer.
+quantum query complexity.
 
 % the other sections
 \input{sec/1_introduction.tex}

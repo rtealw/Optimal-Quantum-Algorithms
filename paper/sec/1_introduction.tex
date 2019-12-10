@@ -1,6 +1,6 @@
 \section{Introduction}
 
-An important topic in quantum computing is
+An important area of research in quantum computing is
 to determine the problems for which quantum
 computers can outperform classical computers.
 To avoid technical problems in the comparison of 
@@ -16,11 +16,13 @@ The query complexity of a function
 is the number of times we must examine the
 contents of the input string to determine the correct
 output of the function. 
-Each query of the given function takes a certain amount of time, therefore the query
-complexity places a lower bound on runtime asymptotically. It's possible that the
-implementation of the algorithm has a larger asymptotic runtime than query
-complexity only if the post-processing of the query results takes more time than the
-queries themselves.
+Each query of the given function takes a certain
+amount of time, therefore the query
+complexity places a lower bound on runtime.
+The reverse is not true: the runtime
+may asymptotically exceed query complexity
+if the algorithm performs substantially more
+computations than queries.
 
 To give a concrete example of query complexity,
 recall the canonical OR function.
