@@ -16,12 +16,11 @@ The query complexity of a function
 is the number of times we must examine the
 contents of the input string to determine the correct
 output of the function. 
-Query complexity is a lower bound for runtime
-because each query takes a time step.
-(The other computations in an algorithm could take substantially
-more time than the queries to the input string
-so the asymptotic runtime is at least as large 
-as the asymptotic query complexity.)
+Each query of the given function takes a certain amount of time, therefore the query
+complexity places a lower bound on runtime asymptotically. It's possible that the
+implementation of the algorithm has a larger asymptotic runtime than query
+complexity only if the post-processing of the query results takes more time than the
+queries themselves.
 
 To give a concrete example of query complexity,
 recall the canonical OR function.
@@ -48,21 +47,21 @@ on a quantum computer, meets the optimal quantum query complexity.
 Our contribution is an SDP solver
 that finds the optimal quantum query complexity
 and query optimal quantum algorithm for given Boolean functions.
-(While the SDP can be solved for arbitrary functions,
-we limit the scope of our work to Boolean functions.)
+While the SDP can be solved for arbitrary functions,
+we limit the scope of our work to Boolean functions.
 
 While there are many SDP solver libraries such as CVXOPT and
 SDPA for convex optimization problems,
 none easily support solving Reichardt's SDP
 \cite{cvxopt, SDPA}.
-As a result, we implement our own program to solve the SDP
-and include optimizations specific to our problem formulation.
+As a result, we develop an implementation that solves the SDP
+and includes optimizations specific to our problem formulation.
 We first convert Reichardt's form into the standard SDP form
-as described by Boyd \cite{boyd2004convex}.
-We begin with Wen et al.'s alternating direction method (ADM)
+as described by Boyd \cite{boyd2004convex}, which we verify here.
+To solve the SDP, we implement Wen et al.'s alternating direction method (ADM)
 algorithm in order to exploit the sparsity of our SDP
 and then optimize the functions and data structures we use
-to speed up our program \cite{adm}.
+to speed up our program \cite{adm}. 
 
 Our program takes as input a set of bitstrings $D$
 and a Boolean function $f: D \rightarrow \{0,1\}$. 

@@ -37,7 +37,7 @@
 
 % Title. 
 % If your title is long, consider \title[short title]{full title} - "short title" will be used for running heads.
-\title{Semidefinite Program Solver to 
+\title[Optimal Quantum Algorithms via Semidefinite Programming]{Semidefinite Program Solver to 
 Find the Optimal Quantum Query Complexity
 and Query Optimal Quantum Algorithm
 of Boolean Functions}
@@ -60,32 +60,30 @@ of Boolean Functions}
 % a couple of paragraphs describing your project
 \section*{Abstract}
 
-With the increasing size and computational power of quantum
-computers, we want to find the problems that quantum computers
-can solve more efficiently than classical computers.
-It's essential to identify optimal quantum algorithms for this
-comparison. We define an optimal quantum algorithm to be the
-algorithm that solves a given problem with the lowest
-asymptotic query complexity. It's also important to consider
-post-processing steps and overall runtime, but we consider a
-query model where an algorithm that evaluates the Boolean
-function $f$ takes as input a bitstring and returns 0 or 1
-by simply querying the input. For a given function $f$, the
-optimal query complexity of $f$ is the query complexity of the
-query optimal algorithm. The optimal query complexity for $f$
-is the worst-case number of queries the best
-quantum algorithm needs to solve $f$.
-The query optimal algorithm for $f$ is
-the algorithm that evaluates $f$ and
-meets the optimal query complexity.
-In this paper, we implement a semidefinite program
-whose solution gives both the optimal quantum query
-complexity and a query optimal quantum algorithm.
+We implement an algorithm that takes in a Boolean function and outputs the optimal
+quantum query complexity of this function as well as a query optimal span program
+for evaluating this function on a quantum computer. 
+Let $f$ be a Boolean function
+and $x$ be a bitstring input to $f$.
+We consider the query model where
+an algorithm evaluates $f(x)$
+by asking an oracle about the bits of $x$.
+The optimal quantum query complexity of $f$
+is the fewest queries any quantum algorithm
+takes to determine $f(x)$ over all inputs $x$.
+We find the optimal quantum query complexity
+of $f$ by solving a semidefinite 
+programming (SDP)
+problem.
+This solution also provides a span program 
+that evaluates $f$ in optimal
+quantum query complexity on a quantum computer.
 
 We call our Python package QuantumQueryOptimizer
 and hope researchers will find it helpful
 in gaining intuition about how to construct optimal
-quantum algorithms.
+quantum algorithms. It is published on PyPI and accessible through pip with the name
+quantum-query-optimizer.
 
 % the other sections
 \input{sec/1_introduction.tex}

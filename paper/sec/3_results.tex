@@ -2,8 +2,8 @@
 
 \subsection{Step-by-step Example with OR}
 Recall the two bit function OR which returns $1$ if there
-is at least one $1$ in the input and returns $0$ otherwise.
-To understand Reichardt's formulation and our conversion
+is at least a single $1$ in the input and returns $0$ otherwise.
+To understand Reichardt's formulation and the conversion
 to Boyd's standard form, consider as inputs to our tool
 the case with function $f: D \rightarrow E$ where
 $D \subseteq {\{0,1\}}^2$ and $E =\{OR(x): x \in D \}$.
@@ -65,7 +65,7 @@ Our goal is to minimize $M$, and thus $f_{\text{bound}}$ by finding the optimal 
 
 The columns of this matrix are the vectors used in the span program 
 
-We then use this to obtain $L$ where $L^\dagger L = \X$. From here we can then obtain $\bra{v_{x,i}}$ for all $x \in D$, $i \in [n]$. Then using our definition of $I$ from earlier:
+We then use this to obtain $L$ where $L^\dagger L = \X$. From here we can then obtain $\bra{v_{x,i}}$ for all $x \in D$, $i \in [n]$. Then using the definition of $I$ from earlier:
 
 \begin{align}
 I &= \left[\begin{array}{cc}
@@ -94,7 +94,7 @@ I &= \left[\begin{array}{c|c|c|c}
 In both definitions of $I$ the left two partitions correspond to the first bit in the
 input, and the right two partitions correspond to the second bit of the input. For each
 input bit, the relevant block of $I$ is broken into left and right halves, corresponding
-to whether the bit is $0$ or $1$ respectively. It's clear from this matrix that if either input bit is $1$ the function will evaluate to True, and otherwise evaluate to False.
+to whether the bit is $0$ or $1$ respectively. It is clear from this matrix that if either input bit is $1$ the function will evaluate to True, and otherwise evaluate to False.
 
 \begin{figure}[ht]
 \centering
@@ -113,13 +113,10 @@ size of input bit string.}
 \end{figure}
 
 \subsection{OR Function: Worst-case Boolean Inputs}\label{sec:speed}
-In \cref{fig:or_all_complexity}, we see that our algorithm
-correctly calculates the optimal query complexity of the OR function.
-(The analytical and empirical lines are so close that one
+In \cref{fig:or_all_complexity}, observe that our algorithm
+correctly calculates the optimal query complexity of the OR function (the
+analytical and empirical lines are so close that one
 is mostly obscured).
-In \cref{fig:or_all_runtime}, we see that the runtime grows
-exponentially with respect to input size $n$.
-
 Our algorithm's performance is displayed in \cref{fig:or_all_runtime}.
 We see that runtime grows exponentially with respect to input size as expected, 
 given the exponential increase in the cardinality of the set $D$ of all
@@ -127,16 +124,7 @@ inputs of length $n$.
 We also see that our algorithm is accurately calculating the
 optimal quantum query complexity of the OR function. 
 
-Using the known results of the quantum query
-complexity of the OR function along with our
-algorithm's performance in regard to the known
-optimal values, we believe that our algorithm is
-correct. Proof's of the algorithm's mathematical
-correctness can be found in Wen et. al. Proof of the
-algorithm's is shown through these results as well as
-review of our code posted on GitHub. Knowing that our
-algorithm is correct, we can then proceed to improve
-it in several ways. 
+The correctness of our algorithm is supported by it's performance on the OR function as it exactly matches the theoretical values. This is further supported by the proofs of Reichardt, Wen, and our Methodology section. In addition, we have made our source code available on GitHub for review. Given the correctness of our algorithm, we can address improvements to its runtime.
 
 First, we can attempt to improve runtime while
 maintaining the correctness of the algorithm. Later,
@@ -185,7 +173,7 @@ size of input bit string.}
 \end{figure}
 
 The runtime is drastically improved over the all-case scenario. 
-This result is not only show via the y-axis of the graphs, 
+This result is not only shown via \todo{put both runtimes on the same figure and reference it here} of the graphs, 
 but also in the x-axis because the speed up was so 
 significant that we were able to solve for many more 
 input sizes than in the all-case scenario. 

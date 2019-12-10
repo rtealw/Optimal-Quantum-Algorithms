@@ -1,6 +1,6 @@
 \section{Methodology}\label{sec:method}
 
-\subsection{Original Form}
+\subsection{Original Form of the SDP}
 Consider a Boolean function $f$ such that
 $f: D \rightarrow E$ where 
 $D \subseteq {\{0,1\}}^n$ and $E \subseteq {\{0,1\}}$.
@@ -11,7 +11,7 @@ The quantum query complexity of $f$ is
 \begin{align} \label{Eq:reichardt_obj} 
     \max_{y \in D} \sum_{j \in [n]} \bra{y,j}\X\ket{y,j} 
 \end{align}
-for some $\X$ subject to the constraints that $\X$ is semidefinite
+for some $\X$ subject to the constraints that $\X$ is positive semidefinite
 (all its eigenvalues are non-negative)
 and that
 \begin{align}\label{Eq:reichardt_F0}
@@ -21,14 +21,11 @@ and that
 for the set $F$ such that $(y,z) \in F$ if and only if
 $f(y) \neq f(z)$.
 
-\subsection{Standard Form}
+\subsection{Standard Form of the SDP}
 In order to implement an algorithm that solves 
 Reichardt's formulation, we convert the SDP
 into the canonical standard form
 \cite{boyd2004convex}.
-Let $\tr$ denote the trace operation
-that takes as input a square matrix
-and returns the sum of the main diagonal entries.
 Then the standard form objective function of the SDP is
 \begin{align}\label{Eq:boyd_obj}
     \tr(C\Xb)
@@ -54,19 +51,19 @@ worst-case subsets of $D$ and still find the correct solution.)
 To convert \cref{Eq:reichardt_F0} into \cref{Eq:boyd_trace},
 we must construct $A_i$ for $i \in [p]$.
 Let $p = |F|$, then each pair $(y,z) \in F$
-gets a corresponding $A_i$.
+is associated with a single $A_i$.
 For $(y,z)$, we are interested in the entries
 in $\X$ that correspond to the bits $y_i$ and $z_i$
 where $y_i \neq z_i$ for $i \in [n]$.
-These entries must necessarily live off the main diagonal,
+These entries must necessarily be off of the main diagonal,
 because $y\neq z$,
 so our $A_i$ will map them to the main diagonal 
-and ensure that the trace $\tr(A_i \X)$ sums to 1.
+and ensure that the $\tr(A_i \X)=1$.
 Note that $b_i = 1$.
 
 To place particular entries of $\X$ onto the main diagonal,
 let $A_i$ be the transpose of the zero matrix with
-ones only in the particular entries we want.
+ones in the particular entries of interest.
 We illustrate on a small example.
 Let
 \begin{align}
@@ -85,7 +82,7 @@ so that
 and $\tr(A_i \cdot \X) = 2$ as desired.
 
 Let $c_i$ be the sum of the $n$ entries
-in the $i^{th}$ section of the main diagonal of $\X$
+in the $i^\mathrm{th}$ section of the main diagonal of $\X$
 such that
 \begin{align}
     c_i = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
@@ -95,7 +92,7 @@ where $y$ is the $i^{th}$ element of $D$ for
 $i \in [|D|]$.
 Let $z$ be $\tr(C\Xb)$ and, so as to extract the bottom right entry,
 let $C$ be the zero matrix with a single one in the bottom right entry.
-Our last challenge is to satisfy \cref{Eq:boyd_obj}
+The last challenge is to satisfy \cref{Eq:boyd_obj}
 by enforcing that $z$ is the maximum $c_i$.
 Our solution is to introduce non-negative slack variables
 $s_i$ for $i \in [|D|]$ and the constraints
@@ -107,16 +104,15 @@ Then
 \begin{align}
     \Xb = \left[ \begin{matrix} \X & 0 \\ 0 & S \end{matrix} \right] \nonumber.
 \end{align}
-(Since $\Xb$ is semidefinite, the main diagonal entries of
-$\Xb$ must be non-negative so $s_i \geq 0$.)
+Since $\Xb$ is semidefinite, the main diagonal entries of
+$\Xb$ must be non-negative so $s_i \geq 0$.
 
-To enforce that $z$ is the maximum $c_i$,
+To enforce that $z$ is the maximum $c_i$ over all $i$,
 we construct $\Ap_i$ and set $\bp_i$ to 0
-for $i \in [|D|]$.
-(For the purposes of the standard form,
-we now have two sets of $A_i$ and $b_i$ constraints.)
+for $i \in [|D|]$. For the purposes of the standard form,
+we now have two sets of $A_i$ and $b_i$ constraints.
 Let $\Ap_i$ be the zero matrix with ones
-along the entries corresponding to the input $i$ of D,
+along the entries corresponding to the input $i$ of $D$,
 a one in the entry corresponding to $s_i$,
 and a negative one in the bottom right entry corresponding
 to the objective function $z$.
@@ -125,11 +121,11 @@ Then
     \tr (\Ap_i \Xb ) &= c_i + s_i -z = 0 \nonumber.
 \end{align}
 Because we are minimizing over the objective function $z$,
-$z$ will meet some $c_i$ while staying greater than or equal to each $c_i$
-so $z$ is therefore the maximum $c_i$, as desired.
+$z$ will meet some $c_i$ and be greater than or equal to each $c_i$
+so $z$ is therefore the maximum $c_i$ over all $i$, as desired.
 
 The solution $\Xb$ that satisfies the standard form according
-to the $A_i$, $\Ap_i$, $b_i$, $\bp_i$, and $C$ we construct will 
+to the constructed $A_i$, $\Ap_i$, $b_i$, $\bp_i$, and $C$ will 
 also hold the solution $\X$ to the original form.
 Therefore, to find the optimal quantum query complexity of $f$,
 we need only solve \cref{Eq:boyd_obj} subject to our constraints.
@@ -145,9 +141,9 @@ partitioned into available and unavailable sets. The
 available vectors are turned into the columns of a
 matrix $A$.
 These vectors form a linear system $Ax = \tau$
-for fixed target vector $\tau$.
+for a fixed target vector $\tau$.
 If this system is homogeneous--and there exists
-some non-trivial vector x that satisfies the equation--
+some non-trivial vector $x$ that satisfies the equation--
 then the algorithm returns true.
 Otherwise, the algorithm returns false.
 
@@ -162,7 +158,7 @@ Given any two input strings $y, z \in D$ such that $y\neq z$,
 \end{align}
 where $\delta_{f(y), f(z)} = 1$ if $f(y) = f(z)$ and $0$ otherwise.
 
-Recall from \cref{Eq:reichardt_F0} that our $\X$ satisfies
+Recall from \cref{Eq:reichardt_F0} that $\X$ satisfies
 \begin{align}
     \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
     \bra{y,j} \X \ket{z, j} = 1 \nonumber.
@@ -171,7 +167,7 @@ We would like to construct $\bra{v_{y,i}}$ and $\ket{v_{z,i}}$
 from $\X$.
 So we define a matrix $L$ such that $L^\dagger L = \X$.
 Then $\bra{v_{y,i}} = \bra{y_i}L^\dagger$.
-We can now reformulate the requirement of our vectors $\bra{v_{y,i}}$
+We can now reformulate the requirement of vectors $\bra{v_{y,i}}$
 as
 \begin{align}
     \sum_{i: y_i \ne z_i} \braket{v_{y,i}|v_{z,i}} &= \sum_{i: y_i \ne z_i}
@@ -181,8 +177,8 @@ as
         0 & f(y) = f(z)
     \end{cases} \nonumber 
 \end{align}
-Our constraints enforce the $f(y) \neq f(z)$ case and we
-check the $f(y) = f(z)$ case before returning $\X$ in our algorithm.
+The constraints enforce the $f(y) \neq f(z)$ case and we
+check the $f(y) = f(z)$ case before returning $\X$.
 
 Given the set of vectors $\bra{v_{y,i}}$ for all $y \in
 D$, $i = 0, 1, \ldots , n-1$, we construct 
@@ -207,9 +203,8 @@ right sub-matrix, corresponding to a $0$ or $1$
 in the relevant bit of the input.
 Let $A=I(y)$ be the set of columns in $I$ that are available
 on input $y \in D$.
-The target vector $\tau$ is the all ones vector with the same number
-of rows as $I$.
-Then whether there is a solution $x$ to $Ax = \tau$, where $\tau$ is a vector with a one in entries corresponding to elements of $D$ that are also in $F_0$ and zeros otherwise, is equivalent
+The target vector $\tau$ is a vector of ones vector with the same number
+of rows as $I$. The Boolean output is equal to whether or not there exists a linear
+combination of the available vectors equal to the target.
 to whether $f(y) = 1$.
-Reichardt proves that span program $I$ and $\tau$ meet
-the optimal quantum query complexity of $f$ \cite{reichardt2009span}.
+Reichardt proves that this span program $I$ and $\tau$ represent a query optimal quantum algorithm for $f$ \cite{reichardt2009span}.
