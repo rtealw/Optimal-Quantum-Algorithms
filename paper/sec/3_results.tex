@@ -10,7 +10,7 @@ $D \subseteq {\{0,1\}}^2$ and $E =\{OR(x): x \in D \}$.
 Let $F$ be the set of $(y,z)$ such that $f(y) \neq f(z)$. In this
 case, $F = \{(00,01), (00,10), (00,11), (01,00), (10,00), (11,00)\}$
 
-Our matrix $\X$ will be created as follows:
+Let
 \begin{align}
 \X = \begin{blockarray}{ccccc}
 \qquad & 00 & 01 & 10 & 11 \\
@@ -20,11 +20,11 @@ Our matrix $\X$ will be created as follows:
   10 & X_{(10,00)} & X_{(10,01)} & X_{(10,10)} & X_{(10,11)}\\
   11 & X_{(11,00)} & X_{(11,01)} & X_{(11,10)} & X_{(11,11)}\\
 \end{block}
-\end{blockarray} \nonumber 
+\end{blockarray}. \nonumber 
 \end{align}
 
 
-The objective function of the SDP is:
+The objective function of the SDP is
 \begin{align} \label{eq:reichardtObj} 
     f_{\text{bound}} &= M(\X) = \max_{y \in D} \sum_{j \in [n]}
     \bra{y,j}\X\ket{y,j} \nonumber \\
@@ -35,17 +35,22 @@ subject to constraints
     \X \succcurlyeq 0  \nonumber 
 \end{align}
 and
-\begin{align}
+\begin{align}\label{specific_constraint}
     \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
-    \bra{y,j} \X \ket{z, j} = 1. \nonumber 
+    \bra{y,j} \X \ket{z, j} = 1.
 \end{align}
-Which is equivalent to:
+Observe that \cref{specific_constraint}
+is equivalent to
 \begin{align}
     \tr{X_{(00,01)}} &= \tr{X_{(00,10)}} = \tr{X_{(00,11)}} = 1 \nonumber \\
-    \tr{X_{(01,00)}} &= \tr{X_{(10,00)}} = \tr{X_{(11,00)}} = 1 \nonumber
+    \tr{X_{(01,00)}} &= \tr{X_{(10,00)}} = \tr{X_{(11,00)}} = 1. \nonumber
 \end{align}
 
-Our goal is to minimize $M$, and thus $f_{\text{bound}}$ by finding the optimal value of $\X$. By running our SDP solver, we obtain $\X$ with an objective function value of $\sqrt{2}$.
+Our goal is to minimize $M$, 
+and thus $f_{\text{bound}}$ by 
+finding the optimal value of $\X$. 
+By running our SDP solver, we obtain 
+$\X$ with an objective function value of $\sqrt{2}$.
 \begin{align}
     \X = \left[ \begin{array}{cc|cc|cc|cc}
     0.7 & 0 & 0 & 0 & 1 & 0 & 0.5 & 0\\
@@ -62,11 +67,12 @@ Our goal is to minimize $M$, and thus $f_{\text{bound}}$ by finding the optimal 
     \end{array}
 \right] \nonumber
 \end{align}
-
-The columns of this matrix are the vectors used in the span program 
-
-We then use this to obtain $L$ where $L^\dagger L = \X$. From here we can then obtain $\bra{v_{x,i}}$ for all $x \in D$, $i \in [n]$. Then using the definition of $I$ from earlier:
-
+We use our solution to construct the input
+vectors to the span program.
+Consider $L$ such that $L^\dagger L = \X$.
+Then construct $\bra{v_{x,i}}$
+for all $x \in D$, $i \in [n]$.
+With \cref{input_vectors},
 \begin{align}
 I &= \left[\begin{array}{cc}
     \bra{1}\bra{v_{00,1}} & \bra{1}\bra{v_{00,2}} \\
@@ -81,38 +87,63 @@ I &= \left[\begin{array}{cc}
     \bra{v_{11,1}} & 0 \cdots 0 & \bra{v_{11,2}} & 0 \cdots 0\\
 \end{array} \right] \nonumber
 \end{align}
-
-The columns of this matrix are the columns used in the span program. If we remove rows of $I$ corresponding to elements $ x \in D$ such that $f(x) = 1$, and columns of $I$ that are the all zero vector, we obtain an equivalent $I$:
-
+The columns of $I$ are the columns
+used in the span program. 
+If we remove rows of $I$ corresponding to elements 
+$ x \in D$ such that $f(x) = 1$
+and columns of $I$ that are the 
+all zero vector, we obtain an equivalent span program where
 \begin{align}
-I &= \left[\begin{array}{c|c|c|c}
+I &= \left[\begin{array}{cccc}
    0 & 1 & 0 & 1 \\
-\end{array} \right] \nonumber \\
-\tau &= 1 \nonumber
+\end{array} \right] \nonumber
 \end{align}
+and $\tau = 1$.
+In both definitions of $I$, the left two partitions
+correspond to the first bit in the
+input, and the right two partitions correspond 
+to the second bit of the input. For each
+input bit, the relevant block of $I$ 
+is broken into left and right halves, corresponding
+to whether the bit is $0$ (left) or $1$ (right). 
+It is clear from this matrix that if either input bit is
+$1$ the function will return true and otherwise
+will return false.
 
-In both definitions of $I$ the left two partitions correspond to the first bit in the
-input, and the right two partitions correspond to the second bit of the input. For each
-input bit, the relevant block of $I$ is broken into left and right halves, corresponding
-to whether the bit is $0$ or $1$ respectively. It is clear from this matrix that if either input bit is $1$ the function will evaluate to True, and otherwise evaluate to False.
+\subsection{Accuracy with OR}
 
-\begin{figure}[ht]
+\begin{figure}[H]
 \centering
-\includegraphics[scale=.5]{or_all_complexity}
+\includegraphics[scale=.5]{or_complexity}
 \caption{The proven analytical optimal query complexity
 and calculated empirical optimal query complexity by 
 size of input bit string.}
-\label{fig:or_all_complexity}
+\label{fig:or_complexity}
 \end{figure}
 
-\begin{figure}[ht]
+We verify that our implementation works correctly
+with results for OR on various input sizes.
+The optimal quantum query complexity of OR
+is $\sqrt{n}$ and, as demonstrated in
+\cref{fig:or_complexity},
+we the empirical results match the analytical
+to the thousandth place.
+
+
+
+\subsection{Runtime with OR}
+
+\subsection{OR Function: Worst-case Boolean Inputs}\label{sec:speed}
+
+
+
+\begin{figure}[H]
 \centering
-\includegraphics[scale=.4]{or_all_runtime}
-\caption{runtime of SDP solver by size of input strings.}
+\includegraphics[scale=.5]{or_runtime}
+\caption{Runtime of SDP solver by size of input strings.}
 \label{fig:or_all_runtime}
 \end{figure}
 
-\subsection{OR Function: Worst-case Boolean Inputs}\label{sec:speed}
 In \cref{fig:or_all_complexity}, observe that our algorithm
 correctly calculates the optimal query complexity of the OR function (the
 analytical and empirical lines are so close that one
@@ -124,7 +155,15 @@ inputs of length $n$.
 We also see that our algorithm is accurately calculating the
 optimal quantum query complexity of the OR function. 
 
-The correctness of our algorithm is supported by it's performance on the OR function as it exactly matches the theoretical values. This is further supported by the proofs of Reichardt, Wen, and our Methodology section. In addition, we have made our source code available on GitHub for review. Given the correctness of our algorithm, we can address improvements to its runtime.
+The correctness of our algorithm is supported 
+by it's performance on the OR function as it 
+exactly matches the theoretical values. 
+This is further supported by the proofs of Reichardt, 
+Wen, and our Methodology section. 
+In addition, we have made our source code 
+available on GitHub for review. 
+Given the correctness of our algorithm, 
+we can address improvements to its runtime.
 
 First, we can attempt to improve runtime while
 maintaining the correctness of the algorithm. Later,
@@ -155,22 +194,6 @@ Again returning to our OR example, the hardest inputs are
 either entirely zeros, or contain only a single 1. 
 Using these inputs, we can then run our algorithm to 
 compare both runtime and precision of results.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[scale=.5]{or_worst_complexity}
-\caption{The proven analytical optimal query complexity
-and calculated empirical optimal query complexity by 
-size of input bit string.}
-\label{fig:or_worst_complexity}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[scale=.4]{or_worst_runtime}
-\caption{Runtime of SDP solver by size of input strings.}
-\label{fig:or_worst_runtime}
-\end{figure}
 
 The runtime is drastically improved over the all-case scenario. 
 This result is not only shown via \todo{put both runtimes on the same figure and reference it here} of the graphs, 
