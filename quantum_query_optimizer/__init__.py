@@ -14,7 +14,7 @@ from constraints import getConstraints
 from span_program import getSpanProgram
 
 # Pass through to user of this file
-from visualize import visualizeRuntime, visualizeComplexity
+from visualize import *
 from boolean_functions import *
 
 if not sys.warnoptions:

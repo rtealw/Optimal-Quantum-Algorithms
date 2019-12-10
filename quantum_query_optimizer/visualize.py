@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def visualize(x_var, y_var, xlabel, ylabel, title):
+def visualize(x_var, y_var, xlabel, ylabel, title, linestyle="-"):
     '''
         Parameters:
             x_var : x-axis data
@@ -13,7 +13,7 @@ def visualize(x_var, y_var, xlabel, ylabel, title):
             plt : plot created
     '''
     plt.rcParams['axes.facecolor'] = 'w'
-    plt.plot(x_var, y_var, 'k')
+    plt.plot(x_var, y_var, 'k', linestyle=linestyle)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
@@ -29,7 +29,7 @@ def visualizeRuntime(solutions, title="Runtime by Input Size", filename="Runtime
 
         This function visualizes runtime data
     '''
-    plt = visualize(
+    visualize(
         x_var=solutions['n_bitstring'],
         y_var=solutions['run_time'],
         xlabel='Input Size (n)',
@@ -48,7 +48,7 @@ def visualizeComplexity(solutions, title="Query Complexity by Input Size", filen
 
         This function visualizes quantum query complexity data
     '''
-    plt = visualize(
+    visualize(
         x_var=solutions['n_bitstring'],
         y_var=solutions['query_complexity'],
         xlabel='Input Size (n)',
@@ -57,3 +57,39 @@ def visualizeComplexity(solutions, title="Query Complexity by Input Size", filen
     )
     plt.savefig(filename)
     plt.close() 
+
+def visualizeComplexityOR(solutions, title, filename):
+    xs = [int(n) for n in solutions['n_bitstring']]
+    ys = np.sqrt(xs)
+    plt.plot(xs, ys, color="red")
+    visualize(
+        x_var=solutions['n_bitstring'],
+        y_var=solutions['query_complexity'],
+        xlabel='Input Size (n)',
+        ylabel='Queries',
+        title=title
+    )
+    plt.legend(['Analytical', 'Empirical'])
+    plt.savefig(filename)
+    plt.close()  
+
+def visualizeRuntimeOR(all_solutions, worst_solutions, title, filename):
+    visualize(
+        x_var=all_solutions['n_bitstring'],
+        y_var=all_solutions['run_time'],
+        xlabel='Input Size (n)',
+        ylabel='Runtime (seconds)',
+        title=title,
+        linestyle="-"
+    )    
+    visualize(
+        x_var=worst_solutions['n_bitstring'],
+        y_var=worst_solutions['run_time'],
+        xlabel='Input Size (n)',
+        ylabel='Runtime (seconds)',
+        title=title,
+        linestyle="--"
+    )
+    plt.legend(['All Inputs', 'Worst-case Inputs'])
+    plt.savefig(filename)
+    plt.close()  
