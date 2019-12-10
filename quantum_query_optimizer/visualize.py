@@ -1,95 +1,71 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def visualize(x_var, y_var, xlabel, ylabel, title, linestyle="-"):
+def setup(xvar, xlabel, ylabel, title):
     '''
         Parameters:
-            x_var : x-axis data
-            y_var : y-axis data
+            xvar : integer list of x-values
             xlabel : x-axis label
             ylabel : y-axis label
-            title : figure title
-        Returns:
-            plt : plot created
+            title : plot title
+
+        This function sets up the figure
     '''
     plt.rcParams['axes.facecolor'] = 'w'
-    plt.plot(x_var, y_var, 'k', linestyle=linestyle)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
-    plt.xticks(range(min(x_var), max(x_var)+1))
-    return plt
+    plt.xticks(xvar)
 
-def visualizeRuntime(solutions, title="Runtime by Input Size", filename="RuntimeByInputSize.eps"):
+def visualizeRuntime(solutions, title="Runtime by Input Size", filename="RuntimeByInputSize.eps", labels=[], more_runtimes=[]):
     '''
         Parameters:
             solutions : solutions dictionary from SDP solution
             title : plot title
             filename : output file name
+            labels (optional) : labels for runtimes
+            more_runtimes (optional) : more runtimes to visualize on plot
 
         This function visualizes runtime data
     '''
-    visualize(
-        x_var=solutions['n_bitstring'],
-        y_var=solutions['run_time'],
-        xlabel='Input Size (n)',
-        ylabel='Runtime (seconds)',
-        title=title
-    )
+    xvar = [int(n) for n in solutions['n_bitstring']]
+    setup(xvar=xvar, xlabel='Runtime (seconds)', ylabel='Queries', title=title) 
+    label_yes = len(labels) == 1 + len(more_runtimes)
+    label_num = 0
+    for runtimes in [solutions['run_time']] + more_runtimes:
+        label = "" if not label_yes else labels[label_num]
+        plt.plot(xvar, runtimes, label=label)
+        label_num += 1
+    if label_yes:
+        plt.legend()
     plt.savefig(filename)
     plt.close() 
 
-def visualizeComplexity(solutions, title="Query Complexity by Input Size", filename="ComplexityByInputSize.eps"):
+def visualizeComplexity(solutions, title="Query Complexity by Input Size", filename="ComplexityByInputSize.eps", labels=[], functions=[], more_queries=[]):
     '''
         Parameters:
             solutions : solutions dictionary from SDP solution
             title : plot title
             filename : output file name
+            labels (optional) : labels for sets of queries and functions
+            functions (optional) : functions to plot
+            more_queries (optional) : more sets of queries to plot
 
         This function visualizes quantum query complexity data
     '''
-    visualize(
-        x_var=solutions['n_bitstring'],
-        y_var=solutions['query_complexity'],
-        xlabel='Input Size (n)',
-        ylabel='Queries',
-        title=title
-    )
+    xvar = [int(n) for n in solutions['n_bitstring']]
+    setup(xvar=xvar, xlabel='Input Size (n)', ylabel='Queries', title=title)
+    label_no = len(labels) != 1 + len(more_queries) + len(functions)
+    label_num = 0
+    for queries in [solutions['query_complexity']] + more_queries:
+        label = "" if label_no else labels[label_num]
+        plt.plot(xvar, queries, label=label)
+        label_num += 1
+    for function in functions:
+        label = "" if label_no else labels[label_num]
+        plt.plot(xvar, function(xvar), label=label)
+        label_num += 1
+    if not label_no:
+        plt.legend()
     plt.savefig(filename)
     plt.close() 
-
-def visualizeComplexityFunction(solutions, title, filename, function):
-    xs = [int(n) for n in solutions['n_bitstring']]
-    ys = function(xs)
-    plt.plot(xs, ys, color="red")
-    visualize(
-        x_var=solutions['n_bitstring'],
-        y_var=solutions['query_complexity'],
-        xlabel='Input Size (n)',
-        ylabel='Queries',
-        title=title
-    )
-    plt.legend(['Analytical', 'Empirical'])
-    plt.savefig(filename)
-    plt.close() 
-
-def visualizeRuntimeWorst(all_solutions, worst_solutions, title, filename):
-    visualize(
-        x_var=all_solutions['n_bitstring'],
-        y_var=all_solutions['run_time'],
-        xlabel='Input Size (n)',
-        ylabel='Runtime (seconds)',
-        title=title,
-        linestyle="-"
-    )    
-    visualize(
-        x_var=worst_solutions['n_bitstring'],
-        y_var=worst_solutions['run_time'],
-        xlabel='Input Size (n)',
-        ylabel='Runtime (seconds)',
-        title=title,
-        linestyle="--"
-    )
-    plt.legend(['All Inputs', 'Worst-case Inputs'])
-    plt.savefig(filename)
-    plt.close()  
