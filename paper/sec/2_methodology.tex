@@ -13,13 +13,11 @@ The quantum query complexity of $f$ is
 \end{align}
 for some $\X$ subject to the constraints that $\X$ is positive semidefinite
 (all its eigenvalues are non-negative)
-and that
+and for $y$ and $z$ such that $f(y) \neq f(z)$,
 \begin{align}\label{Eq:reichardt_F0}
-    \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
+    \sum_{j \in [n]: y_j \ne z_j} 
     \bra{y,j} \X \ket{z, j} = 1.
 \end{align}
-for the set $F$ such that $(y,z) \in F$ if and only if
-$f(y) \neq f(z)$.
 
 \subsection{Standard Form of the SDP}
 In order to implement an algorithm that solves 
@@ -58,7 +56,7 @@ where $y_i \neq z_i$ for $i \in [n]$.
 These entries must necessarily be off of the main diagonal,
 because $y\neq z$,
 so our $A_i$ will map them to the main diagonal 
-and ensure that the $\tr(A_i \X)=1$.
+and ensure that the trace of $A_i \X$ is 1.
 Note that $b_i = 1$.
 
 To place particular entries of $\X$ onto the main diagonal,
@@ -120,9 +118,9 @@ Then
 \begin{align}
     \tr (\Ap_i \Xb ) &= c_i + s_i -z = 0 \nonumber.
 \end{align}
-Because we are minimizing over the objective function $z$,
-$z$ will meet some $c_i$ and be greater than or equal to each $c_i$
-so $z$ is therefore the maximum $c_i$ over all $i$, as desired.
+Because $s_i$ is non-negative and $z$ is being minimized,
+$z$ is both greater than or equal to all $c_i$ and meets
+some $c_i$. Thus $z$ is the maximum $c_i$ as desired.
 
 The solution $\Xb$ that satisfies the standard form according
 to the constructed $A_i$, $\Ap_i$, $b_i$, $\bp_i$, and $C$ will 
@@ -187,10 +185,9 @@ program. We will make use of the sets $F_i =
 \{y \in D: f(y) = i\}$.
 (Note that $F_i[k]$ denotes the $k^{th}$ element of $F_i$.)
 
-\begin{align}
+\begin{align}\label{input_vectors}
     I = \sum_{k \in [|F_0|], j \in [n], y = F_0[k]}
     \ket{k}\bra{j, \overline{y_j}} \bra{v_{y,j}}
-    \nonumber
 \end{align}
 
 This matrix $I$ is divided into sub-matrices that
@@ -201,10 +198,13 @@ $n$ chunks corresponding to each input bit.
 Each of these sub-matrices is further divided into a left and
 right sub-matrix, corresponding to a $0$ or $1$
 in the relevant bit of the input.
-Let $A=I(y)$ be the set of columns in $I$ that are available
-on input $y \in D$.
-The target vector $\tau$ is a vector of ones vector with the same number
-of rows as $I$. The Boolean output is equal to whether or not there exists a linear
-combination of the available vectors equal to the target.
-to whether $f(y) = 1$.
-Reichardt proves that this span program $I$ and $\tau$ represent a query optimal quantum algorithm for $f$ \cite{reichardt2009span}.
+Let $I(y)$ be the set of columns in 
+$I$ that are available on input $y \in D$.
+The target vector $\tau$ 
+is a vector of ones vector with the same 
+dimension as $I$.
+The output is true if and only if the available
+vectors $I(y)$ span to $\tau$.
+Reichardt proves that the span program $I$ 
+and $\tau$ is a query optimal 
+quantum algorithm for $f$ \cite{reichardt2009span}.
