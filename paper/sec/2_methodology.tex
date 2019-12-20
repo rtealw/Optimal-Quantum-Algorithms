@@ -9,11 +9,11 @@ We state Reichardt's formulation of the SDP \cite{reichardt2009span}.
 $[1,2,...,n]$.)
 The quantum query complexity of $f$ is
 \begin{align} \label{Eq:reichardt_obj} 
-    \max_{y \in D} \sum_{j \in [n]} \bra{y,j}\X\ket{y,j} 
+    \min_{\X} \max_{y \in D} \sum_{j \in [n]} \bra{y,j}\X\ket{y,j} 
 \end{align}
 for some $\X$ subject to the constraints that $\X$ is positive semidefinite
 (all its eigenvalues are non-negative)
-and for $y$ and $z$ such that $f(y) \neq f(z)$,
+and for ordered pairs ($y$,$z$) such that $f(y) \neq f(z)$,
 \begin{align}\label{Eq:reichardt_F0}
     \sum_{j \in [n]: y_j \ne z_j} 
     \bra{y,j} \X \ket{z, j} = 1.
@@ -39,21 +39,21 @@ for some fixed matrices $A_i$ and $b_i$.
 We now convert the original form of the SDP to
 the standard form by constructing appropriate matrices $A_i$, $b_i$, $\Xb$, and $C$.
 
-We start by gaining some intuition about $\X$.
+To understand this conversion, we must first gain some intuition about $\X$.
 It is clear from \cref{Eq:reichardt_obj} that for 
-each $y \in D$, there exists an $n \times n$ sub-matrix of $\X$ along its diagonal.
+each $y \in D$, there exists a corresponding $n \times n$ sub-matrix of $\X$ along its diagonal.
 Then $\X$ must have a total of $n|D|$ rows and $n|D|$ columns.
-(In general, $|D| = 2^n$ but it is possible to take 
-worst-case subsets of $D$ and still find the correct solution.)
+In general, $|D| = 2^n$ but it is possible to take 
+worst-case subsets of $D$ and still find the correct solution, as discussed later.
 
 To convert \cref{Eq:reichardt_F0} into \cref{Eq:boyd_trace},
-we must construct $A_i$ for $i \in [p]$.
+we must construct $A_i$, $b_i$ for $i \in [p]$.
 Let $p = |F|$, then each pair $(y,z) \in F$
 is associated with a single $A_i$.
-For $(y,z)$, we are interested in the entries
+For each $(y,z)$, we are interested in the entries
 in $\X$ that correspond to the bits $y_i$ and $z_i$
-where $y_i \neq z_i$ for $i \in [n]$.
-These entries must necessarily be off of the main diagonal,
+where $y_i \neq z_i$ for $i \in [n]$. These entries are intuitively of interest because they are the bits that must lead to different outputs.
+They are necessarily off of the main diagonal,
 because $y\neq z$,
 so our $A_i$ will map them to the main diagonal 
 and ensure that the trace of $A_i \X$ is 1.
@@ -79,7 +79,7 @@ so that
 \end{align}
 and $\tr(A_i \cdot \X) = 2$ as desired.
 
-Let $c_i$ be the sum of the $n$ entries
+Having converted the constraints, we must also convert the objective functions. Let $c_i$ be the sum of the $n$ entries
 in the $i^\mathrm{th}$ section of the main diagonal of $\X$
 such that
 \begin{align}
@@ -88,22 +88,21 @@ such that
 \end{align} 
 where $y$ is the $i^{th}$ element of $D$ for
 $i \in [|D|]$.
-Let $z$ be $\tr(C\Xb)$ and, so as to extract the bottom right entry,
-let $C$ be the zero matrix with a single one in the bottom right entry.
+Let $z$ be $\tr(C\X)$.
 The last challenge is to satisfy \cref{Eq:boyd_obj}
 by enforcing that $z$ is the maximum $c_i$.
 Our solution is to introduce non-negative slack variables
 $s_i$ for $i \in [|D|]$ and the constraints
 $c_i + s_i = z$.
 
-To construct $\Xb$, call $S$ the zero matrix
+We construct a new matrix $\Xb$ to account for these slack variables. Call $S$ the zero matrix
 whose diagonal holds the entries $s_1,...,s_{|D|}, z$.
 Then
 \begin{align}
     \Xb = \left[ \begin{matrix} \X & 0 \\ 0 & S \end{matrix} \right] \nonumber.
 \end{align}
 Since $\Xb$ is semidefinite, the main diagonal entries of
-$\Xb$ must be non-negative so $s_i \geq 0$.
+$\Xb$ must be non-negative so $s_i \geq 0$. Thus $C$ is defined to have $\tr{C\Xb}$ extract the bottom right entry of $\Xb$. Therefore, let $C$ be the zero matrix with a single one in the bottom right entry.
 
 To enforce that $z$ is the maximum $c_i$ over all $i$,
 we construct $\Ap_i$ and set $\bp_i$ to 0
@@ -140,7 +139,7 @@ available vectors are turned into the columns of a
 matrix $A$.
 These vectors form a linear system $Ax = \tau$
 for a fixed target vector $\tau$.
-If this system is homogeneous--and there exists
+If this system is homogeneous-- there exists
 some non-trivial vector $x$ that satisfies the equation--
 then the algorithm returns true.
 Otherwise, the algorithm returns false.
@@ -175,7 +174,7 @@ as
         0 & f(y) = f(z)
     \end{cases} \nonumber 
 \end{align}
-The constraints enforce the $f(y) \neq f(z)$ case and we
+The constraints enforce the $f(y) \neq f(z)$ case and we programatically
 check the $f(y) = f(z)$ case before returning $\X$.
 
 Given the set of vectors $\bra{v_{y,i}}$ for all $y \in
@@ -195,7 +194,7 @@ correspond to different bits in the input to the
 algorithm.
 The columns of $I$ are evenly divided into
 $n$ chunks corresponding to each input bit.
-Each of these sub-matrices is further divided into a left and
+Each of these sub-matrices is further evenly divided into a left and
 right sub-matrix, corresponding to a $0$ or $1$
 in the relevant bit of the input.
 Let $I(y)$ be the set of columns in 

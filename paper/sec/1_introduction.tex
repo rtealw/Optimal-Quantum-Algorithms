@@ -10,8 +10,7 @@ currently do not exist--we turn to theoretical
 analysis to characterize the efficiency of 
 quantum and classical algorithms.
 
-In this paper, we consider the query model of computation
-to place an asymptotic lower bound on runtime.
+We implement a tool that places an asymptotic lower bound on runtime by calculating the optimal quantum query complexity of a Boolean function.
 The query complexity of a function 
 is the number of times we must examine the
 contents of the input string to determine the correct
@@ -29,7 +28,7 @@ recall the canonical OR function.
 The $n$-bit OR
 function returns $0$ if there are only $0$'s in the input
 string and $1$ if there are any $1$'s in the input string.
-A classical algorithm must check that
+In the worst case, a classical algorithm must check that
 every single bit of the input is a $0$ to return $0$.
 Therefore the classical query complexity of the $n$-bit OR
 function is $n$. 
@@ -49,10 +48,10 @@ on a quantum computer, meets the optimal quantum query complexity.
 Our contribution is an SDP solver
 that finds the optimal quantum query complexity
 and query optimal quantum algorithm for given Boolean functions.
-While the SDP can be solved for arbitrary functions,
+While the SDP can be solved for arbitrary functions with finite outputs,
 we limit the scope of our work to Boolean functions.
 
-While there are many SDP solver libraries such as CVXOPT and
+Although there are many SDP solver libraries such as CVXOPT and
 SDPA for convex optimization problems,
 none easily support solving Reichardt's SDP
 \cite{cvxopt, SDPA}.
@@ -61,8 +60,8 @@ and includes optimizations specific to our problem formulation.
 We first convert Reichardt's form into the standard SDP form
 as described by Boyd \cite{boyd2004convex}, which we verify here.
 To solve the SDP, we implement Wen et al.'s alternating direction method (ADM)
-algorithm in order to exploit the sparsity of our SDP
-and then optimize the functions and data structures we use
+algorithm in order to exploit the sparsity of our SDP.
+We finally optimize the functions and data structures we use
 to speed up our program \cite{adm}. 
 
 Our program takes as input a set of bitstrings $D$
