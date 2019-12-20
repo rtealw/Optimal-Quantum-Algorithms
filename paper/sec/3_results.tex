@@ -26,8 +26,8 @@ Let
 
 The objective function of the SDP is
 \begin{align} \label{eq:reichardtObj} 
-    f_{\text{bound}} &= M(\X) = \max_{y \in D} \sum_{j \in [n]}
-    \bra{y,j}\X\ket{y,j} \nonumber \\
+    &\max_{y \in D} \sum_{j \in [n]}
+    \bra{y,j}\X\ket{y,j} \\
     &= \max\{ \tr{X_{(00,00)}}, \tr{X_{(01,01)}}, \tr{X_{(10,10)}}, \tr{X_{(11,11)}} \} \nonumber
 \end{align}
 subject to constraints
@@ -99,7 +99,7 @@ I &= \left[\begin{array}{cccc}
 \end{array} \right] \nonumber
 \end{align}
 and $\tau = 1$.
-In both definitions of $I$, the left two partitions
+The left two partitions
 correspond to the first bit in the
 input, and the right two partitions correspond 
 to the second bit of the input. For each
@@ -125,8 +125,7 @@ We verify that the implementation works correctly
 with results for OR on various input sizes.
 The optimal quantum query complexity of OR
 is $\sqrt{n}$ and, as demonstrated in
-\cref{fig:or_complexity},
-we the empirical results match the analytical
+\cref{fig:or_complexity}, the empirical results match the analytical
 to the thousandth place.
 
 \begin{figure}[H]
@@ -171,18 +170,29 @@ inputs increases exponentially
 with the input size $n$.
 (Since the number of inputs grows exponentially,
 it follows that the size of the problem grows
-exponentially, too.)
+exponentially, too.) As a note, our
+runtime results are presented as the
+result of timing our program once. If we
+were trying to make an argument about the
+absolute runtime of our algorithm, it
+would've been better to show a
+distribution. We want to highlight the
+asymptotic behavior of runtime which is
+presented here and consistent between
+runs of our program.
 The bottleneck in the implementation is
 the eigenvalue decomposition of the current
 solution at each step of the iteration.
-However, if we limit the inputs to the `worst-case`
-bitstrings we observe much lower runtimes.
+
+
+If we limit the inputs to the `worst-case`
+bitstrings we observe much lower runtime, as shown in \ref{fig:or_runtime}.
 It is in general very difficult to find the worst-case
 inputs and OR is a special case.
 When searching for at least one 1, the most
 difficult bitstrings to search are those with a single 1.
 So, by supplying only the worst-case inputs that
-have at most one 1, we can maintain accuracy while
+have at most one 1, we can maintain the same level of accuracy while
 greatly reducing runtime.
 We know of no other Boolean functions with
 similarly intuitive worst-case sets of inputs.
