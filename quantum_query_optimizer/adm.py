@@ -149,7 +149,7 @@ def simplifyX(X, tolerance=1e-5):
     X[idx1] = 1
     return X
 
-def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=50, max_iterations=500):
+def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=68, max_iterations=421):
     '''
         Parameters:
             contraints : list of dictionaries that contains constraints
