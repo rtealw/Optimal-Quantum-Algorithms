@@ -3,3 +3,6 @@
 .idea
 .RHistory
 settings.json
+build
+dist
+quantum_query_optimizer.egg-info
