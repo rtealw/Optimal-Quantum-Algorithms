@@ -1,4 +1,5 @@
 import quantum_query_optimizer as qqo
+import numpy as np
 
 # Example 1
 D = ['00', '01', '10', '11']
