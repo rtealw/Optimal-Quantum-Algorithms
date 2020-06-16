@@ -1,0 +1,96 @@
+\documentclass[acmtog]{acmart}
+%acmtog if we're feeling a little funky ;)
+
+\usepackage{booktabs, braket} % For formal tables
+\usepackage{cleveref}
+\usepackage{graphicx}
+\usepackage{blkarray}
+
+\settopmatter{printacmref=false} % Removes citation info after abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference informat\textbf{}ion in first column
+\usepackage{fancyhdr}
+
+\DeclareMathOperator{\X}{\mathbb{X}}		     % expected value
+\DeclareMathOperator{\tr}{\text{tr}}		     % trace
+\DeclareMathOperator{\Ap}{$A$ ^\prime} 		     % A'
+\DeclareMathOperator{\bp}{$b$ ^\prime} 		     % b'
+\DeclareMathOperator{\Xb}{\mathcal{X}}		     % big X
+ 
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Czekanski \& Witter, Fall 2019}
+\rfoot{\thepage}
+\newcommand{\todo}[1]{{\color{red}{[{\bf TODO:} #1]}}}
+
+%\pagestyle{plain} % removes running heades
+
+% Use the "authoryear" citation style, and make sure citations are in [square brackets].
+\citestyle{acmauthoryear}
+\setcitestyle{square}
+
+% A useful command for controlling the number of authors per row.
+% The default value of "authorsperrow" is 2.
+\settopmatter{authorsperrow=1}
+
+\begin{document}
+
+
+% Title. 
+% If your title is long, consider \title[short title]{full title} - "short title" will be used for running heads.
+\title[Optimal Quantum Algorithms via Semidefinite Programming]{Semidefinite Program Solver to 
+Find the Optimal Quantum Query Complexity
+and Query Optimal Quantum Algorithm
+of Boolean Functions}
+
+% please leave the subtitle!
+\subtitle{Middlebury College, Fall 2019}
+
+% Authors.
+\author{Michael Czekanski}
+\affiliation{%
+  \institution{Middlebury College}}
+
+\author{R. Teal Witter}
+ \affiliation{%
+   \institution{Middlebury College}}
+
+\maketitle
+
+\graphicspath{{./../figures/}}
+% a couple of paragraphs describing your project
+\section*{Abstract}
+
+We implement an algorithm that takes in a 
+Boolean function and outputs the optimal
+quantum query complexity of the function 
+as well as a query optimal span program
+for evaluating it on a quantum computer. 
+Let $f$ be a Boolean function
+and $x$ be a bitstring input to $f$.
+We consider the query model where
+an algorithm evaluates $f(x)$
+by asking an oracle about the bits of $x$.
+The optimal quantum query complexity of $f$
+is the fewest queries any quantum algorithm
+takes to determine $f(x)$ over all inputs $x$.
+We find the optimal quantum query complexity
+of $f$ by solving a semidefinite 
+programming (SDP) problem.
+The SDP solution also provides a span program 
+that evaluates $f$ in optimal
+quantum query complexity. Our numerical results prove to be in line with general analytic understanding, and the span programs we implement are shown to correctly evaluate the given function.
+
+% the other sections
+\input{sec/1_introduction.tex}
+\input{sec/2_methodology.tex}
+\input{sec/3_results.tex}
+\input{sec/4_conclusions.tex}
+
+% select the reference format (leave this)
+\bibliographystyle{ACM-Reference-Format}
+
+% specify the bibliography (.bib) file
+% place your references in this bib file
+\bibliography{main}
+
+\end{document}

@@ -1,0 +1,209 @@
+\section{Methodology}\label{sec:method}
+
+\subsection{Original Form of the SDP}
+Consider a Boolean function $f$ such that
+$f: D \rightarrow E$ where 
+$D \subseteq {\{0,1\}}^n$ and $E \subseteq {\{0,1\}}$.
+We state Reichardt's formulation of the SDP \cite{reichardt2009span}.
+(Note that $[n]$ denotes the array
+$[1,2,...,n]$.)
+The quantum query complexity of $f$ is
+\begin{align} \label{Eq:reichardt_obj} 
+    \min_{\X} \max_{y \in D} \sum_{j \in [n]} \bra{y,j}\X\ket{y,j} 
+\end{align}
+for some $\X$ subject to the constraints that $\X$ is positive semidefinite
+(all its eigenvalues are non-negative)
+and for ordered pairs ($y$,$z$) such that $f(y) \neq f(z)$,
+\begin{align}\label{Eq:reichardt_F0}
+    \sum_{j \in [n]: y_j \ne z_j} 
+    \bra{y,j} \X \ket{z, j} = 1.
+\end{align}
+
+\subsection{Standard Form of the SDP}
+In order to implement an algorithm that solves 
+Reichardt's formulation, we convert the SDP
+into the canonical standard form
+\cite{boyd2004convex}.
+Then the standard form objective function of the SDP is
+\begin{align}\label{Eq:boyd_obj}
+    \tr(C\Xb)
+\end{align}
+for some fixed matrix $C$ subject to the constraints
+that $\Xb$ is semidefinite and for $i \in [p]$
+\begin{align} \label{Eq:boyd_trace}
+    \tr(A_i \Xb) = b_i
+\end{align}
+for some fixed matrices $A_i$ and $b_i$.
+
+\subsection{Converting from Original to Standard Form}
+We now convert the original form of the SDP to
+the standard form by constructing appropriate matrices $A_i$, $b_i$, $\Xb$, and $C$.
+
+To understand this conversion, we must first gain some intuition about $\X$.
+It is clear from \cref{Eq:reichardt_obj} that for 
+each $y \in D$, there exists a corresponding $n \times n$ sub-matrix of $\X$ along its diagonal.
+Then $\X$ must have a total of $n|D|$ rows and $n|D|$ columns.
+In general, $|D| = 2^n$ but it is possible to take 
+worst-case subsets of $D$ and still find the correct solution, as discussed later.
+
+To convert \cref{Eq:reichardt_F0} into \cref{Eq:boyd_trace},
+we must construct $A_i$, $b_i$ for $i \in [p]$.
+Let $p = |F|$, then each pair $(y,z) \in F$
+is associated with a single $A_i$.
+For each $(y,z)$, we are interested in the entries
+in $\X$ that correspond to the bits $y_i$ and $z_i$
+where $y_i \neq z_i$ for $i \in [n]$. These entries are intuitively of interest because they are the bits that must lead to different outputs.
+They are necessarily off of the main diagonal,
+because $y\neq z$,
+so our $A_i$ will map them to the main diagonal 
+and ensure that the trace of $A_i \X$ is 1.
+Note that $b_i = 1$.
+
+To place particular entries of $\X$ onto the main diagonal,
+let $A_i$ be the transpose of the zero matrix with
+ones in the particular entries of interest.
+We illustrate on a small example.
+Let
+\begin{align}
+    \X = \left[ \begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix} \right] \nonumber
+\end{align}
+and the particular entry of interest be the top right value of $\X$.
+Then
+\begin{align}
+    A_i = \left[ \begin{matrix} 0 & 1 \\ 0 & 0 \end{matrix} \right]^\textrm{T} \nonumber
+    = \left[ \begin{matrix} 0 & 0 \\ 1 & 0 \end{matrix} \right] \nonumber
+\end{align}
+so that
+\begin{align}
+    A_i \cdot \X = \left[ \begin{matrix} 2 & 0 \\ 4 & 0 \end{matrix} \right] \nonumber
+\end{align}
+and $\tr(A_i \cdot \X) = 2$ as desired.
+
+Having converted the constraints, we must also convert the objective functions. Let $c_i$ be the sum of the $n$ entries
+in the $i^\mathrm{th}$ section of the main diagonal of $\X$
+such that
+\begin{align}
+    c_i = \sum_{j \in [n]} \bra{y,j}\X\ket{y,j}
+    \nonumber
+\end{align} 
+where $y$ is the $i^{th}$ element of $D$ for
+$i \in [|D|]$.
+Let $z$ be $\tr(C\X)$.
+The last challenge is to satisfy \cref{Eq:boyd_obj}
+by enforcing that $z$ is the maximum $c_i$.
+Our solution is to introduce non-negative slack variables
+$s_i$ for $i \in [|D|]$ and the constraints
+$c_i + s_i = z$.
+
+We construct a new matrix $\Xb$ to account for these slack variables. Call $S$ the zero matrix
+whose diagonal holds the entries $s_1,...,s_{|D|}, z$.
+Then
+\begin{align}
+    \Xb = \left[ \begin{matrix} \X & 0 \\ 0 & S \end{matrix} \right] \nonumber.
+\end{align}
+Since $\Xb$ is semidefinite, the main diagonal entries of
+$\Xb$ must be non-negative so $s_i \geq 0$. Thus $C$ is defined to have $\tr{C\Xb}$ extract the bottom right entry of $\Xb$. Therefore, let $C$ be the zero matrix with a single one in the bottom right entry.
+
+To enforce that $z$ is the maximum $c_i$ over all $i$,
+we construct $\Ap_i$ and set $\bp_i$ to 0
+for $i \in [|D|]$. For the purposes of the standard form,
+we now have two sets of $A_i$ and $b_i$ constraints.
+Let $\Ap_i$ be the zero matrix with ones
+along the entries corresponding to the input $i$ of $D$,
+a one in the entry corresponding to $s_i$,
+and a negative one in the bottom right entry corresponding
+to the objective function $z$.
+Then
+\begin{align}
+    \tr (\Ap_i \Xb ) &= c_i + s_i -z = 0 \nonumber.
+\end{align}
+Because $s_i$ is non-negative and $z$ is being minimized,
+$z$ is both greater than or equal to all $c_i$ and meets
+some $c_i$. Thus $z$ is the maximum $c_i$ as desired.
+
+The solution $\Xb$ that satisfies the standard form according
+to the constructed $A_i$, $\Ap_i$, $b_i$, $\bp_i$, and $C$ will 
+also hold the solution $\X$ to the original form.
+Therefore, to find the optimal quantum query complexity of $f$,
+we need only solve \cref{Eq:boyd_obj} subject to our constraints.
+
+\subsection{Query Efficient Span Programs}
+
+A span program is a model of computation that outputs a
+Boolean value corresponding to whether or not a set
+of vectors "spans" to a target vector. The algorithm consists
+of a set of
+vectors such that on a given input, the vectors are
+partitioned into available and unavailable sets. The
+available vectors are turned into the columns of a
+matrix $A$.
+These vectors form a linear system $Ax = \tau$
+for a fixed target vector $\tau$.
+If this system is homogeneous-- there exists
+some non-trivial vector $x$ that satisfies the equation--
+then the algorithm returns true.
+Otherwise, the algorithm returns false.
+
+Both Childs and Reichardt mathematically formulate
+algorithms for turning the results of the SDP we solved
+into a span program \cite{reichardt2009span, childs}.
+To begin, we must construct a set of vectors
+$\bra{v_{y,i}}$ for all $y \in D$ where $i = [n]$.
+Given any two input strings $y, z \in D$ such that $y\neq z$,
+\begin{align}
+    \sum_{i: y_i \ne z_i} \braket{v_{y,i}|v_{z,i}} = 1 - \delta_{f(y), f(z)} \nonumber
+\end{align}
+where $\delta_{f(y), f(z)} = 1$ if $f(y) = f(z)$ and $0$ otherwise.
+
+Recall from \cref{Eq:reichardt_F0} that $\X$ satisfies
+\begin{align}
+    \forall (y,z) \in F \sum_{j \in [n]: y_j \ne z_j} 
+    \bra{y,j} \X \ket{z, j} = 1 \nonumber.
+\end{align}
+We would like to construct $\bra{v_{y,i}}$ and $\ket{v_{z,i}}$
+from $\X$.
+So we define a matrix $L$ such that $L^\dagger L = \X$.
+Then $\bra{v_{y,i}} = \bra{y_i}L^\dagger$.
+We can now reformulate the requirement of vectors $\bra{v_{y,i}}$
+as
+\begin{align}
+    \sum_{i: y_i \ne z_i} \braket{v_{y,i}|v_{z,i}} &= \sum_{i: y_i \ne z_i}
+    \bra{y,i} L^\dagger L \ket{z, i} \nonumber \\
+    &= \sum_{i: y_i \ne z_i} \bra{y,i} \X \ket{z, i} = \begin{cases}
+        1 & f(y) \ne f(z) \\
+        0 & f(y) = f(z)
+    \end{cases} \nonumber 
+\end{align}
+The constraints enforce the $f(y) \neq f(z)$ case and we programatically
+check the $f(y) = f(z)$ case before returning $\X$.
+
+Given the set of vectors $\bra{v_{y,i}}$ for all $y \in
+D$, $i = 0, 1, \ldots , n-1$, we construct 
+matrix $I$ that contains the vectors for the span
+program. We will make use of the sets $F_i =
+\{y \in D: f(y) = i\}$.
+(Note that $F_i[k]$ denotes the $k^{th}$ element of $F_i$.)
+
+\begin{align}\label{input_vectors}
+    I = \sum_{k \in [|F_0|], j \in [n], y = F_0[k]}
+    \ket{k}\bra{j, \overline{y_j}} \bra{v_{y,j}}
+\end{align}
+
+This matrix $I$ is divided into sub-matrices that
+correspond to different bits in the input to the
+algorithm.
+The columns of $I$ are evenly divided into
+$n$ chunks corresponding to each input bit.
+Each of these sub-matrices is further evenly divided into a left and
+right sub-matrix, corresponding to a $0$ or $1$
+in the relevant bit of the input.
+Let $I(y)$ be the set of columns in 
+$I$ that are available on input $y \in D$.
+The target vector $\tau$ 
+is a vector of ones vector with the same 
+dimension as $I$.
+The output is true if and only if the available
+vectors $I(y)$ span to $\tau$.
+Reichardt proves that the span program $I$ 
+and $\tau$ is a query optimal 
+quantum algorithm for $f$ \cite{reichardt2009span}.
