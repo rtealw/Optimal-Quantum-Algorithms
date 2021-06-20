@@ -1,0 +1,44 @@
+\section{Introduction}
+
+Our aim is to provide a tool with which one can easily identify 
+the optimal quantum query complexity as well as corresponding 
+query optimal quantum algorithm for a given Boolean function. This
+gives researchers an easy 
+way to identify problems for which a quantum computer 
+is better suited than a classical computer. It has been shown that
+there are many functions for which this is the case, such as
+search and factoring.
+
+We say that a function is better suited to a quantum computer than a classical computer if a quantum computer could evaluate the function more efficiently. Generally, we would measure this efficiency by runtime, but the runtime of a quantum computer for a given function is difficult to calculate. Instead, we can approximate the runtime with the algorithm's query complexity. To evaluate a function the algorithm must query the inputs to gain information about the given problem and the number of queries required is the query complexity.
+
+For example, if we take a look at the search function, which is a generalization of the single bit OR function, where there is a bit string input and we return a $1$ to indicate that there is a one somewhere in the input bitstring, and a $0$ if there is not. In a classical computer, in the worst case, we would need to examine all input bits to evaluate this function, which would take $n$ queries for a bitstring of length $n$. However, there exists a quantum implementation of the search function that only requires $\sqrt{n}$ queries of the input bitstring \cite{grover1996fast}--- this is the query optimal quantum algorithm. In this case, there is a large advantage in using a quantum computer as opposed to a classical computer. 
+
+While the optimal quantum query complexity of the search function has been shown to be $\sqrt{n}$, and the query optimal quantum algorithm is known, it is clearly of great interest to identify other functions like search where it would be substantially more efficient to use a quantum computer instead of a classical one. To aid in this search, we have implemented an algorithm that takes a Boolean function and returns the optimal quantum query complexity as well as the query optimal quantum algorithm in the form of a span program. We hope that these results can help build more efficient quantum algorithms and help us better understand the advantages of quantum computers.
+
+\begin{comment}
+Given
+
+Why quantum computers
+Why we care about query complexity
+
+Quantum computers have many advantages over classical computers as
+algorithms for a given function can be substantially less time
+complex on quantum computers. More specifically, in many of these
+examples, such as search and factoring, quantum computers require
+significantly fewer queries of the function input. For an
+example, a classic search algorithm for a bit string of length
+$n$ could take up to $n$ queries to see if a $1$ is present.
+However, quantum computers only require $\sqrt{n}$ queries of the
+input.
+
+It is then of great interest to identify these functions to
+understand the advantages of quantum computers over classical
+computers. We implement such a tool for Boolean functions. We
+calculate the asymptotic quantum query complexity of a given
+function which provides a lower bound of run time for a quantum
+computer. Furthermore, for each Boolean function, we can also
+provide a query optimal quantum algorithm such that this optimal
+algorithm could be implemented to achieve the potential
+improvement over classical computers.
+
+\end{comment}

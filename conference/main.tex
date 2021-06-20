@@ -1,65 +1,76 @@
-\documentclass[acmtog]{acmart}
-%acmtog if we're feeling a little funky ;)
+\documentclass[]{article}
+% twoside,leqno,twocolumn
+\twocolumn
 
 \usepackage{booktabs, braket} % For formal tables
+\usepackage{amsmath}
 \usepackage{cleveref}
 \usepackage{graphicx}
 \usepackage{blkarray}
+\usepackage{comment}
+\usepackage[algo2e]{algorithm2e}
 
-\settopmatter{printacmref=false} % Removes citation info after abstract
-\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference informat\textbf{}ion in first column
-\usepackage{fancyhdr}
+\usepackage{ltexpprt} % alenex format
 
-\DeclareMathOperator{\X}{\mathbb{X}}		     % expected value
+\DeclareMathOperator{\X}{X}
 \DeclareMathOperator{\tr}{\text{tr}}		     % trace
 \DeclareMathOperator{\Ap}{$A$ ^\prime} 		     % A'
 \DeclareMathOperator{\bp}{$b$ ^\prime} 		     % b'
 \DeclareMathOperator{\Xb}{\mathcal{X}}		     % big X
- 
-\pagestyle{fancy}
-\fancyhf{}
-\lhead{Czekanski \& Witter, Fall 2019}
-\rfoot{\thepage}
-\newcommand{\todo}[1]{{\color{red}{[{\bf TODO:} #1]}}}
-
-%\pagestyle{plain} % removes running heades
-
-% Use the "authoryear" citation style, and make sure citations are in [square brackets].
-\citestyle{acmauthoryear}
-\setcitestyle{square}
-
-% A useful command for controlling the number of authors per row.
-% The default value of "authorsperrow" is 2.
-\settopmatter{authorsperrow=1}
+\DeclareMathOperator{\A}{\mathcal{A}}
+\DeclareMathOperator{\R}{\mathbb{R}}
 
 \begin{document}
 
+\newcommand{\todo}[1]{{\color{red}{[{\bf TODO:} #1]}}}
 
-% Title. 
-% If your title is long, consider \title[short title]{full title} - "short title" will be used for running heads.
-\title[Optimal Quantum Algorithms via Semidefinite Programming]{Semidefinite Program Solver to 
-Find the Optimal Quantum Query Complexity
-and Query Optimal Quantum Algorithm
-of Boolean Functions}
+\title{Optimal Quantum Algorithms via Semidefinite Programming}
 
-% please leave the subtitle!
-\subtitle{Middlebury College, Fall 2019}
+% Comment out for submission
+\author{Michael Czekanski
+\and R. Teal Witter
+\thanks{Department of Computer Science and Engineering, NYU Tandon}}
 
-% Authors.
-\author{Michael Czekanski}
-\affiliation{%
-  \institution{Middlebury College}}
-
-\author{R. Teal Witter}
- \affiliation{%
-   \institution{Middlebury College}}
+\date{}
 
 \maketitle
 
-\graphicspath{{./../figures/}}
-% a couple of paragraphs describing your project
-\section*{Abstract}
+% Copyright statement
+\fancyfoot[R]{\scriptsize{Copyright \textcopyright\ 2020 by SIAM\\
+Unauthorized reproduction of this article is prohibited}}
 
+\graphicspath{{./../figures/}}
+
+\begin{abstract}
+ \begin{enumerate}
+    \item Optimal quantum query complexity
+    \item Worst case inputs
+    \item span program to solve
+    \item arbitrary precision
+    \item comparison to another solver?
+    \item problem specific SDP enhancements
+\end{enumerate}
+
+
+
+Improvements in quantum computing research have led to an
+increased focus on the development of quantum algorithms. This
+field is of great interest as it has been shown that quantum 
+computers are more efficient at solving certain problems than 
+their classical counterparts. Thus the identification of such 
+problems is an important part of quantum computing research. We 
+implement an algorithm that can calculate the optimal quantum 
+query complexity for a given Boolean function as well as the 
+corresponding quantum algorithm. This tool should allow 
+researchers to easily identify Boolean functions for which 
+quantum computers would be much more efficient as well as provide the details for implementation. More formally, we solve a 
+semidefinite programming problem for a given function $f$ to 
+calculate the fewest number of queries of the an input that a 
+quantum computer would need to evaluate $f$ and use the results 
+of this optimization problem to provide the corresponding span 
+program that is optimally solved by a quantum computer.
+
+\begin{comment}
 We implement an algorithm that takes in a 
 Boolean function and outputs the optimal
 quantum query complexity of the function 
@@ -79,18 +90,17 @@ programming (SDP) problem.
 The SDP solution also provides a span program 
 that evaluates $f$ in optimal
 quantum query complexity. Our numerical results prove to be in line with general analytic understanding, and the span programs we implement are shown to correctly evaluate the given function.
+\end{comment}
+\end{abstract}
 
-% the other sections
-\input{sec/1_introduction.tex}
-\input{sec/2_methodology.tex}
-\input{sec/3_results.tex}
-\input{sec/4_conclusions.tex}
 
-% select the reference format (leave this)
-\bibliographystyle{ACM-Reference-Format}
+\input{sec/intro.tex}
+\input{sec/background.tex}
+\input{sec/implementation.tex}
+\input{sec/results.tex}
+\input{sec/discussion.tex}
 
-% specify the bibliography (.bib) file
-% place your references in this bib file
+\bibliographystyle{abbrv}
 \bibliography{main}
 
 \end{document}
