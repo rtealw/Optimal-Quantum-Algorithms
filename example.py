@@ -29,7 +29,7 @@ solutions = qqo.runSDPForN(getD=qqo.getDAll, getE=qqo.getEOR, n_end=4, n_start=4
 #qqo.visualizeComplexity(parity_solutions, functions=[lambda x:x], labels=['Empirical', 'Analytical'], title="Complexity of Parity by Input Size", filename='figures/parity_complexity.eps')
 
 A = np.matrix([[1,0, 0], [0,1, 1], [0,1, 1], [0,1, 1]]).T # A are vectors for the span program
-t = np.matrix([[0], [1], [1]]) # t is the target, it's worth noting that we always have a target vector of all ones
+t = np.matrix([[1], [1], [1]]) # t is the target, it's worth noting that we always have a target vector of all ones
 basis = orth(A) # create an orthogonal basis of columns of A
 print("A", A)
 print(np.linalg.matrix_rank(A))
@@ -63,5 +63,6 @@ print(old_target[0])
 print("compressing")
 
 new_span, new_target = compress_span_program(old_span[0], np.matrix(old_target[0]))
+print(new_span.shape)
 print(new_span)
 print(new_target)
