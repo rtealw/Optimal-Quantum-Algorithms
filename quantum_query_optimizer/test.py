@@ -12,7 +12,7 @@ def testSDPSolver(n_end=5, accuracy = 3):
     '''
     all_passed = True
     for n in range(1, n_end + 1):
-        print("Testing SDP solver on OR for n = {}...".format(n), end=" ")
+        print("Testing SDP solver on OR for n = {}...".format(n))
         D = [np.binary_repr(i, width=n) for i in range(2**n)]
         E = ['1' if '1' in x else '0' for x in D]
         solution = wrapSDPSolver(D=D, E=E, run_checks=True)
