@@ -3,10 +3,12 @@ name: Run tests
 on:
    push:
       branches:
-         - ["master", "dev"]
+         - master
+         - dev
    pull_request:
       branches:
-         - ["master", "dev"]
+         - master
+         - dev
 
 jobs:
    test:
