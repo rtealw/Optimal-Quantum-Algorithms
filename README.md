@@ -1,9 +1,13 @@
 # QuantumQueryOptimizer
-### By R. Teal Witter and Michael T. Czekanski
 #### A toolkit to find the optimal quantum query complexity and query optimal quantum algorithm of arbitrary Boolean functions.
 
+We present this toolkit in our paper titled
+"Robust and Space-Efficient Dual Adversary Quantum Query Algorithms".
+The code, data, and figures for the experiments in the paper can 
+be found in the `paper/` folder.
+
 Consider a function f that maps from D to E where D is a subset of bitstrings
-of length n and E is the set of single bit outputs.
+of length n and E is the corresponding set of single bit outputs.
 In the query model, an algorithm looks at the bits of the input string x in D
 as few times as possible before correctly determing f(x).
 Given f, our program finds the optimal query complexity of a quantum algorithm
@@ -74,7 +78,7 @@ and query optimal span program (`Lemma 6.5`) in
 The general adversary bound is nearly tight for every boolean function](https://arxiv.org/pdf/0904.2759.pdf).
 
 ## Alternating Direction Method
-To solve Reichardt's SDP,
+To solve the SDP,
 we use Zaiwen Wen, Donald Goldfarb, and Wotao Yin's
 `Algorithm 1` described in
 [Alternating direction augmented Lagrangian methods for semidefinite programming](http://mpc.zib.de/index.php/MPC/article/viewFile/40/20).
