@@ -81,6 +81,6 @@ def getConstraints(D, E):
     b_1 = np.ones((len(F), 1), dtype = np.float32)
     b = np.concatenate((b_0, b_1), axis=0)
 
-    C = sparse.csr_matrix(np.zeros((dimension, dimension)))
+    C = sparse.lil_matrix(np.zeros((dimension, dimension)))
     C[- 1, - 1] = 1
     return constraints, b, C

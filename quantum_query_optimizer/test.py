@@ -1,8 +1,8 @@
 import numpy as np
-from quantum_query_optimizer import wrapSDPSolver
 from termcolor import cprint 
+from __init__ import wrapSDPSolver
 
-def testSDPSolver(n_end=5, accuracy = 3):
+def testSDPSolver(n_end=4, accuracy = 3):
     '''
         Parameters:
             n_end : highest number of bit strings

@@ -111,7 +111,7 @@ def checkSpanProgram(D, E, I, t, tolerance=1e-10):
     for x_index in range(len(D)):
         Ix = getIx(I=I, x=D[x_index], num_inputs=len(D))
         t = np.matrix(t)
-        linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t)
+        linear_combo, residuals, rank, s = np.linalg.lstsq(a=Ix, b=t, rcond=None)
         closest_vector = Ix.dot(linear_combo)
         residual = np.sum(np.square(closest_vector - t))
         if (residual < tolerance) == (E[x_index] == '0'):

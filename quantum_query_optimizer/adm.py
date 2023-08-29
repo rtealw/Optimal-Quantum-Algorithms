@@ -168,12 +168,12 @@ def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=68, max_iter
     initial_shape = C.shape
 
     # Intialize values
-    S = sparse.csr_matrix(np.eye(initial_shape[0], dtype=np.float32))
-    X = sparse.csr_matrix(np.zeros(initial_shape, dtype=np.float32))
+    S = sparse.lil_matrix(np.eye(initial_shape[0], dtype=np.float32))
+    X = sparse.lil_matrix(np.zeros(initial_shape, dtype=np.float32))
     old_z = X[-1, -1]
     A = plainA(constraints=constraints, dimension=initial_shape[0])
-    pinvAAt = sparse.csr_matrix(np.linalg.pinv(np.matmul(A, A.T)))
-    A = sparse.csr_matrix(A)
+    pinvAAt = sparse.lil_matrix(np.linalg.pinv(np.matmul(A, A.T)))
+    A = sparse.lil_matrix(A)
 
     # Iteratively solve SDP
     for iteration in range(max_iterations):

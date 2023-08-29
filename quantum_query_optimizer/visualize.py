@@ -17,7 +17,7 @@ def setup(xvar, xlabel, ylabel, title):
     plt.title(title)
     plt.xticks(xvar)
 
-def visualizeRuntime(solutions, title="Runtime by Input Size", filename="RuntimeByInputSize.eps", labels=[], more_runtimes=[]):
+def visualizeRuntime(solutions, title="Runtime by Input Size", filename=None, labels=[], more_runtimes=[]):
     '''
         Parameters:
             solutions : solutions dictionary from SDP solution
@@ -38,10 +38,13 @@ def visualizeRuntime(solutions, title="Runtime by Input Size", filename="Runtime
         label_num += 1
     if label_yes:
         plt.legend()
-    plt.savefig(filename)
+    if filename == None:
+        plt.show()
+    else:
+        plt.savefig(filename)
     plt.close() 
 
-def visualizeComplexity(solutions, title="Query Complexity by Input Size", filename="ComplexityByInputSize.eps", labels=[], functions=[], more_queries=[]):
+def visualizeComplexity(solutions, title="Query Complexity by Input Size", filename=None, labels=[], functions=[], more_queries=[]):
     '''
         Parameters:
             solutions : solutions dictionary from SDP solution
@@ -67,5 +70,8 @@ def visualizeComplexity(solutions, title="Query Complexity by Input Size", filen
         label_num += 1
     if not label_no:
         plt.legend()
-    plt.savefig(filename)
+    if filename==None:
+        plt.show()
+    else:
+        plt.savefig(filename)
     plt.close() 

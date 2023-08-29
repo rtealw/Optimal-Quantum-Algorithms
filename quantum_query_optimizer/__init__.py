@@ -2,7 +2,6 @@ import numpy as np
 import time
 import sys
 import cProfile
-import warnings
 
 import sys
 import os 
@@ -17,10 +16,7 @@ from span_program import getSpanProgram
 from visualize import *
 from boolean_functions import *
 
-if not sys.warnoptions:
-    warnings.simplefilter("ignore")
-
-def wrapSDPSolver(D, E, run_checks=True):
+def wrapSDPSolver(D, E, run_checks=False):
     '''
         Parameters:
             D : Boolean inputs
@@ -50,7 +46,7 @@ def wrapSDPSolver(D, E, run_checks=True):
         "n_bitstring" : len(D[0])
     }
 
-def runSDP(D, E, print_output=True, round_to=3, run_checks=True):
+def runSDP(D, E, print_output=True, round_to=3, run_checks=False):
     '''
         Parameters:
             D : Boolean inputs
