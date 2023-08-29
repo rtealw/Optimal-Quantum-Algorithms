@@ -68,7 +68,7 @@ Number of Iterations: 73
 Run Time: 0.058 seconds
 ```
 
-(You can find both examples in `quickstart.ipynb`.)
+(You can find more examples in `demo.ipynb`.)
 
 ## Semidefinite Program Formulation
 We use Ben Reichardt's formulation of the SDP for
