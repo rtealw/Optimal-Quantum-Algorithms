@@ -29,7 +29,7 @@ def visualizeRuntime(solutions, title="Runtime by Input Size", filename=None, la
         This function visualizes runtime data
     '''
     xvar = [int(n) for n in solutions['n_bitstring']]
-    setup(xvar=xvar, xlabel='Runtime (seconds)', ylabel='Queries', title=title) 
+    setup(xvar=xvar, xlabel='Input size (n)', ylabel='Runtime (seconds)', title=title) 
     label_yes = len(labels) == 1 + len(more_runtimes)
     label_num = 0
     for runtimes in [solutions['run_time']] + more_runtimes:
