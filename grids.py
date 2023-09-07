@@ -40,7 +40,7 @@ def is_directed_path(labels, x_str, nrows, ncols):
     return '0'
 
 nrows = 2
-ncols = 2
+ncols = 3
 labels = get_boolean_labels(nrows, ncols)
 n = len(labels)
 D = qqo.getDAll(n)

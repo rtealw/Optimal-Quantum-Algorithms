@@ -103,18 +103,22 @@ def build_hard_instances(p, correspondance):
     xs += build_single_hard(p, points_on_line, correspondance)
     return xs
 
-p = 2
-labels = get_boolean_labels(p)
-n = len(labels)
-correspondance = dict(zip(labels, range(n)))
+def build_input_and_output(p):
+    labels = get_boolean_labels(p)
+    n = len(labels)
+    correspondance = dict(zip(labels, range(n)))
 
-xs = build_hard_instances(p, correspondance)
-negated_xs = []
+    xs = build_hard_instances(p, correspondance)
 
-for x in xs:
-    negated_x = ''.join(['1' if x[index] == '0' else '0' for index in range(n)])
-    negated_xs += [negated_x]
+    # Negate each bit
+    negated_xs = []
+    for x in xs:
+        negated_x = ''.join(['1' if x[index] == '0' else '0' for index in range(n)])
+        negated_xs += [negated_x]
 
-D = xs + negated_xs
-E = [is_line_present(p, dict(zip(labels, x))) for x in D]
+    D = xs + negated_xs
+    E = [is_line_present(p, dict(zip(labels, x))) for x in D]
+    return D, E
+
+D, E = build_input_and_output(p=3)
 solutions = qqo.runSDP(D=D, E=E)

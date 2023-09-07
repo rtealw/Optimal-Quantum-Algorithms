@@ -6,3 +6,5 @@ settings.json
 build
 dist
 quantum_query_optimizer.egg-info
+overlay*
+hpc_output
