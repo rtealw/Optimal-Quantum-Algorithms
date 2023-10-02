@@ -35,13 +35,13 @@ def wrapSDPSolver(D, E, run_checks=False):
     starting_time = time.time()
     constraints, b, C = getConstraints(D=D, E=E)
     X, num_iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
-    I, t = getSpanProgram(X=X,D=D,E=E,run_checks=run_checks) if X[-1,-1] > 0 else (0,0)
+    #I, t = getSpanProgram(X=X,D=D,E=E,run_checks=run_checks) if X[-1,-1] > 0 else (0,0)
     return {
         "query_complexity" : X[-1,-1],
         "matrix_solution" : X,
         "num_iteration" : num_iteration,
-        "span_vectors" : I,
-        "target_vector" : t,
+        #"span_vectors" : I,
+        #"target_vector" : t,
         "run_time" : time.time() - starting_time,
         "n_bitstring" : len(D[0])
     }

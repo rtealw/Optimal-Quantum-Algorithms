@@ -16,7 +16,7 @@ def plainA(constraints, dimension):
         Returns:
             A.T : a matrix equal to the plain A in Wen et al.'s paper
     '''
-    A = np.zeros((dimension**2, len(constraints)), dtype=np.float32)
+    A = sparse.lil_matrix((dimension**2, len(constraints)), dtype=np.float32)
     for constraint_index in range(len(constraints)):
         constraint = constraints[constraint_index]
         for entry_index in range(len(constraint["V"])):
@@ -55,11 +55,12 @@ def scriptAStar(A, y):
             y : current y value as defined in Wen et al.'s paper (eq. 7)
         Returns: a matrix equivalent to the script A* in Wen et al.'s paper (p. 206)
     '''
+    y = sparse.lil_matrix(y).T
     product = A.T.dot(y)
-    dimension = int(np.sqrt(len(product)))
+    dimension = int(np.sqrt(product.shape[0]))
     return product.reshape((dimension, dimension))
 
-def nextY(S, X, C, b, mu, pinvAAt, constraints):
+def nextY(S, X, C, b, mu, constraints, A):
     '''
         Parameters:
             S : matrix S (eq. 6b)
@@ -72,10 +73,14 @@ def nextY(S, X, C, b, mu, pinvAAt, constraints):
                 from getContraints in constraints.py
         Returns: a matrix equivalent to y in Wen et al.'s paper (eq. 6a)
     '''
-    matrix = -1 * pinvAAt
     vector_a = mu * (scriptA(constraints=constraints, X=X) -b)
     vector_b = scriptA(constraints=constraints, X=S-C)
-    return matrix.dot(vector_a + vector_b)
+
+    # Instead of A^-1 b, solve for x in Ax = b
+    vector = -1 * (vector_a + vector_b)
+    result2 = sparse.linalg.spsolve(A @ A.T, vector)
+
+    return result2
 
 def decomposeV(V):
     '''
@@ -85,6 +90,8 @@ def decomposeV(V):
            sigma_plus : positive eigenvalues of V
            Q_plus : eigenvectors of V corresponding to elements of sigma_plus
     '''
+    if sparse.issparse(V):
+        V = V.toarray()
     unordered_vals, unordered_vecs = np.linalg.eigh(V)
 
     # Order eigenvalues and corresponding eigenvectors
@@ -168,16 +175,14 @@ def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=68, max_iter
     initial_shape = C.shape
 
     # Intialize values
-    S = sparse.lil_matrix(np.eye(initial_shape[0], dtype=np.float32))
-    X = sparse.lil_matrix(np.zeros(initial_shape, dtype=np.float32))
+    S = sparse.identity(initial_shape[0], dtype=np.float32)
+    X = sparse.lil_matrix(initial_shape, dtype=np.float32)
     old_z = X[-1, -1]
     A = plainA(constraints=constraints, dimension=initial_shape[0])
-    pinvAAt = sparse.lil_matrix(np.linalg.pinv(np.matmul(A, A.T)))
-    A = sparse.lil_matrix(A)
 
     # Iteratively solve SDP
     for iteration in range(max_iterations):
-        y = nextY(S=S, X=X, C=C, b=b, mu=mu, pinvAAt = pinvAAt, constraints=constraints)
+        y = nextY(S=S, X=X, C=C, b=b, mu=mu, constraints=constraints, A=A)
         V = nextV(C=C, A=A, mu=mu, X=X, y=y)
         S = nextS(V)
         X = nextX(mu=mu, S=S, V=V)
