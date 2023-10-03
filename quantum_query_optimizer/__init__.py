@@ -16,7 +16,7 @@ from span_program import getSpanProgram
 from visualize import *
 from boolean_functions import *
 
-def wrapSDPSolver(D, E, run_checks=False):
+def wrapSDPSolver(D, E, run_checks=False, verbose=False):
     '''
         Parameters:
             D : Boolean inputs
@@ -34,7 +34,7 @@ def wrapSDPSolver(D, E, run_checks=False):
     '''
     starting_time = time.time()
     constraints, b, C = getConstraints(D=D, E=E)
-    X, num_iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6)
+    X, num_iteration = solveSDP(constraints=constraints, b=b, C=C, accuracy=1e-6, verbose=verbose)
     #I, t = getSpanProgram(X=X,D=D,E=E,run_checks=run_checks) if X[-1,-1] > 0 else (0,0)
     return {
         "query_complexity" : X[-1,-1],
@@ -46,7 +46,7 @@ def wrapSDPSolver(D, E, run_checks=False):
         "n_bitstring" : len(D[0])
     }
 
-def runSDP(D, E, print_output=True, round_to=3, run_checks=False):
+def runSDP(D, E, print_output=True, round_to=3, run_checks=False, verbose=False):
     '''
         Parameters:
             D : Boolean inputs
@@ -69,7 +69,7 @@ def runSDP(D, E, print_output=True, round_to=3, run_checks=False):
         print("D:", D)
         print("E:", E)
 
-    solution = wrapSDPSolver(D=D, E=E, run_checks=run_checks)
+    solution = wrapSDPSolver(D=D, E=E, run_checks=run_checks, verbose=verbose)
 
     if print_output:
         print("Optimal Query Complexity:", np.round(solution['query_complexity'], round_to))

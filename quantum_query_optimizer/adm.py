@@ -156,7 +156,7 @@ def simplifyX(X, tolerance=1e-5):
     X[idx1] = 1
     return X
 
-def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=68, max_iterations=421):
+def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=68, max_iterations=421, verbose=False):
     '''
         Parameters:
             contraints : list of dictionaries that contains constraints
@@ -188,6 +188,8 @@ def solveSDP(constraints, b, C, accuracy=1e-5, mu=1, min_iterations=68, max_iter
         X = nextX(mu=mu, S=S, V=V)
         X = simplifyX(X=X)
 
+        if verbose:
+            print(f'Iteration: {iteration} \t Value: {X[-1, -1]}')
         # Check if objective value is stabilizing and stopping conditions are met
         if np.absolute(X[-1, -1] - old_z) < accuracy and iteration > min_iterations:
             break
